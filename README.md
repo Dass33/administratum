@@ -1,13 +1,12 @@
-# Administratum
-
+# 📜 Administratum
 Makes config to web apps more accessible.
 
-## Technologies
+## 🛠️ Technologies
 
-*frontend*:
-    - TypeScript
-    - React
-    - TailWind
+🖥️ **frontend**:
+- TypeScript
+- React
+- TailWind
 
-*backend*:
-    - Golang
+⚙️ **backend**:
+- Golang
