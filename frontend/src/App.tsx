@@ -13,7 +13,7 @@ function App() {
     const { cellModal } = useApp()
 
     return (
-        <div className='bg-figma-white h-screen pl-10 pr-5 flex flex-row xl:gap-16'>
+        <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row xl:gap-16'>
             {cellModal && <CellModal />}
             <div className="flex flex-col flex-grow my-10">
                 <div className="flex flex-row gap-4">
