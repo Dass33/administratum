@@ -8,10 +8,23 @@ import Table from "./table";
 
 GameView
 function App() {
-
+    const sampleData = [
+        { name: "John", age: 30, city: "New York", active: true },
+        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
+        { name: "Bob", age: 35, active: false, salary: 75000 },
+        { name: "John", age: 30, city: "New York", active: true },
+        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
+        { name: "Bob", age: 35, active: false, salary: 75000 },
+        { name: "John", age: 30, city: "New York", active: true },
+        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
+        { name: "Bob", age: 35, active: false, salary: 75000 },
+        { name: "John", age: 30, city: "New York", active: true },
+        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
+        { name: "Bob", age: 35, active: false, salary: 75000, questions: "this is a quesetions?", config: "hhhellaaaaaaaakfjklsadfaellaaaaaaaakfjklsadfahellaaaaaaaakfjklsadfaellaaaaaaaakfjklsadfa" },
+    ];
     return (
-        <div className='bg-figma-white h-screen px-10 flex flex-row'>
-            <div className="flex flex-col flex-grow mt-10">
+        <div className='bg-figma-white h-screen px-10 flex flex-row xl:gap-16'>
+            <div className="flex flex-col flex-grow my-10">
                 <div className="flex flex-row gap-4">
                     <SaveButton />
 
@@ -22,8 +35,8 @@ function App() {
                     </div>
                     <Permissions />
                 </div>
-                <div className="mt-10">
-                    <Table />
+                <div className="mt-10 grow">
+                    <Table data={sampleData} />
                 </div>
                 <div className="bottom-1 absolute my-2">
                     <BottomBar />
