@@ -1,8 +1,12 @@
+import { useApp } from "./AppContext";
+
 export interface JsonTableProps<T = Record<string, any>> {
     data: T[];
 }
 
 const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
+    const { setShowCellModal } = useApp()
+
     const getAllColumns = (dataArray: T[]): string[] => {
         const columns = new Set<string>();
         dataArray.forEach(obj => {
@@ -43,9 +47,9 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
 
     if (data.length === 0) {
         return (
-            <div className="max-w-full mx-auto">
+            <div className="mx-auto">
                 <div className="rounded-lg p-6">
-                    <div className="p-3 bg-yellow-100 border border-yellow-300 text-yellow-700 rounded-md">
+                    <div className="p-3 w-52 bg-yellow-100 border border-yellow-300 text-yellow-700 rounded-md">
                         No data to display
                     </div>
                 </div>
@@ -57,7 +61,7 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
 
     return (
         <div className="max-w-full mx-auto">
-            <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[calc(100vw-550px)]">
+            <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[calc(100vw-500px)]">
                 <table className="table-fixed border-separate border-spacing-5 w-full">
                     <colgroup>
                         {columns.map((_, idx) => (
@@ -75,6 +79,7 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
                                 </th>
                             ))}
                         </tr>
+                        <tr></tr>
                     </thead>
                     <tbody>
                         {data.map((row, rowIdx) => (
@@ -84,7 +89,13 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
                                         key={colIdx}
                                         className="border border-gray-300 px-2 py-1 text-sm truncate"
                                     >
-                                        {renderCellValue(row[col])}
+                                        <button
+                                            type="button"
+                                            className="w-full text-left focus:outline-none"
+                                            onClick={() => setShowCellModal(true)}
+                                        >
+                                            {renderCellValue(row[col])}
+                                        </button>
                                     </td>
                                 ))}
                             </tr>
