@@ -9,8 +9,8 @@ GameView
 function App() {
 
     return (
-        <div className='bg-figma-white h-screen pt-10 px-10 flex flex-row'>
-            <div className="flex flex-col flex-grow">
+        <div className='bg-figma-white h-screen px-10 flex flex-row'>
+            <div className="flex flex-col flex-grow mt-10">
                 <div className="flex flex-row">
                     <SaveButton />
 
@@ -23,7 +23,7 @@ function App() {
                 <div className="mt-10">
                     <Table />
                 </div>
-                <div className="bottom-0 absolute my-2">
+                <div className="bottom-1 absolute my-2">
                     <BottomBar />
                 </div>
             </div>
