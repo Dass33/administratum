@@ -13,7 +13,7 @@ function GameView() {
                         title="Embedded Website"
                     />
                 </div>
-                <button className="mx-4 size-8 hover:scale-125 transition-transform duration-200" >
+                <button className="mx-4 size-8 hover:scale-125 transition-transform duration-100" >
                     <img
                         src={expand}
                         alt="dropdown arrow"
