@@ -1,13 +1,14 @@
+import { useEffect } from "react";
 import { useApp } from "./AppContext";
 
-export interface JsonTableProps<T = Record<string, any>> {
-    data: T[];
-}
+const Table = () => {
+    const { setCellModal, currTable } = useApp()
 
-const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
-    const { setShowCellModal } = useApp()
+    useEffect(() => {
+        localStorage.setItem('currTable', JSON.stringify(currTable));
+    }, [currTable]);
 
-    const getAllColumns = (dataArray: T[]): string[] => {
+    const getAllColumns = (dataArray: Record<string, any>[]): string[] => {
         const columns = new Set<string>();
         dataArray.forEach(obj => {
             if (typeof obj === 'object' && obj !== null) {
@@ -17,23 +18,7 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
         return Array.from(columns);
     };
 
-    const renderCellValue = (value: any): JSX.Element => {
-        if (value === null || value === undefined) {
-            return <span className="text-gray-400">null</span>;
-        }
-        if (typeof value === 'object') {
-            return <span className="text-blue-600">{JSON.stringify(value)}</span>;
-        }
-        if (typeof value === 'boolean') {
-            return <span className={value ? 'text-green-600' : 'text-red-600'}>{String(value)}</span>;
-        }
-        if (typeof value === 'number') {
-            return <span className="text-purple-600">{value}</span>;
-        }
-        return <span className="text-gray-800">{String(value)}</span>;
-    };
-
-    if (!Array.isArray(data)) {
+    if (!Array.isArray(currTable)) {
         return (
             <div className="max-w-full mx-auto">
                 <div className="rounded-lg p-6">
@@ -45,7 +30,7 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
         );
     }
 
-    if (data.length === 0) {
+    if (currTable.length === 0) {
         return (
             <div className="mx-auto">
                 <div className="rounded-lg p-6">
@@ -57,12 +42,12 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
         );
     }
 
-    const columns = getAllColumns(data);
+    const columns = getAllColumns(currTable);
 
     return (
         <div className="max-w-full mx-auto">
             <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[calc(100vw-500px)]">
-                <table className="table-fixed border-separate border-spacing-5 w-full">
+                <table className="table-fixed border-separate border-spacing-3 w-full">
                     <colgroup>
                         {columns.map((_, idx) => (
                             <col key={idx} className="w-40" />
@@ -73,7 +58,7 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
                             {columns.map((col, idx) => (
                                 <th
                                     key={idx}
-                                    className="border border-gray-300 px-2 py-1 text-left font-semibold text-gray-700 truncate"
+                                    className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 truncate"
                                 >
                                     {col}
                                 </th>
@@ -82,17 +67,17 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
                         <tr></tr>
                     </thead>
                     <tbody>
-                        {data.map((row, rowIdx) => (
+                        {currTable.map((row, rowIdx) => (
                             <tr key={rowIdx}>
                                 {columns.map((col, colIdx) => (
                                     <td
                                         key={colIdx}
-                                        className="border border-gray-300 px-2 py-1 text-sm truncate"
+                                        className="border border-gray-300 px-3 py-2 text-sm truncate"
                                     >
                                         <button
                                             type="button"
                                             className="w-full text-left focus:outline-none"
-                                            onClick={() => setShowCellModal(true)}
+                                            onClick={() => setCellModal([rowIdx, col])}
                                         >
                                             {renderCellValue(row[col])}
                                         </button>
@@ -106,5 +91,21 @@ const Table = <T extends Record<string, any>>({ data }: JsonTableProps<T>) => {
         </div>
     );
 };
+
+const renderCellValue = (value: any): JSX.Element => {
+    if (value === null || value === undefined) {
+        return <span className="text-gray-400">null</span>;
+    }
+    if (typeof value === 'object') {
+        return <span>{JSON.stringify(value)}</span>;
+    }
+    if (typeof value === 'boolean') {
+        return <span>{value ? "True" : "False"}</span>;
+    }
+    if (typeof value === 'number') {
+        return <span>{value}</span>;
+    }
+    return <span>{String(value)}</span>;
+}
 
 export default Table;
