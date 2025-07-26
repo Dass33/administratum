@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useApp } from "./AppContext";
+import plus from "./assets/plus.svg";
 
 const Table = () => {
-    const { setCellModal, currTable } = useApp()
+    const { setCellModal, currTable, setColModal } = useApp()
 
     useEffect(() => {
         localStorage.setItem('currTable', JSON.stringify(currTable));
@@ -23,7 +24,7 @@ const Table = () => {
             <div className="max-w-full mx-auto">
                 <div className="rounded-lg p-6">
                     <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
-                        Error: Data must be an array of objects
+                        Error: Data malformed
                     </div>
                 </div>
             </div>
@@ -45,8 +46,8 @@ const Table = () => {
     const columns = getAllColumns(currTable);
 
     return (
-        <div className="max-w-full mx-auto">
-            <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[calc(100vw-500px)]">
+        <div className="max-w-full mx-auto flex items-start">
+            <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[65vw] xl:max-w-[calc(100vw-500px)]">
                 <table className="table-fixed border-separate border-spacing-3 w-full">
                     <colgroup>
                         {columns.map((_, idx) => (
@@ -56,8 +57,7 @@ const Table = () => {
                     <thead>
                         <tr>
                             {columns.map((col, idx) => (
-                                <th
-                                    key={idx}
+                                <th key={idx}
                                     className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 truncate"
                                 >
                                     {col}
@@ -70,8 +70,7 @@ const Table = () => {
                         {currTable.map((row, rowIdx) => (
                             <tr key={rowIdx}>
                                 {columns.map((col, colIdx) => (
-                                    <td
-                                        key={colIdx}
+                                    <td key={colIdx}
                                         className="border border-gray-300 px-3 py-2 text-sm truncate"
                                     >
                                         <button
@@ -88,12 +87,17 @@ const Table = () => {
                     </tbody>
                 </table>
             </div>
+            <button className="ml-8 mt-2 text-[3rem] font-light hover:scale-125 transition-transform duration-100"
+                onClick={() => setColModal(true)}
+            >
+                <img src={plus} />
+            </button>
         </div>
     );
 };
 
 const renderCellValue = (value: any): JSX.Element => {
-    if (value === null || value === undefined) {
+    if (value === null || value === undefined || value === "") {
         return <span className="text-gray-400">null</span>;
     }
     if (typeof value === 'object') {

@@ -7,6 +7,8 @@ interface AppState {
     setCellModal: Function
     currTable: TableType
     setCurrTable: Function
+    colModal: boolean
+    setColModal: Function
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -32,11 +34,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const stored = localStorage.getItem('currTable');
         return stored ? JSON.parse(stored) : data;
     });
+    const [colModal, setColModal] = useState(false);
 
     return (
         <AppContext.Provider value={{
             cellModal, setCellModal,
-            currTable, setCurrTable
+            currTable, setCurrTable,
+            colModal, setColModal,
         }}>
             {children}
         </AppContext.Provider>

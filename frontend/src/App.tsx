@@ -7,14 +7,16 @@ import Permissions from "./permissions";
 import Table from "./table";
 import { useApp } from "./AppContext";
 import CellModal from "./cellModal";
+import ColModal from "./colModal";
 
 GameView
 function App() {
-    const { cellModal } = useApp()
+    const { cellModal, colModal } = useApp()
 
     return (
-        <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row xl:gap-16'>
+        <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row'>
             {cellModal && <CellModal />}
+            {colModal && <ColModal />}
             <div className="flex flex-col flex-grow my-10">
                 <div className="flex flex-row gap-4">
                     <SaveButton />

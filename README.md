@@ -12,7 +12,6 @@ Makes config to web apps more accessible.
 - Golang
 
 ## 🎒 TODO
-- fix: when cell emptied, can't be opened
 - columns types
     - type color
     - force values
