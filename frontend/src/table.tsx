@@ -1,23 +1,48 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "./AppContext";
 import plus from "./assets/plus.svg";
 
+
 const Table = () => {
-    const { setCellModal, currTable, setColModal } = useApp()
+    const {
+        setCellModal,
+        currTable,
+        setColModal,
+        columns, setColumns,
+    } = useApp()
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         localStorage.setItem('currTable', JSON.stringify(currTable));
     }, [currTable]);
 
-    const getAllColumns = (dataArray: Record<string, any>[]): string[] => {
-        const columns = new Set<string>();
-        dataArray.forEach(obj => {
-            if (typeof obj === 'object' && obj !== null) {
-                Object.keys(obj).forEach(key => columns.add(key));
-            }
-        });
-        return Array.from(columns);
-    };
+
+    useEffect(() => {
+        fetch('http://localhost:8080/admin')
+            .then(response => response.json())
+            .then(data => {
+                setColumns(data);
+                setLoading(false);
+            })
+            .catch(error => {
+                setError(error);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading || error) {
+        return (
+            <div className="max-w-full mx-auto">
+                <div className="rounded-lg p-6">
+                    <div className="p-3 text-figma-black rounded-md">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (!Array.isArray(currTable)) {
         return (
@@ -43,8 +68,6 @@ const Table = () => {
         );
     }
 
-    const columns = getAllColumns(currTable);
-
     return (
         <div className="max-w-full mx-auto flex items-start">
             <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[65vw] xl:max-w-[calc(100vw-500px)]">
@@ -60,7 +83,7 @@ const Table = () => {
                                 <th key={idx}
                                     className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 truncate"
                                 >
-                                    {col}
+                                    {col.name}
                                 </th>
                             ))}
                         </tr>
@@ -76,9 +99,9 @@ const Table = () => {
                                         <button
                                             type="button"
                                             className="w-full text-left focus:outline-none"
-                                            onClick={() => setCellModal([rowIdx, col])}
+                                            onClick={() => setCellModal([rowIdx, col.name])}
                                         >
-                                            {renderCellValue(row[col])}
+                                            {renderCellValue(row[col.name])}
                                         </button>
                                     </td>
                                 ))}

@@ -17,7 +17,7 @@ func main() {
 	}
 	apiCfg := apiConfig{}
 
-	h := http.HandlerFunc(apiCfg.request_count_handler)
+	h := http.HandlerFunc(apiCfg.testColumnHandler)
 	mux.Handle("GET /admin", h)
 
 	err := server.ListenAndServe()
@@ -27,10 +27,17 @@ func main() {
 	}
 }
 
-func (cfg *apiConfig) request_count_handler(wr http.ResponseWriter, req *http.Request) {
+func (cfg *apiConfig) testColumnHandler(wr http.ResponseWriter, req *http.Request) {
 	wr.Header().Set("Content-Type", "text/json")
 	wr.Header().Set("Access-Control-Allow-Origin", "*")
 	wr.WriteHeader(200)
-	content := `{"text": "hello from go"}`
+	content := `[
+{"name": "name", "columnType": "text", "required": true },
+{"name": "age", "columnType": "number", "required": false },
+{"name": "city", "columnType": "text", "required": false },
+{"name": "active", "columnType": "bool", "required": false },
+{"name": "salary", "columnType": "number", "required": false },
+{"name": "questions", "columnType": "text", "required": true }
+]`
 	wr.Write([]byte(content))
 }

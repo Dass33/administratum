@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react';
-import { useApp } from './AppContext';
+import React, { useEffect, useState } from 'react';
+import { useApp, ColumnProps } from './AppContext';
 import Dropdown from './dropdown';
 
 const ColModal = () => {
-    const { setColModal, } = useApp();
+    const {
+        setColModal,
+        columns, setColumns,
+    } = useApp();
 
     const colTypes = [
         { value: 'text', label: 'text' },
@@ -12,12 +15,23 @@ const ColModal = () => {
         { value: 'edition', label: 'edition' },
     ]
 
+    const [name, setName] = useState('');
+    const [columnType, setColumnType] = useState(colTypes[0]);
+    const [required, setRequired] = useState(false);
+
+
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
     };
 
     const saveAndExit = () => {
         setColModal(null);
+        const item: ColumnProps = {
+            name: name,
+            columnType: columnType.value,
+            required: required
+        }
+        setColumns([...columns, item])
     }
 
     useEffect(() => {
@@ -41,13 +55,14 @@ const ColModal = () => {
 
                 <input className='text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12 overflow-y-auto focus:outline-none'
                     placeholder='Name'
+                    onChange={(e) => setName(e.target.value)}
                 />
 
                 <div className='flex flex-row justify-between items-ceter'>
                     <h2 className="text-2xl pt-0.5 mr-4">Collumn type</h2>
                     <Dropdown
                         options={colTypes}
-                        onSelect={() => { }}
+                        onSelect={(val) => setColumnType(val)}
                     />
                 </div>
 
@@ -56,7 +71,10 @@ const ColModal = () => {
                     <Dropdown
                         options={[{ value: "false", label: "False" },
                         { value: "True", label: "True" }]}
-                        onSelect={() => { }}
+                        onSelect={(val) => {
+                            if (val.value === "True") setRequired(true)
+                            else setRequired(false)
+                        }}
                     />
                 </div>
             </div>
