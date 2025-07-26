@@ -28,7 +28,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, placeholder = "Select an o
         <div className="relative inline-block text-left">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-figma-white border border-figma-gray rounded-lg px-4 py-2 text-left shadow-sm hover:bg-gray-50 focus:border-blue-500 pr-8"
+                className="w-full bg-figma-white border border-figma-gray rounded-lg px-4 py-2 text-left shadow-sm hover:bg-gray-50 focus:border-figma-black pr-8"
             >
                 <span className="block truncate">
                     {selectedOption?.label || options?.[0]?.label || placeholder}
@@ -47,14 +47,14 @@ const Dropdown: React.FC<DropdownProps> = ({ options, placeholder = "Select an o
             </button>
 
             {isOpen && (
-                <div className={`absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg ${isDown ? 'top-full' : 'bottom-full mb-1'
+                <div className={`absolute z-10 mt-1 w-full bg-figma-white border border-gray-300 rounded-md shadow-lg ${isDown ? 'top-full' : 'bottom-full mb-1'
                     }`}>
                     <ul className="max-h-60 overflow-auto py-1">
                         {options.map((option, index) => (
                             <li
                                 key={option.value || index}
                                 onClick={() => handleSelect(option)}
-                                className="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+                                className="px-4 py-2 text-sm text-gray-700 hover:bg-figma-gray hover:text-figma-black cursor-pointer"
                             >
                                 {option.label}
                             </li>
