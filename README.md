@@ -12,10 +12,7 @@ Makes config to web apps more accessible.
 - Golang
 
 ## 🎒 TODO
-- column buttons
-    - change properties
 - columns types
-    - type color
     - force values
     - enum support
 - automatic new row

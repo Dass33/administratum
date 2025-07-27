@@ -23,15 +23,19 @@ const ColModal = () => {
         return false
     });
 
-
-
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
     };
 
+    const validJSON = (str: string) => {
+        return /^[a-zA-Z_$][a-zA-Z0-9_$\-\.]*$/.test(str)
+    }
+    const [validName, setValidName] = useState(validJSON(name))
+
     const saveAndExit = () => {
-        setColModal(-1);
+        setColModal(-1)
         setAddColumn(false)
+        if (!validName || name.length <= 0) return
         const item: ColumnProps = {
             name: name,
             columnType: columnType,
@@ -66,10 +70,14 @@ const ColModal = () => {
             <div className="text-figma-black mb-6 bg-figma-white p-6 rounded-lg min-w-[25rem] h-72 resize-none overflow-y-auto focus:outline-none"
                 onClick={stopPropagation}>
 
-                <input className='text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12 overflow-y-auto focus:outline-none'
+                <input className={`text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12 overflow-y-auto focus:outline-none
+                                    ${!validName && "text-red-600"}`}
                     placeholder='Name'
                     defaultValue={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                        setName(e.target.value)
+                        setValidName(validJSON(e.target.value) || e.target.value.length == 0)
+                    }}
                 />
 
                 <div className='flex flex-row justify-between items-ceter'>
