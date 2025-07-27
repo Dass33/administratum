@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, ColumnProps, ColTypes } from './AppContext';
+import { useApp, ColumnProps, ColTypes, TableType } from './AppContext';
 import Dropdown from './dropdown';
 
 const ColModal = () => {
@@ -7,6 +7,7 @@ const ColModal = () => {
         colModal, setColModal,
         columns, setColumns,
         addColumn, setAddColumn,
+        setCurrTable,
     } = useApp();
 
     const optionsColTypes = ColTypes.map(item => ({ label: item.val, value: item.val }));
@@ -30,25 +31,66 @@ const ColModal = () => {
     const validJSON = (str: string) => {
         return /^[a-zA-Z_$][a-zA-Z0-9_$\-\.]*$/.test(str)
     }
+
+    const nameExists = (name: string) => {
+        return columns.find(item => item.name == name)
+    }
+
     const [validName, setValidName] = useState(validJSON(name))
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value)
+        setValidName(
+            (validJSON(e.target.value) && !nameExists(e.target.value))
+            || e.target.value.length == 0
+        )
+    };
+
+    const handleRequiredChange = (val: { value: string; label: string }) => {
+        if (val.value === "true") setRequired(true)
+        else setRequired(false)
+    };
+
+    const updateTableColumnNames = (prevName: string, newName: string) => {
+        setCurrTable((prevTable: TableType) => {
+            const newTable = prevTable.map(item => {
+                const newItem = { ...item };
+                newItem[newName] = newItem[prevName];
+                delete newItem[prevName];
+                return newItem;
+            });
+            return newTable;
+        });
+    };
+
+    const updateExistingColumn = (item: ColumnProps) => {
+        const prevName = columns[colModal].name
+        updateTableColumnNames(prevName, name);
+
+        setColumns((cols: ColumnProps[]) => {
+            const newCols = [...cols];
+            newCols[colModal] = item;
+            return newCols;
+        });
+    };
 
     const saveAndExit = () => {
         setColModal(-1)
         setAddColumn(false)
         if (!validName || name.length <= 0) return
+
         const item: ColumnProps = {
             name: name,
             columnType: columnType,
             required: required
         }
-        if (addColumn) setColumns([...columns, item])
-        else {
-            setColumns((cols: ColumnProps[]) => {
-                const newCols = [...cols];
-                newCols[colModal] = item;
-                return newCols;
-            });
+
+        if (addColumn) {
+            setColumns([...columns, item])
+            return
         }
+
+        updateExistingColumn(item);
     }
 
     useEffect(() => {
@@ -74,10 +116,7 @@ const ColModal = () => {
                                     ${!validName && "text-red-600"}`}
                     placeholder='Name'
                     defaultValue={name}
-                    onChange={(e) => {
-                        setName(e.target.value)
-                        setValidName(validJSON(e.target.value) || e.target.value.length == 0)
-                    }}
+                    onChange={handleNameChange}
                 />
 
                 <div className='flex flex-row justify-between items-ceter'>
@@ -95,10 +134,7 @@ const ColModal = () => {
                         options={[{ value: "false", label: "False" },
                         { value: "true", label: "True" }]}
                         defaultValue={required.toString()}
-                        onSelect={(val) => {
-                            if (val.value === "true") setRequired(true)
-                            else setRequired(false)
-                        }}
+                        onSelect={handleRequiredChange}
                     />
                 </div>
             </div>
