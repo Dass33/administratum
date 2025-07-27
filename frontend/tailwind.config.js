@@ -4,6 +4,10 @@ export default {
         "./src/**/*.{js,ts,jsz,tsx}"
     ],
     safelist: [
+        'border-figma-rose',
+        'border-figma-winter',
+        'border-figma-stone',
+        'border-figma-honey',
     ],
     theme: {
         extend: {

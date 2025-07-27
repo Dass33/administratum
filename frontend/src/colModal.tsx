@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, ColumnProps } from './AppContext';
+import { useApp, ColumnProps, ColTypes } from './AppContext';
 import Dropdown from './dropdown';
 
 const ColModal = () => {
     const {
-        setColModal,
+        colModal, setColModal,
         columns, setColumns,
+        addColumn, setAddColumn,
     } = useApp();
 
-    const colTypes = [
-        { value: 'text', label: 'text' },
-        { value: 'number', label: 'number' },
-        { value: 'bool', label: 'bool' },
-        { value: 'edition', label: 'edition' },
-    ]
+    const optionsColTypes = ColTypes.map(item => ({ label: item.val, value: item.val }));
+    const [name, setName] = useState(() => {
+        if (!addColumn) return columns[colModal].name
+        return ''
+    });
+    const [columnType, setColumnType] = useState(() => {
+        if (!addColumn) return columns[colModal].columnType
+        return ColTypes[0].val
+    });
+    const [required, setRequired] = useState(() => {
+        if (!addColumn) return columns[colModal].required
+        return false
+    });
 
-    const [name, setName] = useState('');
-    const [columnType, setColumnType] = useState(colTypes[0]);
-    const [required, setRequired] = useState(false);
 
 
     const stopPropagation = (e: React.MouseEvent) => {
@@ -25,13 +30,21 @@ const ColModal = () => {
     };
 
     const saveAndExit = () => {
-        setColModal(null);
+        setColModal(-1);
+        setAddColumn(false)
         const item: ColumnProps = {
             name: name,
-            columnType: columnType.value,
+            columnType: columnType,
             required: required
         }
-        setColumns([...columns, item])
+        if (addColumn) setColumns([...columns, item])
+        else {
+            setColumns((cols: ColumnProps[]) => {
+                const newCols = [...cols];
+                newCols[colModal] = item;
+                return newCols;
+            });
+        }
     }
 
     useEffect(() => {
@@ -55,14 +68,16 @@ const ColModal = () => {
 
                 <input className='text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12 overflow-y-auto focus:outline-none'
                     placeholder='Name'
+                    defaultValue={name}
                     onChange={(e) => setName(e.target.value)}
                 />
 
                 <div className='flex flex-row justify-between items-ceter'>
                     <h2 className="text-2xl pt-0.5 mr-4">Collumn type</h2>
                     <Dropdown
-                        options={colTypes}
-                        onSelect={(val) => setColumnType(val)}
+                        options={optionsColTypes}
+                        defaultValue={columnType}
+                        onSelect={(val) => setColumnType(val.value)}
                     />
                 </div>
 
@@ -70,9 +85,10 @@ const ColModal = () => {
                     <h2 className="text-2xl pt-0.5 mr-4">Required</h2>
                     <Dropdown
                         options={[{ value: "false", label: "False" },
-                        { value: "True", label: "True" }]}
+                        { value: "true", label: "True" }]}
+                        defaultValue={required.toString()}
                         onSelect={(val) => {
-                            if (val.value === "True") setRequired(true)
+                            if (val.value === "true") setRequired(true)
                             else setRequired(false)
                         }}
                     />

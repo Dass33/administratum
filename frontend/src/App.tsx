@@ -16,7 +16,7 @@ function App() {
     return (
         <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row'>
             {cellModal && <CellModal />}
-            {colModal && <ColModal />}
+            {colModal > -1 && <ColModal />}
             <div className="flex flex-col flex-grow my-10">
                 <div className="flex flex-row gap-4">
                     <SaveButton />

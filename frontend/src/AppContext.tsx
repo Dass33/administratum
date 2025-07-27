@@ -7,10 +7,12 @@ interface AppState {
     setCellModal: Function
     currTable: TableType
     setCurrTable: Function
-    colModal: boolean
+    colModal: number
     setColModal: Function
     columns: ColumnProps[],
     setColumns: Function,
+    addColumn: boolean,
+    setAddColumn: Function,
 }
 
 export interface ColumnProps {
@@ -18,6 +20,13 @@ export interface ColumnProps {
     columnType: string;
     required: boolean;
 }
+
+export const ColTypes = [
+    { val: 'text', color: "border-figma-stone" },
+    { val: 'number', color: "border-figma-rose" },
+    { val: 'bool', color: "border-figma-honey" },
+    { val: 'edition', color: "border-figma-winter" }
+]
 
 const AppContext = createContext<AppState | undefined>(undefined);
 
@@ -42,15 +51,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const stored = localStorage.getItem('currTable');
         return stored ? JSON.parse(stored) : data;
     });
-    const [colModal, setColModal] = useState(false);
+    const [colModal, setColModal] = useState(-1);
     const [columns, setColumns] = useState<ColumnProps[]>([]);
+    const [addColumn, setAddColumn] = useState(false);
 
     return (
         <AppContext.Provider value={{
             cellModal, setCellModal,
             currTable, setCurrTable,
             colModal, setColModal,
-            columns, setColumns
+            columns, setColumns,
+            addColumn, setAddColumn,
         }}>
             {children}
         </AppContext.Provider>

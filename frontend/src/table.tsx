@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp } from "./AppContext";
+import { useApp, ColTypes } from "./AppContext";
 import plus from "./assets/plus.svg";
 
 
@@ -9,15 +9,25 @@ const Table = () => {
         currTable,
         setColModal,
         columns, setColumns,
+        setAddColumn,
     } = useApp()
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [borderColors, setBorderColors] = useState<string[]>([]);
+
+    useEffect(() => {
+        setBorderColors(columns.map(col => {
+            const colType = ColTypes.find(item => col.columnType === item.val)
+            if (colType) return colType.color
+            return ColTypes[0].color
+        }))
+    }, [columns]);
+
     useEffect(() => {
         localStorage.setItem('currTable', JSON.stringify(currTable));
     }, [currTable]);
-
 
     useEffect(() => {
         fetch('http://localhost:8080/admin')
@@ -68,6 +78,7 @@ const Table = () => {
         );
     }
 
+
     return (
         <div className="max-w-full mx-auto flex items-start">
             <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[65vw] xl:max-w-[calc(100vw-500px)]">
@@ -81,9 +92,15 @@ const Table = () => {
                         <tr>
                             {columns.map((col, idx) => (
                                 <th key={idx}
-                                    className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-700 truncate"
+                                    className={`border ${borderColors[idx]} px-3 py-2 text-left font-semibold text-gray-700 truncate`}
                                 >
-                                    {col.name}
+                                    <button
+                                        type="button"
+                                        className="w-full text-left focus:outline-none"
+                                        onClick={() => setColModal(idx)}
+                                    >
+                                        {col.name}
+                                    </button>
                                 </th>
                             ))}
                         </tr>
@@ -111,8 +128,10 @@ const Table = () => {
                 </table>
             </div>
             <button className="ml-8 mt-2 text-[3rem] font-light hover:scale-125 transition-transform duration-100"
-                onClick={() => setColModal(true)}
-            >
+                onClick={() => {
+                    setColModal(true)
+                    setAddColumn(true)
+                }}>
                 <img src={plus} />
             </button>
         </div>

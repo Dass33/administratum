@@ -10,11 +10,16 @@ export interface DropdownProps {
     placeholder?: string;
     onSelect?: (option: DropdownOption) => void;
     isDown?: boolean;
+    defaultValue?: string
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ options, placeholder = "Select an option", onSelect, isDown = true }) => {
+const Dropdown: React.FC<DropdownProps> = ({ options, placeholder = "Select an option", onSelect, isDown = true, defaultValue }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState<DropdownOption | null>(null);
+    const [selectedOption, setSelectedOption] = useState<DropdownOption | undefined>(() => {
+        if (defaultValue) return options.find((item) => item.value === defaultValue)
+        if (options.length > 0) options[0].label
+        return undefined
+    });
 
     const handleSelect = (option: DropdownOption): void => {
         setSelectedOption(option);
@@ -31,7 +36,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, placeholder = "Select an o
                 className="w-full bg-figma-white border border-figma-gray rounded-lg px-4 py-2 text-left shadow-sm hover:bg-gray-50 focus:border-figma-black pr-8"
             >
                 <span className="block truncate">
-                    {selectedOption?.label || options?.[0]?.label || placeholder}
+                    {selectedOption?.label || placeholder}
                 </span>
                 <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                     <svg
