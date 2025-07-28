@@ -6,7 +6,7 @@ import plus from "./assets/plus.svg";
 const Table = () => {
     const {
         setCellModal,
-        currTable,
+        currTable, setCurrTable,
         setColModal,
         columns, setColumns,
         setAddColumn,
@@ -41,6 +41,33 @@ const Table = () => {
                 setLoading(false);
             });
     }, []);
+
+    const isRowEmpty = (row: Record<string, any>) => {
+        return columns.every(col => {
+            const value = row[col.name];
+            return value === null || value === undefined || value === '';
+        });
+    };
+
+    const createEmptyRow = () => {
+        const emptyRow: Record<string, any> = {};
+        columns.forEach(col => {
+            emptyRow[col.name] = '';
+        });
+        return emptyRow;
+    };
+    useEffect(() => {
+        if (currTable.length == 0) {
+            setCurrTable([...currTable, createEmptyRow()]);
+            return
+        }
+        if (currTable && currTable.length > 0 && columns.length > 0) {
+            const lastRow = currTable[currTable.length - 1];
+            if (!isRowEmpty(lastRow)) {
+                setCurrTable([...currTable, createEmptyRow()]);
+            }
+        }
+    }, [currTable, columns]);
 
     if (loading || error) {
         return (

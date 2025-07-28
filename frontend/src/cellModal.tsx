@@ -13,20 +13,35 @@ const CellModal = () => {
         : ""
     const [cellVal, setCellVal] = useState(initCellVal)
 
-    const saveAndExit = () => {
-        if (cellModal) {
-            const updatedValue = textareaRef.current?.value ?? cellVal;
-            setCurrTable((prevTable: TableType) => {
-                const newTable = [...prevTable];
-                const rowIndex = cellModal[0];
-                const col = cellModal[1];
+    const updateCell = (newVal: string, rowIndex: number, col: string) => {
+        setCurrTable((prevTable: TableType) => {
+            const newTable = [...prevTable];
+            newTable[rowIndex][col] = newVal;
+            return newTable;
+        });
+    }
 
-                newTable[rowIndex][col] = updatedValue;
-
-                return newTable;
-            });
+    const removeEmptyRow = (newVal: string, rowIndex: number, col: string): boolean => {
+        if (currTable.length - 1 == rowIndex) return false
+        const len = Object.entries(currTable[rowIndex]).filter(([key, val]) => {
+            return key != col && val
+        }).length
+        if (!len && !newVal) {
+            setCurrTable(currTable.filter((_, idx) => { return rowIndex != idx }))
+            return true
         }
+        return false
+    }
+
+    const saveAndExit = () => {
         setCellModal(null);
+        if (!cellModal) return
+        const updatedValue = textareaRef.current?.value ?? cellVal;
+        const rowIndex = cellModal[0];
+        const col = cellModal[1];
+        if (!removeEmptyRow(updatedValue, rowIndex, col)) {
+            updateCell(updatedValue, rowIndex, col)
+        }
     }
 
     useEffect(() => {

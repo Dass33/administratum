@@ -31,20 +31,12 @@ export const ColTypes = [
 const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const data = [
-        { name: "John", age: 30, city: "New York", active: true },
-        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
-        { name: "Bob", age: 35, active: false, salary: 75000 },
-        { name: "John", age: 30, city: "New York", active: true },
-        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
-        { name: "Bob", age: 35, active: false, salary: 75000 },
-        { name: "John", age: 30, city: "New York", active: true },
-        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
-        { name: "Bob", age: 35, active: false, salary: 75000 },
-        { name: "John", age: 30, city: "New York", active: true },
-        { name: "Jane", age: 25, city: "Los Angeles", department: "Engineering" },
-        { name: "Bob", age: 35, active: false, salary: 75000, questions: "this is a quesetions?", config: "kaldjfl" },
-    ];
+    // const data = [
+    //     { name: "John", age: 30, city: "New York", active: true },
+    //     { name: "Jane", age: 25, city: "Los Angeles" },
+    //     { name: "Bob", age: 35, active: false, salary: 75000 },
+    // ];
+    const data: TableType = [];
 
     const [cellModal, setCellModal] = useState(null);
     const [currTable, setCurrTable] = useState<TableType>(() => {
