@@ -14,6 +14,7 @@ Makes config to web apps more accessible.
 ## 🎒 TODO
 - columns types
     - enum support
-- new lists
-    - drop down button
-    - save on local machine
+
+- create accounts
+- add authorization
+- connect sheets to database

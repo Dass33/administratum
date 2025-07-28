@@ -1,6 +1,8 @@
 import { useState } from "react";
 import dropdownArrow from "./assets/dropdown_arrow.svg";
 import { useApp } from "./AppContext";
+import reload from "./assets/reload.svg";
+import danger from "./assets/danger.svg";
 
 type tableData = {
     currTime: number;
@@ -43,7 +45,7 @@ function SaveButton() {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
-            setLoading(false);
+            setTimeout(() => setLoading(false), 500);
         }
     };
 
@@ -54,7 +56,9 @@ function SaveButton() {
             <button className="hover:bg-green-700 pr-2 py-2 rounded-s-lg border-figma-white border-r-2"
                 onClick={() => handleSubmit(currState)}
             >
-                <span className="text-2xl border-figma-white ml-3">Save</span>
+                {error && <img className="size-6 ml-7 mr-4 my-1" src={danger} />}
+                {loading && <img className="size-6 ml-7 mr-4 my-1 animate-spin" src={reload} />}
+                {!loading && !error && <span className="text-2xl border-figma-white ml-3">Save</span>}
             </button>
 
             <SaveDropdown />

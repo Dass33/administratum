@@ -67,7 +67,9 @@ const ColModal = () => {
 
     const updateExistingColumn = (item: ColumnProps) => {
         const prevName = columns[colModal].name
-        updateTableColumnNames(prevName, name);
+        if (prevName !== name) {
+            updateTableColumnNames(prevName, name);
+        }
         const newCols = [...columns];
         newCols[colModal] = item;
         setColumns(newCols);
