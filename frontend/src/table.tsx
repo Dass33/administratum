@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes } from "./AppContext";
+import { useApp, ColTypes, EnumColTypes, ColumnProps } from "./AppContext";
 import plus from "./assets/plus.svg";
 
 
@@ -110,7 +110,9 @@ const Table = () => {
                                 {columns.map((col, colIdx) => (
                                     <td key={colIdx}
                                         className={`border px-3 py-2 text-sm truncate
-                                        ${!col.required || row[col.name] ? "border-gray-300" : "border-red-600"}`}
+                                        ${!col.required || validateCellType(row[col.name], col)
+                                                ? "border-gray-300"
+                                                : "border-red-600"}`}
                                     >
                                         <button
                                             type="button"
@@ -152,5 +154,30 @@ const renderCellValue = (value: any): JSX.Element => {
     }
     return <span>{String(value)}</span>;
 }
+
+const validateCellType = (cellVal: any, col: ColumnProps): boolean => {
+    if (cellVal === null || cellVal === undefined || cellVal === "") {
+        return !col.required;
+    }
+
+    switch (col.columnType) {
+        case EnumColTypes.TEXT:
+            return typeof cellVal === 'string';
+        case EnumColTypes.NUMBER:
+            return typeof cellVal === 'number' && !isNaN(cellVal);
+        case EnumColTypes.BOOL:
+            return typeof cellVal === 'boolean';
+        case EnumColTypes.ARRAY:
+            if (!Array.isArray(cellVal)) return false;
+            if (col.required) {
+                return cellVal.length > 0 && cellVal.some((item: any) =>
+                    item !== null && item !== undefined && item !== ""
+                );
+            }
+            return true;
+        default:
+            return false;
+    }
+};
 
 export default Table;

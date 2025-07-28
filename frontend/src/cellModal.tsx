@@ -104,7 +104,7 @@ const CellModal = () => {
         const len = Object.entries(currTable[rowIndex]).filter(([key, val]) => {
             return key != col && val
         }).length
-        if (!len && !newVal) {
+        if (!len && (newVal === null || newVal === "" || newVal === undefined)) {
             setCurrTable(currTable.filter((_, idx) => { return rowIndex != idx }))
             return true
         }
@@ -124,7 +124,9 @@ const CellModal = () => {
                 updatedValue = cellVal;
                 break;
             case EnumColTypes.NUMBER:
-                updatedValue = cellVal === '' ? null : Number(cellVal);
+                updatedValue = (cellVal !== null)
+                    ? Number(cellVal)
+                    : null;
                 break;
             case EnumColTypes.BOOL:
                 updatedValue = boolVal;
