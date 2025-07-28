@@ -194,7 +194,7 @@ const CellModal = () => {
                     <input
                         ref={numberInputRef}
                         type="number"
-                        className="text-figma-black mb-6 bg-figma-white p-6 rounded-lg w-[35rem] border border-figma-gray focus:border-figma-black focus:outline-none"
+                        className="text-figma-black mb-6 bg-figma-white p-6 rounded-lg w-[35rem] focus:outline-none"
                         defaultValue={cellVal}
                         onChange={(e) => setCellVal(e.target.value)}
                         placeholder="Enter a number"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, ColumnProps, ColTypes, TableType } from './AppContext';
+import { useApp, ColumnProps, ColTypes, TableType, ColSuffix } from './AppContext';
 import Dropdown from './dropdown';
 
 const ColModal = () => {
@@ -8,8 +8,10 @@ const ColModal = () => {
         columns, setColumns,
         addColumn, setAddColumn,
         setCurrTable,
+        currSheet,
     } = useApp();
 
+    const colLocalStorage = currSheet + ColSuffix
     const optionsColTypes = ColTypes.map(item => ({ label: item.val, value: item.val }));
     const [name, setName] = useState(() => {
         if (!addColumn) return columns[colModal].name
@@ -66,12 +68,10 @@ const ColModal = () => {
     const updateExistingColumn = (item: ColumnProps) => {
         const prevName = columns[colModal].name
         updateTableColumnNames(prevName, name);
-
-        setColumns((cols: ColumnProps[]) => {
-            const newCols = [...cols];
-            newCols[colModal] = item;
-            return newCols;
-        });
+        const newCols = [...columns];
+        newCols[colModal] = item;
+        setColumns(newCols);
+        localStorage.setItem(colLocalStorage, JSON.stringify(newCols));
     };
 
     const saveAndExit = () => {
@@ -86,7 +86,9 @@ const ColModal = () => {
         }
 
         if (addColumn) {
-            setColumns([...columns, item])
+            const newCols = [...columns, item]
+            setColumns(newCols)
+            localStorage.setItem(colLocalStorage, JSON.stringify(newCols));
             return
         }
 

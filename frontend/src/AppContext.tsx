@@ -13,6 +13,10 @@ interface AppState {
     setColumns: Function,
     addColumn: boolean,
     setAddColumn: Function,
+    sheets: string[],
+    setSheets: Function,
+    currSheet: string,
+    setCurrSheet: Function,
 }
 
 export interface ColumnProps {
@@ -37,6 +41,9 @@ export const ColTypes = [
     { val: EnumColTypes.ARRAY, color: "border-figma-forest" },
 ]
 
+export const CurrSheet = 'currSheet'
+export const ColSuffix = '/columns'
+
 const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -48,13 +55,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const data: TableType = [];
 
     const [cellModal, setCellModal] = useState(null);
+    const [currSheet, setCurrSheet] = useState(() => {
+        const stored = localStorage.getItem(CurrSheet);
+        return stored ? JSON.parse(stored) : "";
+    });
     const [currTable, setCurrTable] = useState<TableType>(() => {
-        const stored = localStorage.getItem('currTable');
+        const stored = localStorage.getItem(currSheet);
         return stored ? JSON.parse(stored) : data;
     });
     const [colModal, setColModal] = useState(-1);
     const [columns, setColumns] = useState<ColumnProps[]>([]);
     const [addColumn, setAddColumn] = useState(false);
+    const [sheets, setSheets] = useState([])
 
     return (
         <AppContext.Provider value={{
@@ -63,6 +75,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             colModal, setColModal,
             columns, setColumns,
             addColumn, setAddColumn,
+            sheets, setSheets,
+            currSheet, setCurrSheet,
         }}>
             {children}
         </AppContext.Provider>

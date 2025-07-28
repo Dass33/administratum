@@ -18,7 +18,10 @@ func main() {
 	apiCfg := apiConfig{}
 
 	h := http.HandlerFunc(apiCfg.testColumnHandler)
-	mux.Handle("GET /admin", h)
+	mux.Handle("GET /columns", h)
+
+	h = http.HandlerFunc(apiCfg.testSheetsHandler)
+	mux.Handle("GET /sheets", h)
 
 	err := server.ListenAndServe()
 	if err != nil {
@@ -39,5 +42,13 @@ func (cfg *apiConfig) testColumnHandler(wr http.ResponseWriter, req *http.Reques
 {"name": "salary", "columnType": "number", "required": false },
 {"name": "questions", "columnType": "text", "required": true }
 ]`
+	wr.Write([]byte(content))
+}
+
+func (cfg *apiConfig) testSheetsHandler(wr http.ResponseWriter, req *http.Request) {
+	wr.Header().Set("Content-Type", "text/json")
+	wr.Header().Set("Access-Control-Allow-Origin", "*")
+	wr.WriteHeader(200)
+	content := `["config", "questions"]`
 	wr.Write([]byte(content))
 }

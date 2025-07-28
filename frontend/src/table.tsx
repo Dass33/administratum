@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes } from "./AppContext";
+import { useApp, ColTypes, ColSuffix } from "./AppContext";
 import plus from "./assets/plus.svg";
 
 
@@ -10,6 +10,7 @@ const Table = () => {
         setColModal,
         columns, setColumns,
         setAddColumn,
+        currSheet,
     } = useApp()
 
     const [loading, setLoading] = useState(true);
@@ -26,15 +27,16 @@ const Table = () => {
     }, [columns]);
 
     useEffect(() => {
-        localStorage.setItem('currTable', JSON.stringify(currTable));
+        localStorage.setItem(currSheet, JSON.stringify(currTable));
     }, [currTable]);
 
     useEffect(() => {
-        fetch('http://localhost:8080/admin')
+        fetch('http://localhost:8080/columns')
             .then(response => response.json())
             .then(data => {
                 setColumns(data);
                 setLoading(false);
+                localStorage.setItem(currSheet + ColSuffix, JSON.stringify(data));
             })
             .catch(error => {
                 setError(error);
@@ -92,19 +94,6 @@ const Table = () => {
             </div>
         );
     }
-
-    if (currTable.length === 0) {
-        return (
-            <div className="mx-auto">
-                <div className="rounded-lg p-6">
-                    <div className="p-3 w-52 bg-yellow-100 border border-yellow-300 text-yellow-700 rounded-md">
-                        No data to display
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
 
     return (
         <div className="max-w-full mx-auto flex items-start">
