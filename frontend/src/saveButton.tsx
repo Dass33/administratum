@@ -1,10 +1,59 @@
 import { useState } from "react";
 import dropdownArrow from "./assets/dropdown_arrow.svg";
+import { useApp } from "./AppContext";
+
+type tableData = {
+    currTime: number;
+    projectName: string | undefined;
+    branchName: string | undefined;
+    length: number;
+    key(index: number): string | null;
+};
 
 function SaveButton() {
+    const {
+        projectName,
+        branchName,
+    } = useApp();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const currTime = Date.now();
+
+    const handleSubmit = async (data: tableData) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('http://localhost:8080/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Success:', result);
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const currState = { ...localStorage, currTime, projectName, branchName };
+
     return (
         <div className="flex flex-row bg-figma-green text-white rounded-lg font-bold items-center">
-            <button className="hover:bg-green-700 pr-2 py-2 rounded-s-lg border-figma-white border-r-2">
+            <button className="hover:bg-green-700 pr-2 py-2 rounded-s-lg border-figma-white border-r-2"
+                onClick={() => handleSubmit(currState)}
+            >
                 <span className="text-2xl border-figma-white ml-3">Save</span>
             </button>
 

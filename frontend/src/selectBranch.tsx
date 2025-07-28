@@ -1,7 +1,9 @@
+import { useApp } from "./AppContext";
 import Dropdown from "./dropdown";
 import { DropdownOption } from "./dropdown";
 
 function SelectBranch() {
+    const { setBranchName } = useApp();
     const optionsBranches: DropdownOption[] = [
         { value: 'main', label: 'main' },
         { value: 'typeFix', label: 'typeFix' }
@@ -10,7 +12,7 @@ function SelectBranch() {
         <Dropdown
             options={optionsBranches}
             placeholder="Branch"
-            onSelect={() => { }}
+            onSelect={(e) => { setBranchName(e.value) }}
         />
     );
 }

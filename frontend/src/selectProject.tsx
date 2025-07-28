@@ -1,7 +1,9 @@
+import { useApp } from "./AppContext";
 import Dropdown from "./dropdown";
 import { DropdownOption } from "./dropdown";
 
 function SelectProject() {
+    const { setProjectName } = useApp();
     const optionsProjects: DropdownOption[] = [
         { value: 'guessGame', label: 'guessGame' },
         { value: 'investingGame', label: 'investingGame' }
@@ -10,7 +12,7 @@ function SelectProject() {
         <Dropdown
             options={optionsProjects}
             placeholder="Project"
-            onSelect={() => { }}
+            onSelect={(e) => { setProjectName(e.value) }}
         />
 
     );
