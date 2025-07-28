@@ -27,6 +27,8 @@ interface AppState {
     setProjectName: Function,
     branchName: string | undefined,
     setBranchName: Function,
+    authenticated: boolean,
+    setAuthenticated: Function,
 }
 
 export interface ColumnProps {
@@ -100,6 +102,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [gameUrl, setGameUrl] = useState("https://dass33.github.io/guess_game/");
     const [projectName, setProjectName] = useState();
     const [branchName, setBranchName] = useState();
+    const [authenticated, setAuthenticated] = useState(false);
 
     useEffect(() => {
         localStorage.setItem(currSheet, JSON.stringify(currTable));
@@ -119,6 +122,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             gameUrl, setGameUrl,
             projectName, setProjectName,
             branchName, setBranchName,
+            authenticated, setAuthenticated,
         }}>
             {children}
         </AppContext.Provider>

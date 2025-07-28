@@ -10,6 +10,7 @@ import CellModal from "./cellModal";
 import ColModal from "./colModal";
 import SheetModal from "./sheetModal";
 import SettingsModal from "./settingsModal";
+import Auth from "./auth";
 
 GameView
 function App() {
@@ -18,7 +19,14 @@ function App() {
         colModal,
         sheetModal,
         settingsModal,
+        authenticated
     } = useApp()
+
+    if (!authenticated) return (
+        <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row'>
+            <Auth />
+        </div>
+    )
 
     return (
         <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row'>
