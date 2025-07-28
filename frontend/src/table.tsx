@@ -143,7 +143,7 @@ const Table = () => {
                                         <button
                                             type="button"
                                             className="w-full text-left focus:outline-none"
-                                            onClick={() => setCellModal([rowIdx, col.name])}
+                                            onClick={() => setCellModal([rowIdx, col])}
                                         >
                                             {renderCellValue(row[col.name])}
                                         </button>

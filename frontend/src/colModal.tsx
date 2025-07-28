@@ -109,7 +109,7 @@ const ColModal = () => {
         <div className="fixed inset-0 bg-black bg-opacity-15 flex justify-center items-center z-50"
             onClick={saveAndExit}
         >
-            <div className="text-figma-black mb-6 bg-figma-white p-6 rounded-lg min-w-[25rem] h-72 resize-none overflow-y-auto focus:outline-none"
+            <div className="text-figma-black mb-6 bg-figma-white p-6 rounded-lg min-w-[25rem] h-80 resize-none overflow-y-auto focus:outline-none"
                 onClick={stopPropagation}>
 
                 <input className={`text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12 overflow-y-auto focus:outline-none

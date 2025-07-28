@@ -3,7 +3,7 @@ import React, { useState, createContext, useContext } from "react";
 export type TableType = Record<string, any>[]
 
 interface AppState {
-    cellModal: [number, string] | null
+    cellModal: [number, ColumnProps] | null
     setCellModal: Function
     currTable: TableType
     setCurrTable: Function
@@ -21,11 +21,20 @@ export interface ColumnProps {
     required: boolean;
 }
 
+export enum EnumColTypes {
+    TEXT = 'text',
+    NUMBER = 'number',
+    BOOL = 'bool',
+    EDITION = 'edition',
+    ARRAY = 'array',
+}
+
 export const ColTypes = [
-    { val: 'text', color: "border-figma-stone" },
-    { val: 'number', color: "border-figma-rose" },
-    { val: 'bool', color: "border-figma-honey" },
-    { val: 'edition', color: "border-figma-winter" }
+    { val: EnumColTypes.TEXT, color: "border-figma-stone" },
+    { val: EnumColTypes.NUMBER, color: "border-figma-rose" },
+    { val: EnumColTypes.BOOL, color: "border-figma-honey" },
+    { val: EnumColTypes.EDITION, color: "border-figma-winter" },
+    { val: EnumColTypes.ARRAY, color: "border-figma-forest" },
 ]
 
 const AppContext = createContext<AppState | undefined>(undefined);
