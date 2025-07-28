@@ -8,15 +8,21 @@ import Table from "./table";
 import { useApp } from "./AppContext";
 import CellModal from "./cellModal";
 import ColModal from "./colModal";
+import SheetModal from "./sheetModal";
 
 GameView
 function App() {
-    const { cellModal, colModal } = useApp()
+    const {
+        cellModal,
+        colModal,
+        sheetModal
+    } = useApp()
 
     return (
         <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row'>
             {cellModal && <CellModal />}
             {colModal > -1 && <ColModal />}
+            {sheetModal && <SheetModal />}
             <div className="flex flex-col flex-grow my-10">
                 <div className="flex flex-row gap-4">
                     <SaveButton />

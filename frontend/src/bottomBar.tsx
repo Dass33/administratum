@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import settings from "./assets/settings.svg"
 import Dropdown from "./dropdown";
-import { useApp, CurrSheet, ColSuffix } from "./AppContext";
+import { useApp, CurrSheet, ColSuffix, Sheets } from "./AppContext";
+import plus from "./assets/plus.svg"
 
 const BottomBar = () => {
     const {
@@ -9,11 +10,20 @@ const BottomBar = () => {
         currSheet, setCurrSheet,
         setCurrTable,
         columns, setColumns,
+        setSheetModal,
     } = useApp();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const stored = localStorage.getItem(Sheets);
+        console.log(stored);
+        if (stored) {
+            setSheets(JSON.parse(stored))
+            setLoading(false);
+            return
+        }
+
         fetch('http://localhost:8080/sheets')
             .then(response => response.json())
             .then((data: string[]) => {
@@ -28,8 +38,8 @@ const BottomBar = () => {
     }, []);
 
     return (
-        <div className="flex flex-row gap-5 items-center">
-            <button className="hover:scale-110 transition-transform duration-100">
+        <div className="flex flex-row gap-4 items-center">
+            <button className="hover:scale-110 transition-transform duration-100 mr-1">
                 <img className="" src={settings} />
             </button>
             {(!loading && !error) &&
@@ -54,6 +64,10 @@ const BottomBar = () => {
                     isDown={false}
                 />
             }
+            <button className="hover:scale-125 transition-transform duration-100"
+                onClick={() => setSheetModal(true)}>
+                <img src={plus} />
+            </button>
         </div>
     );
 }

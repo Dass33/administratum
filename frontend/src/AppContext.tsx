@@ -17,6 +17,8 @@ interface AppState {
     setSheets: Function,
     currSheet: string,
     setCurrSheet: Function,
+    sheetModal: boolean,
+    setSheetModal: Function,
 }
 
 export interface ColumnProps {
@@ -42,6 +44,7 @@ export const ColTypes = [
 ]
 
 export const CurrSheet = 'currSheet'
+export const Sheets = 'sheets'
 export const ColSuffix = '/columns'
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -66,7 +69,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [colModal, setColModal] = useState(-1);
     const [columns, setColumns] = useState<ColumnProps[]>(() => {
         const stored = localStorage.getItem(currSheet + ColSuffix);
-        console.log(stored, currSheet + ColSuffix)
         return stored ? JSON.parse(stored) : [];
     });
 
@@ -84,7 +86,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, [currSheet]);
 
     const [addColumn, setAddColumn] = useState(false);
-    const [sheets, setSheets] = useState([])
+    const [sheets, setSheets] = useState([]);
+    const [sheetModal, setSheetModal] = useState(false);
 
     useEffect(() => {
         localStorage.setItem(currSheet, JSON.stringify(currTable));
@@ -99,6 +102,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             addColumn, setAddColumn,
             sheets, setSheets,
             currSheet, setCurrSheet,
+            sheetModal, setSheetModal,
         }}>
             {children}
         </AppContext.Provider>
