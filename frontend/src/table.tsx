@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes, ColSuffix } from "./AppContext";
+import { useApp, ColTypes } from "./AppContext";
 import plus from "./assets/plus.svg";
 
 
@@ -8,17 +8,14 @@ const Table = () => {
         setCellModal,
         currTable, setCurrTable,
         setColModal,
-        columns, setColumns,
+        columns,
         setAddColumn,
-        currSheet,
     } = useApp()
-
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     const [borderColors, setBorderColors] = useState<string[]>([]);
 
     useEffect(() => {
+        if (!columns) return
         setBorderColors(columns.map(col => {
             const colType = ColTypes.find(item => col.columnType === item.val)
             if (colType) return colType.color
@@ -26,23 +23,7 @@ const Table = () => {
         }))
     }, [columns]);
 
-    useEffect(() => {
-        localStorage.setItem(currSheet, JSON.stringify(currTable));
-    }, [currTable]);
 
-    useEffect(() => {
-        fetch('http://localhost:8080/columns')
-            .then(response => response.json())
-            .then(data => {
-                setColumns(data);
-                setLoading(false);
-                localStorage.setItem(currSheet + ColSuffix, JSON.stringify(data));
-            })
-            .catch(error => {
-                setError(error);
-                setLoading(false);
-            });
-    }, []);
 
     const isRowEmpty = (row: Record<string, any>) => {
         return columns.every(col => {
@@ -59,6 +40,7 @@ const Table = () => {
         return emptyRow;
     };
     useEffect(() => {
+        if (!columns) return
         if (currTable.length == 0) {
             setCurrTable([...currTable, createEmptyRow()]);
             return
@@ -71,7 +53,7 @@ const Table = () => {
         }
     }, [currTable, columns]);
 
-    if (loading || error) {
+    if (!columns) {
         return (
             <div className="max-w-full mx-auto">
                 <div className="rounded-lg p-6">

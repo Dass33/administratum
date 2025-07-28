@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 
 export type TableType = Record<string, any>[]
 
@@ -57,16 +57,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [cellModal, setCellModal] = useState(null);
     const [currSheet, setCurrSheet] = useState(() => {
         const stored = localStorage.getItem(CurrSheet);
-        return stored ? JSON.parse(stored) : "";
+        return stored ? stored : "config";
     });
     const [currTable, setCurrTable] = useState<TableType>(() => {
         const stored = localStorage.getItem(currSheet);
         return stored ? JSON.parse(stored) : data;
     });
     const [colModal, setColModal] = useState(-1);
-    const [columns, setColumns] = useState<ColumnProps[]>([]);
+    const [columns, setColumns] = useState<ColumnProps[]>(() => {
+        const stored = localStorage.getItem(currSheet + ColSuffix);
+        console.log(stored, currSheet + ColSuffix)
+        return stored ? JSON.parse(stored) : [];
+    });
+
+    useEffect(() => {
+        if (columns.length) return
+        fetch('http://localhost:8080/columns')
+            .then(response => response.json())
+            .then(data => {
+                setColumns(data);
+                localStorage.setItem(currSheet + ColSuffix, JSON.stringify(data));
+            })
+            .catch(_ => {
+                setColumns([]);
+            });
+    }, [currSheet]);
+
     const [addColumn, setAddColumn] = useState(false);
     const [sheets, setSheets] = useState([])
+
+    useEffect(() => {
+        localStorage.setItem(currSheet, JSON.stringify(currTable));
+    }, [currTable]);
 
     return (
         <AppContext.Provider value={{

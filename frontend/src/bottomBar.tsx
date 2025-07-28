@@ -37,6 +37,7 @@ const BottomBar = () => {
                     options={sheets.map(item => {
                         return { value: item, label: item }
                     })}
+                    placeholder={currSheet}
                     onSelect={(item) => {
                         localStorage.setItem(currSheet + ColSuffix, JSON.stringify(columns));
                         setCurrSheet(item.value)
