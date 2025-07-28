@@ -127,7 +127,8 @@ const Table = () => {
                             <tr key={rowIdx}>
                                 {columns.map((col, colIdx) => (
                                     <td key={colIdx}
-                                        className="border border-gray-300 px-3 py-2 text-sm truncate"
+                                        className={`border px-3 py-2 text-sm truncate
+                                        ${!col.required || row[col.name] ? "border-gray-300" : "border-red-600"}`}
                                     >
                                         <button
                                             type="button"

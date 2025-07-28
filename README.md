@@ -14,7 +14,6 @@ Makes config to web apps more accessible.
 ## 🎒 TODO
 - FIX: col exit nulls its values
 - columns types
-    - highlight null but required cells
     - enum support
 - new lists
     - drop down button
