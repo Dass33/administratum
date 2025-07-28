@@ -12,10 +12,10 @@ Makes config to web apps more accessible.
 - Golang
 
 ## 🎒 TODO
+- FIX: col exit nulls its values
 - columns types
-    - force values
+    - highlight null but required cells
     - enum support
-- automatic new row
 - new lists
     - drop down button
     - save on local machine
