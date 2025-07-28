@@ -35,7 +35,7 @@ export enum EnumColTypes {
 
 export const ColTypes = [
     { val: EnumColTypes.TEXT, color: "border-figma-stone" },
-    { val: EnumColTypes.NUMBER, color: "border-figma-rose" },
+    { val: EnumColTypes.NUMBER, color: "border-figma-pool" },
     { val: EnumColTypes.BOOL, color: "border-figma-honey" },
     { val: EnumColTypes.EDITION, color: "border-figma-winter" },
     { val: EnumColTypes.ARRAY, color: "border-figma-forest" },
