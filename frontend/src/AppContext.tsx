@@ -19,6 +19,10 @@ interface AppState {
     setCurrSheet: Function,
     sheetModal: boolean,
     setSheetModal: Function,
+    settingsModal: boolean,
+    setSettingsModal: Function,
+    gameUrl: string,
+    setGameUrl: Function,
 }
 
 export interface ColumnProps {
@@ -88,6 +92,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [addColumn, setAddColumn] = useState(false);
     const [sheets, setSheets] = useState([]);
     const [sheetModal, setSheetModal] = useState(false);
+    const [settingsModal, setSettingsModal] = useState(false);
+    const [gameUrl, setGameUrl] = useState("https://dass33.github.io/guess_game/");
 
     useEffect(() => {
         localStorage.setItem(currSheet, JSON.stringify(currTable));
@@ -103,6 +109,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             sheets, setSheets,
             currSheet, setCurrSheet,
             sheetModal, setSheetModal,
+            settingsModal, setSettingsModal,
+            gameUrl, setGameUrl,
         }}>
             {children}
         </AppContext.Provider>

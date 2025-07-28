@@ -9,13 +9,15 @@ import { useApp } from "./AppContext";
 import CellModal from "./cellModal";
 import ColModal from "./colModal";
 import SheetModal from "./sheetModal";
+import SettingsModal from "./settingsModal";
 
 GameView
 function App() {
     const {
         cellModal,
         colModal,
-        sheetModal
+        sheetModal,
+        settingsModal,
     } = useApp()
 
     return (
@@ -23,6 +25,7 @@ function App() {
             {cellModal && <CellModal />}
             {colModal > -1 && <ColModal />}
             {sheetModal && <SheetModal />}
+            {settingsModal && <SettingsModal />}
             <div className="flex flex-col flex-grow my-10">
                 <div className="flex flex-row gap-4">
                     <SaveButton />

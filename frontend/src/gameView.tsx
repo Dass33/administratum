@@ -1,6 +1,8 @@
+import { useApp } from "./AppContext"
 import expand from "./assets/expand.svg"
 
 function GameView() {
+    const { gameUrl } = useApp();
 
     return (
         <div className="flex items-center">
@@ -13,7 +15,7 @@ function GameView() {
                 </button>
                 <div className="embedded-container">
                     <iframe className="rounded-lg"
-                        src="https://dass33.github.io/guess_game/"
+                        src={gameUrl}
                         width="370"
                         height="750"
                         title="Embedded Website"

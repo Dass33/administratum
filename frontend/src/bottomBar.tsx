@@ -11,6 +11,7 @@ const BottomBar = () => {
         setCurrTable,
         columns, setColumns,
         setSheetModal,
+        setSettingsModal,
     } = useApp();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -39,7 +40,9 @@ const BottomBar = () => {
 
     return (
         <div className="flex flex-row gap-4 items-center">
-            <button className="hover:scale-110 transition-transform duration-100 mr-1">
+            <button className="hover:scale-110 transition-transform duration-100 mr-1"
+                onClick={() => setSettingsModal(true)}
+            >
                 <img className="" src={settings} />
             </button>
             {(!loading && !error) &&
