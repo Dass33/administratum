@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import { useApp } from './AppContext';
 import logo from "./assets/logo.svg";
+import reload_black from "./assets/reload_black.svg";
+import reload from "./assets/reload.svg";
 
 type loginData = {
     email: string;
     password: string;
 };
+
+enum AuthAction {
+    Login = "login",
+    Register = "register"
+}
 
 const Auth = () => {
     const {
@@ -18,8 +25,10 @@ const Auth = () => {
     const [email, setEmail] = useState<string>();
     const [password, setPassword] = useState<string>();
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<string | null>(null);
 
     const handleSubmit = async (data: loginData, type: string) => {
+        setLoading(type);
         try {
             const response = await fetch('http://localhost:8080/' + type, {
                 method: 'POST',
@@ -31,6 +40,7 @@ const Auth = () => {
 
             if (!response.ok) {
                 setError(`HTTP error! status: ${response.status}`);
+                setLoading(null);
                 return;
             }
 
@@ -41,6 +51,7 @@ const Auth = () => {
 
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
+            setLoading(null);
         }
     };
 
@@ -77,23 +88,29 @@ const Auth = () => {
 
 
                     <div className={`flex gap-4 justify-between ${error ? "mt-2" : "mt-5"}`}>
-                        <button className='bg-figma-green rounded-lg p-2 px-4 text-figma-white font-bold'
+                        <button className='bg-figma-green w-20 rounded-lg p-2 px-4 text-figma-white font-bold'
                             onClick={() => {
                                 if (email && password) {
-                                    handleSubmit({ email: email, password: password }, "login")
+                                    handleSubmit({ email: email, password: password }, AuthAction.Login)
                                 }
                             }}
                         >
-                            Login
+                            {loading == AuthAction.Login
+                                ? <img className="size-6 animate-spin mx-auto" src={reload} />
+                                : <span>Login</span>
+                            }
                         </button>
-                        <button className='rounded-lg p-2 px-4 text-figma-black'
+                        <button className='rounded-lg p-2 px-4 w-20 text-figma-black'
                             onClick={() => {
                                 if (email && password) {
-                                    handleSubmit({ email: email, password: password }, "register")
+                                    handleSubmit({ email: email, password: password }, AuthAction.Register)
                                 }
                             }}
                         >
-                            Register
+                            {loading == AuthAction.Register
+                                ? <img className="size-6 mx-auto mr-1 animate-spin" src={reload_black} />
+                                : <span>Register</span>
+                            }
                         </button>
                     </div>
                 </div>
