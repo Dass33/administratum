@@ -9,15 +9,7 @@ import (
 
 	"github.com/Dass33/administratum/backend/internal/auth"
 	"github.com/Dass33/administratum/backend/internal/database"
-	"github.com/google/uuid"
 )
-
-type Users struct {
-	ID         uuid.UUID `json:"id"`
-	Created_at time.Time `json:"created_at"`
-	Updated_at time.Time `json:"updated_at"`
-	Email      string    `json:"email"`
-}
 
 func (cfg *apiConfig) create_user_handler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -61,11 +53,33 @@ func (cfg *apiConfig) create_user_handler(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	ret := Users{
-		ID:         user.ID,
-		Created_at: user.CreatedAt,
-		Updated_at: user.UpdatedAt,
-		Email:      user.Email,
+	token, err := auth.MakeJWT(user.ID, cfg.jwt_key, acc_expire_time)
+	if err != nil {
+		msg := fmt.Sprintf("Problem with creating access token: %s", err)
+		respondWithError(w, 500, msg)
+		return
+	}
+
+	ref_token, _ := auth.MakeRefreshToken()
+	ref_params := database.CreateRefreshTokenParams{
+		Token:     ref_token,
+		UserID:    user.ID,
+		ExpiresAt: time.Now().Add(ref_expire_time),
+	}
+	_, err = cfg.db.CreateRefreshToken(req.Context(), ref_params)
+	if err != nil {
+		msg := fmt.Sprintf("Problem with creating refresh token: %s", err)
+		respondWithError(w, 500, msg)
+		return
+	}
+
+	ret := Login{
+		ID:           user.ID,
+		Created_at:   user.CreatedAt,
+		Updated_at:   user.UpdatedAt,
+		Email:        user.Email,
+		Token:        token,
+		RefreshToken: ref_token,
 	}
 
 	respondWithJSON(w, 201, ret)
