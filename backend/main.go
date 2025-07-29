@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"io"
@@ -51,12 +50,6 @@ func main() {
 
 	log.Println("Connected to database!")
 
-	user, err := dbQueries.GetUserByMail(context.Background(), "test@test.com")
-	if err != nil {
-		log.Fatalf("Query failed: %v", err)
-	}
-	log.Printf("Total users in database: %v", user)
-
 	router := chi.NewRouter()
 
 	// todo remove http in prod
@@ -76,8 +69,8 @@ func main() {
 	router.Get("/save", apiCfg.testSaveHandler)
 	router.Get("/testdb", apiCfg.testDatabase)
 
-	router.Get("/loging", apiCfg.login_handler)
-	router.Get("/regiester", apiCfg.create_user_handler)
+	router.Post("/login", apiCfg.login_handler)
+	router.Post("/register", apiCfg.create_user_handler)
 
 	srv := &http.Server{
 		Addr:              ":" + port,

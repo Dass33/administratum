@@ -15,13 +15,12 @@ const acc_expire_time = time.Hour
 const ref_expire_time = time.Hour * 24 * 60
 
 type Login struct {
-	ID            uuid.UUID `json:"id"`
-	Created_at    time.Time `json:"created_at"`
-	Updated_at    time.Time `json:"updated_at"`
-	Email         string    `json:"email"`
-	Is_chirpy_red bool      `json:"is_chirpy_red"`
-	Token         string    `json:"token"`
-	RefreshToken  string    `json:"refresh_token"`
+	ID           uuid.UUID `json:"id"`
+	Created_at   time.Time `json:"created_at"`
+	Updated_at   time.Time `json:"updated_at"`
+	Email        string    `json:"email"`
+	Token        string    `json:"token"`
+	RefreshToken string    `json:"refresh_token"`
 }
 
 func (cfg *apiConfig) login_handler(w http.ResponseWriter, req *http.Request) {
