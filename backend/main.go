@@ -1,38 +1,75 @@
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	"io"
+	"log"
 	"net/http"
 	"os"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
+	"github.com/joho/godotenv"
+
+	"github.com/Dass33/administratum/backend/internal/database"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 type apiConfig struct {
+	DB *database.Queries
 }
 
 func main() {
-	mux := new(http.ServeMux)
-	server := http.Server{
-		Addr:    ":8080",
-		Handler: mux,
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Printf("warning: assuming default configuration. .env unreadable: %v", err)
 	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT environment variable is not set")
+	}
+
 	apiCfg := apiConfig{}
 
-	h := http.HandlerFunc(apiCfg.testColumnHandler)
-	mux.Handle("GET /columns", h)
-
-	h = http.HandlerFunc(apiCfg.testSheetsHandler)
-	mux.Handle("GET /sheets", h)
-
-	h = http.HandlerFunc(apiCfg.testSaveHandler)
-	mux.Handle("POST /save", h)
-	mux.Handle("OPTIONS /save", h)
-
-	err := server.ListenAndServe()
-	if err != nil {
-		fmt.Printf("Listening failed: %v\n", err)
-		os.Exit(1)
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		log.Fatal("DATABASE_URL environment variable is not set")
 	}
+	db, err := sql.Open("libsql", dbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	dbQueries := database.New(db)
+	apiCfg.DB = dbQueries
+	log.Println("Connected to database!")
+
+	router := chi.NewRouter()
+
+	// todo remove http in prod
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+
+	// router.Post("/users", apiCfg.handlerUsersCreate)
+	// router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerUsersGet))
+	router.Get("/columns", apiCfg.testColumnHandler)
+	router.Get("/sheets", apiCfg.testSheetsHandler)
+	router.Get("/save", apiCfg.testSaveHandler)
+
+	srv := &http.Server{
+		Addr:              ":" + port,
+		Handler:           router,
+		ReadHeaderTimeout: 0,
+	}
+
+	log.Printf("Serving on port: %s\n", port)
+	log.Fatal(srv.ListenAndServe())
 }
 
 func (cfg *apiConfig) testColumnHandler(wr http.ResponseWriter, req *http.Request) {
@@ -83,7 +120,7 @@ func (cfg *apiConfig) testSaveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	fmt.Println("Received body:", string(body))
+	log.Println("Received body:", string(body))
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message":"Saved"}`))
