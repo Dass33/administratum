@@ -19,9 +19,9 @@ const Auth = () => {
     const [password, setPassword] = useState<string>();
     const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = async (data: loginData) => {
+    const handleSubmit = async (data: loginData, type: string) => {
         try {
-            const response = await fetch('http://localhost:8080/login', {
+            const response = await fetch('http://localhost:8080/' + type, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,7 +30,7 @@ const Auth = () => {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                setError(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
@@ -79,13 +79,19 @@ const Auth = () => {
                         <button className='bg-figma-green rounded-lg p-2 px-4 text-figma-white font-bold'
                             onClick={() => {
                                 if (email && password) {
-                                    handleSubmit({ email: email, password: password })
+                                    handleSubmit({ email: email, password: password }, "login")
                                 }
                             }}
                         >
                             Login
                         </button>
-                        <button className='rounded-lg p-2 px-4 text-figma-black'>
+                        <button className='rounded-lg p-2 px-4 text-figma-black'
+                            onClick={() => {
+                                if (email && password) {
+                                    handleSubmit({ email: email, password: password }, "register")
+                                }
+                            }}
+                        >
                             Register
                         </button>
                     </div>
