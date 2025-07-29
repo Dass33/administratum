@@ -12,9 +12,6 @@ Makes config to web apps more accessible.
 - Golang
 
 ## 🎒 TODO
-- columns types
-    - enum support
-
-- create accounts
-- add authorization
-- connect sheets to database
+- enum support
+- use access tokens
+- store table in database
