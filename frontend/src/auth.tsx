@@ -31,6 +31,7 @@ const Auth = () => {
 
             if (!response.ok) {
                 setError(`HTTP error! status: ${response.status}`);
+                return;
             }
 
             const result = await response.json();
