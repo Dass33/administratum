@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"time"
 
 	"github.com/Dass33/administratum/backend/internal/auth"
@@ -30,6 +31,13 @@ func (cfg *apiConfig) create_user_handler(w http.ResponseWriter, req *http.Reque
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding parameters: %s", err)
+		respondWithError(w, 500, msg)
+		return
+	}
+
+	_, err = mail.ParseAddress(params.Email)
+	if err != nil {
+		msg := fmt.Sprintf("Invalid email address: %s", err)
 		respondWithError(w, 500, msg)
 		return
 	}
