@@ -11,7 +11,7 @@ import (
 
 const getUserByMail = `-- name: GetUserByMail :one
 select id, created_at, updated_at, email, hashed_password from users
-where email = $1
+where email = ?
 `
 
 func (q *Queries) GetUserByMail(ctx context.Context, email string) (User, error) {

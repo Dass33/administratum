@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"database/sql"
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -16,7 +18,9 @@ import (
 )
 
 type apiConfig struct {
-	DB *database.Queries
+	db       *database.Queries
+	platform string
+	jwt_key  string
 }
 
 func main() {
@@ -30,8 +34,6 @@ func main() {
 		log.Fatal("PORT environment variable is not set")
 	}
 
-	apiCfg := apiConfig{}
-
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		log.Fatal("DATABASE_URL environment variable is not set")
@@ -41,8 +43,19 @@ func main() {
 		log.Fatal(err)
 	}
 	dbQueries := database.New(db)
-	apiCfg.DB = dbQueries
+	apiCfg := apiConfig{
+		db:       dbQueries,
+		platform: os.Getenv("PLATFORM"),
+		jwt_key:  os.Getenv("JWT_KEY"),
+	}
+
 	log.Println("Connected to database!")
+
+	user, err := dbQueries.GetUserByMail(context.Background(), "test@test.com")
+	if err != nil {
+		log.Fatalf("Query failed: %v", err)
+	}
+	log.Printf("Total users in database: %v", user)
 
 	router := chi.NewRouter()
 
@@ -61,6 +74,10 @@ func main() {
 	router.Get("/columns", apiCfg.testColumnHandler)
 	router.Get("/sheets", apiCfg.testSheetsHandler)
 	router.Get("/save", apiCfg.testSaveHandler)
+	router.Get("/testdb", apiCfg.testDatabase)
+
+	router.Get("/loging", apiCfg.login_handler)
+	router.Get("/regiester", apiCfg.create_user_handler)
 
 	srv := &http.Server{
 		Addr:              ":" + port,
@@ -124,4 +141,32 @@ func (cfg *apiConfig) testSaveHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message":"Saved"}`))
+}
+
+func (cfg *apiConfig) testDatabase(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	user, err := cfg.db.GetUserByMail(req.Context(), "test@test.com")
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// No user found - return 404 or empty response
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(`{"error": "user not found"}`))
+			return
+		}
+		log.Printf("Database error: %v", err)
+		http.Error(w, "Failed to fetch user", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	content, err := json.Marshal(user)
+	if err != nil {
+		log.Printf("JSON marshal error: %v", err)
+		http.Error(w, "Failed to marshal user", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(content)
 }

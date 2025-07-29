@@ -1,3 +1,3 @@
 -- name: GetUserByMail :one
 select * from users
-where email = $1;
+where email = ?;
