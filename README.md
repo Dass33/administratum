@@ -16,5 +16,4 @@ Makes config to web apps more accessible.
 
 ## 🎒 TODO
 - enum support
-- use access tokens
 - store table in database
