@@ -58,7 +58,7 @@ func main() {
 
 	// todo change origin in prod
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173/"},
+		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"Link"},

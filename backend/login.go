@@ -79,7 +79,7 @@ func (cfg *apiConfig) ReturnCredetials(w http.ResponseWriter, user database.User
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     auth.RefreshTokenName,
-		Value:    token,
+		Value:    ref_token,
 		Path:     "/",
 		Expires:  time.Now().Add(ref_expire_time),
 		MaxAge:   7 * 24 * 60 * 60,
