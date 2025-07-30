@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 
 	"github.com/Dass33/administratum/backend/internal/database"
@@ -66,7 +67,7 @@ func main() {
 	// router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerUsersGet))
 	router.Get("/columns", apiCfg.testColumnHandler)
 	router.Get("/sheets", apiCfg.testSheetsHandler)
-	router.Get("/save", apiCfg.testSaveHandler)
+	router.Post("/save", apiCfg.middlewareAuth(apiCfg.testSaveHandler))
 	router.Get("/testdb", apiCfg.testDatabase)
 
 	router.Post("/login", apiCfg.login_handler)
@@ -105,11 +106,12 @@ func (cfg *apiConfig) testSheetsHandler(wr http.ResponseWriter, req *http.Reques
 	wr.Write([]byte(content))
 }
 
-func (cfg *apiConfig) testSaveHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) testSaveHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
+	log.Println(id)
 
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
