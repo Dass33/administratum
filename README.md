@@ -10,6 +10,9 @@ Makes config to web apps more accessible.
 
 ⚙️ **backend**:
 - Golang
+- goose
+- sqlc
+- turso
 
 ## 🎒 TODO
 - enum support
