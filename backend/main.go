@@ -76,6 +76,7 @@ func main() {
 	router.Post("/login", apiCfg.login_handler)
 	router.Post("/register", apiCfg.create_user_handler)
 	router.Post("/refresh", apiCfg.refresh_handler)
+	router.Post("/logout", apiCfg.revoke_handler)
 
 	srv := &http.Server{
 		Addr:              ":" + port,
