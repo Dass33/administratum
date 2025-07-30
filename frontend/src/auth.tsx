@@ -37,7 +37,7 @@ const Auth = () => {
     const handleSubmit = async (data: loginData, type: string) => {
         setLoading(type);
         try {
-            const response = await fetch('http://localhost:8080/' + type, {
+            const response = await fetch("/" + type, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

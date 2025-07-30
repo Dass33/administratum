@@ -19,8 +19,15 @@ function App() {
         colModal,
         sheetModal,
         settingsModal,
-        authenticated
+        authenticated,
+        loading,
     } = useApp()
+
+    if (loading) return (
+        <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex items-center'>
+            <h1 className="text-figma-black text-2xl text-center w-full">Loading...</h1>
+        </div>
+    )
 
     if (!authenticated) return (
         <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row'>

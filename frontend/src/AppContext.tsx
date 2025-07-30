@@ -31,6 +31,8 @@ interface AppState {
     setAuthenticated: Function,
     accessToken: string | undefined,
     setAccessToken: Function,
+    loading: boolean,
+    setLoading: Function,
 }
 
 export interface ColumnProps {
@@ -105,11 +107,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [projectName, setProjectName] = useState();
     const [branchName, setBranchName] = useState();
     const [authenticated, setAuthenticated] = useState(false);
-    const [accessToken, setAccessToken] = useState();
+    const [accessToken, setAccessToken] = useState<string | undefined>();
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         localStorage.setItem(currSheet, JSON.stringify(currTable));
     }, [currTable]);
+
+    useEffect(() => {
+        interface Token {
+            token: string
+        }
+        fetch('/refresh', {
+            method: "POST",
+            credentials: "include"
+        })
+            .then(response => {
+                if (response.status != 200) {
+                    throw "Not valid refresh token"
+                }
+                return response.json()
+            })
+            .then((data: Token) => {
+                if (data) {
+                    setAccessToken(data.token);
+                    setAuthenticated(true);
+                    setLoading(false);
+                }
+            })
+            .catch(err => {
+                setAuthenticated(false);
+                setLoading(false);
+                console.error(err);
+            });
+    }, []);
 
     return (
         <AppContext.Provider value={{
@@ -127,6 +158,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             branchName, setBranchName,
             authenticated, setAuthenticated,
             accessToken, setAccessToken,
+            loading, setLoading,
         }}>
             {children}
         </AppContext.Provider>
