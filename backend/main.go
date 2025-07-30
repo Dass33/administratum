@@ -17,6 +17,9 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
+const PlatformDev = "dev"
+const PlatformProd = "production"
+
 type apiConfig struct {
 	db       *database.Queries
 	platform string
@@ -53,13 +56,13 @@ func main() {
 
 	router := chi.NewRouter()
 
-	// todo remove http in prod
+	// todo change origin in prod
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{"http://localhost:5173/"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
+		AllowCredentials: true,
 		MaxAge:           300,
 	}))
 
@@ -72,6 +75,7 @@ func main() {
 
 	router.Post("/login", apiCfg.login_handler)
 	router.Post("/register", apiCfg.create_user_handler)
+	router.Post("/refresh", apiCfg.refresh_handler)
 
 	srv := &http.Server{
 		Addr:              ":" + port,

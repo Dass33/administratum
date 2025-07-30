@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/mail"
-	"time"
 
 	"github.com/Dass33/administratum/backend/internal/auth"
 	"github.com/Dass33/administratum/backend/internal/database"
@@ -53,34 +52,5 @@ func (cfg *apiConfig) create_user_handler(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	token, err := auth.MakeJWT(user.ID, cfg.jwt_key, acc_expire_time)
-	if err != nil {
-		msg := fmt.Sprintf("Problem with creating access token: %s", err)
-		respondWithError(w, 500, msg)
-		return
-	}
-
-	ref_token, _ := auth.MakeRefreshToken()
-	ref_params := database.CreateRefreshTokenParams{
-		Token:     ref_token,
-		UserID:    user.ID,
-		ExpiresAt: time.Now().Add(ref_expire_time),
-	}
-	_, err = cfg.db.CreateRefreshToken(req.Context(), ref_params)
-	if err != nil {
-		msg := fmt.Sprintf("Problem with creating refresh token: %s", err)
-		respondWithError(w, 500, msg)
-		return
-	}
-
-	ret := Login{
-		ID:           user.ID,
-		Created_at:   user.CreatedAt,
-		Updated_at:   user.UpdatedAt,
-		Email:        user.Email,
-		Token:        token,
-		RefreshToken: ref_token,
-	}
-
-	respondWithJSON(w, 201, ret)
+	cfg.ReturnCredetials(w, user, req.Context(), 201)
 }
