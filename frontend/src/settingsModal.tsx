@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from './AppContext';
+import danger from "./assets/danger.svg";
 
 const SettingsModal = () => {
     const {
         setSettingsModal,
-        gameUrl, setGameUrl
+        gameUrl, setGameUrl,
+        setAuthenticated,
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
     };
 
     const [newGameUrl, setNewGameUrl] = useState(gameUrl);
+    const [logutError, SetLogoutError] = useState(false);
 
     const saveAndExit = () => {
         setGameUrl(newGameUrl);
@@ -28,6 +31,23 @@ const SettingsModal = () => {
         };
     }, [setSettingsModal]);
 
+    const handleLogout = async () => {
+        await fetch("/logout", {
+            method: "POST",
+            credentials: "include"
+        })
+            .then(response => {
+                if (response.status != 204) throw "Logout error"
+            })
+            .then(() => {
+                setAuthenticated(false);
+            })
+            .catch(err => {
+                SetLogoutError(true);
+                console.error(err);
+            })
+    };
+
     return (
         <div
             className="fixed inset-0 bg-black bg-opacity-15 flex justify-center items-center z-50"
@@ -43,6 +63,17 @@ const SettingsModal = () => {
                             defaultValue={gameUrl}
                             onChange={(e) => { setNewGameUrl(e.target.value) }}
                         />
+                    </div>
+
+                    <div className='w-full flex justify-end'>
+                        <button className='bg-red-600 w-24 rounded-lg p-2 px-4 text-figma-white font-bold mt-4'
+                            onClick={() => handleLogout()}
+                        >
+                            {logutError
+                                ? <img className="size-6 mx-auto" src={danger} />
+                                : <span>Log Out</span>
+                            }
+                        </button>
                     </div>
                 </div>
             </div>

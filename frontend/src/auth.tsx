@@ -54,7 +54,6 @@ const Auth = () => {
             const result: AuthData = await response.json();
             setError(null);
             setAccessToken(result.token)
-            console.log('Success:', result);
             setAuthenticated(true);
 
         } catch (err) {
