@@ -14,9 +14,16 @@ enum AuthAction {
     Register = "register"
 }
 
+type AuthData = {
+    id: string
+    refresh_token: string
+    token: string
+}
+
 const Auth = () => {
     const {
-        setAuthenticated
+        setAuthenticated,
+        setAccessToken,
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -44,8 +51,9 @@ const Auth = () => {
                 return;
             }
 
-            const result = await response.json();
+            const result: AuthData = await response.json();
             setError(null);
+            setAccessToken(result.token)
             console.log('Success:', result);
             setAuthenticated(true);
 

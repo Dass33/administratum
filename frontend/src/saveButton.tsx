@@ -16,6 +16,7 @@ function SaveButton() {
     const {
         projectName,
         branchName,
+        accessToken,
     } = useApp();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -30,7 +31,7 @@ function SaveButton() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify(data)
             });

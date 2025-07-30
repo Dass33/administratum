@@ -29,6 +29,8 @@ interface AppState {
     setBranchName: Function,
     authenticated: boolean,
     setAuthenticated: Function,
+    accessToken: string | undefined,
+    setAccessToken: Function,
 }
 
 export interface ColumnProps {
@@ -103,6 +105,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [projectName, setProjectName] = useState();
     const [branchName, setBranchName] = useState();
     const [authenticated, setAuthenticated] = useState(false);
+    const [accessToken, setAccessToken] = useState();
 
     useEffect(() => {
         localStorage.setItem(currSheet, JSON.stringify(currTable));
@@ -123,6 +126,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             projectName, setProjectName,
             branchName, setBranchName,
             authenticated, setAuthenticated,
+            accessToken, setAccessToken,
         }}>
             {children}
         </AppContext.Provider>
