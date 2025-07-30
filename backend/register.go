@@ -52,5 +52,5 @@ func (cfg *apiConfig) create_user_handler(w http.ResponseWriter, req *http.Reque
 		return
 	}
 
-	cfg.ReturnCredetials(w, user, req.Context(), 201)
+	cfg.ReturnLoginData(w, user, req.Context(), 201)
 }

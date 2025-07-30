@@ -11,6 +11,24 @@ import (
 	"github.com/google/uuid"
 )
 
+type Branch struct {
+	ID        uuid.UUID
+	Name      string
+	TableID   uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Column struct {
+	ID        uuid.UUID
+	Name      string
+	Type      string
+	Required  bool
+	SheetID   uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type RefreshToken struct {
 	Token     string
 	CreatedAt time.Time
@@ -20,10 +38,46 @@ type RefreshToken struct {
 	RevokedAt sql.NullTime
 }
 
+type Row struct {
+	ID        uuid.UUID
+	IndexNum  int64
+	Value     sql.NullString
+	SheetID   uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Sheet struct {
+	ID        uuid.UUID
+	Name      string
+	RowCount  int64
+	BranchID  uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Table struct {
+	ID        uuid.UUID
+	GameUrl   sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type User struct {
 	ID             uuid.UUID
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	Email          string
 	HashedPassword string
+	OpenedTable    interface{}
+}
+
+type UserTable struct {
+	UserID     interface{}
+	TableID    interface{}
+	BranchID   interface{}
+	SheetID    interface{}
+	Permission string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }

@@ -16,11 +16,12 @@ const acc_expire_time = time.Hour
 const ref_expire_time = time.Hour * 24 * 60
 
 type Login struct {
-	ID         uuid.UUID `json:"id"`
-	Created_at time.Time `json:"created_at"`
-	Updated_at time.Time `json:"updated_at"`
-	Email      string    `json:"email"`
-	Token      string    `json:"token"`
+	ID          uuid.UUID `json:"id"`
+	Created_at  time.Time `json:"created_at"`
+	Updated_at  time.Time `json:"updated_at"`
+	Email       string    `json:"email"`
+	Token       string    `json:"token"`
+	OpenedTable Table     `json:"opened_table"`
 }
 
 func (cfg *apiConfig) login_handler(w http.ResponseWriter, req *http.Request) {
@@ -53,10 +54,10 @@ func (cfg *apiConfig) login_handler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	cfg.ReturnCredetials(w, user, req.Context(), 200)
+	cfg.ReturnLoginData(w, user, req.Context(), 200)
 }
 
-func (cfg *apiConfig) ReturnCredetials(w http.ResponseWriter, user database.User, ctx context.Context, code int) {
+func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User, ctx context.Context, code int) {
 	token, err := auth.MakeJWT(user.ID, cfg.jwt_key, acc_expire_time)
 	if err != nil {
 		msg := fmt.Sprintf("Problem with creating access token: %s", err)
@@ -87,6 +88,13 @@ func (cfg *apiConfig) ReturnCredetials(w http.ResponseWriter, user database.User
 		Secure:   cfg.platform != PlatformDev,
 		SameSite: http.SameSiteStrictMode,
 	})
+
+	table, err := cfg.GetTable(user.ID, user.OpenedTable, ctx)
+	if err != nil {
+		msg := fmt.Sprintf("With getting an opened table: %s", err)
+		respondWithError(w, 500, msg)
+		return
+	}
 
 	ret := Login{
 		ID:         user.ID,

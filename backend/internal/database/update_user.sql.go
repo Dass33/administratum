@@ -15,7 +15,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
 set email = ?, hashed_password = ?, updated_at = datetime('now')
 where id = ?
-RETURNING id, created_at, updated_at, email, hashed_password
+RETURNING id, created_at, updated_at, email, hashed_password, opened_table
 `
 
 type UpdateUserParams struct {
@@ -33,6 +33,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.Email,
 		&i.HashedPassword,
+		&i.OpenedTable,
 	)
 	return i, err
 }
