@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import plus from "./assets/plus.svg"
 
 export interface DropdownOption {
     value: string;
@@ -10,10 +11,18 @@ export interface DropdownProps {
     placeholder?: string;
     onSelect?: (option: DropdownOption) => void;
     isDown?: boolean;
-    defaultValue?: string
+    defaultValue?: string;
+    addNewValue?: () => void;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ options, placeholder = "Select an option", onSelect, isDown = true, defaultValue }) => {
+const Dropdown: React.FC<DropdownProps> = ({
+    options,
+    placeholder = "Select an option",
+    onSelect,
+    isDown = true,
+    defaultValue,
+    addNewValue
+}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<DropdownOption | undefined>(() => {
         if (defaultValue) return options.find((item) => item.value === defaultValue)
@@ -64,6 +73,15 @@ const Dropdown: React.FC<DropdownProps> = ({ options, placeholder = "Select an o
                                 {option.label}
                             </li>
                         ))}
+                        {addNewValue &&
+                            <li
+                                onClick={() => addNewValue()}
+                                className="px-4 py-2 text-sm text-gray-700 hover:bg-figma-gray hover:text-figma-black cursor-pointer flex"
+                            >
+                                <span className='font-medium'>New</span>
+                                <img className='size-5 ml-1' src={plus} />
+                            </li>
+                        }
                     </ul>
                 </div>
             )}

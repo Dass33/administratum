@@ -58,7 +58,7 @@ function SaveButton() {
                 onClick={() => handleSubmit(currState)}
             >
                 {error && <img className="size-6 ml-7 mr-4 my-1" src={danger} />}
-                {loading && <img className="size-6 ml-7 mr-4 my-1 animate-spin" src={reload} />}
+                {loading && !error && <img className="size-6 ml-7 mr-4 my-1 animate-spin" src={reload} />}
                 {!loading && !error && <span className="text-2xl border-figma-white ml-3">Save</span>}
             </button>
 

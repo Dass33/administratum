@@ -13,6 +13,7 @@ function SelectBranch() {
             options={optionsBranches}
             placeholder="Branch"
             onSelect={(e) => { setBranchName(e.value) }}
+            addNewValue={() => { }}
         />
     );
 }

@@ -13,6 +13,7 @@ function SelectProject() {
             options={optionsProjects}
             placeholder="Project"
             onSelect={(e) => { setProjectName(e.value) }}
+            addNewValue={() => { }}
         />
 
     );

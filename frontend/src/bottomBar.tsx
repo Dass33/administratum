@@ -65,12 +65,9 @@ const BottomBar = () => {
                         });
                     }}
                     isDown={false}
+                    addNewValue={() => setSheetModal(true)}
                 />
             }
-            <button className="hover:scale-125 transition-transform duration-100"
-                onClick={() => setSheetModal(true)}>
-                <img src={plus} />
-            </button>
         </div>
     );
 }
