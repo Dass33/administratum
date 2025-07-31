@@ -61,6 +61,27 @@ export const CurrSheet = 'currSheet'
 export const Sheets = 'sheets'
 export const ColSuffix = '/columns'
 
+export type Column = {
+    name: string
+    type: string
+    require: boolean
+    data: any
+}
+
+export type Sheet = {
+    name: string
+    columns: Column
+    opened_branch_name: string
+}
+
+export type TableData = {
+    game_url: string
+    permision: string
+    opened_sheet: Sheet
+    sheets_names: string[]
+    branches_names: string[]
+}
+
 const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp } from './AppContext';
+import { useApp, TableData } from './AppContext';
 import logo from "./assets/logo.svg";
 import reload_black from "./assets/reload_black.svg";
 import reload from "./assets/reload.svg";
@@ -14,10 +14,10 @@ enum AuthAction {
     Register = "register"
 }
 
-type AuthData = {
-    id: string
+type LoginData = {
     refresh_token: string
     token: string
+    opened_table: TableData
 }
 
 const Auth = () => {
@@ -39,6 +39,7 @@ const Auth = () => {
         try {
             const response = await fetch("/" + type, {
                 method: 'POST',
+                credentials: "omit",
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -50,8 +51,9 @@ const Auth = () => {
                 setLoading(null);
                 return;
             }
-
-            const result: AuthData = await response.json();
+            const result: LoginData = await response.json();
+            console.log(result);
+            // todo setTableData(result)
             setError(null);
             setAccessToken(result.token)
             setAuthenticated(true);

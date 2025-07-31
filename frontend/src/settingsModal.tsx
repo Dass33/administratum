@@ -41,6 +41,7 @@ const SettingsModal = () => {
             })
             .then(() => {
                 setAuthenticated(false);
+                setSettingsModal(false);
             })
             .catch(err => {
                 SetLogoutError(true);
