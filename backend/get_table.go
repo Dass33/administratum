@@ -17,11 +17,11 @@ type TableData struct {
 	BranchesNames []IdName       `json:"branches_names"`
 }
 
-func (cfg *apiConfig) GetTable(user_id uuid.UUID, table_id_ptr *uuid.UUID, ctx context.Context) (TableData, error) {
-	if table_id_ptr == nil {
+func (cfg *apiConfig) GetTable(user_id uuid.UUID, optional_table_id uuid.NullUUID, ctx context.Context) (TableData, error) {
+	if !optional_table_id.Valid {
 		return TableData{}, errors.New("Table id not present")
 	}
-	table_id := uuid.UUID(table_id_ptr.NodeID())
+	table_id := optional_table_id.UUID
 
 	table, err := cfg.db.GetTable(ctx, table_id)
 	if err != nil {

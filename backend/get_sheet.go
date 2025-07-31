@@ -15,11 +15,11 @@ type Sheet struct {
 	SheetsIdNames []IdName  `json:"sheets_id_names"`
 }
 
-func (cfg *apiConfig) GetSheet(sheet_id_ptr *uuid.UUID, ctx context.Context) (Sheet, error) {
-	if sheet_id_ptr == nil {
+func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Context) (Sheet, error) {
+	if !optional_sheet_id.Valid {
 		return Sheet{}, errors.New("Table id not present")
 	}
-	sheet_id := uuid.UUID(sheet_id_ptr.NodeID())
+	sheet_id := optional_sheet_id.UUID
 
 	sheet, err := cfg.db.GetSheet(ctx, sheet_id)
 	if err != nil {

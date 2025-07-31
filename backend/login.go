@@ -9,6 +9,7 @@ import (
 
 	"github.com/Dass33/administratum/backend/internal/auth"
 	"github.com/Dass33/administratum/backend/internal/database"
+	"github.com/google/uuid"
 )
 
 const acc_expire_time = time.Hour
@@ -91,7 +92,17 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 
 	sheet, err := cfg.GetSheet(user.OpenedSheet, ctx)
 	if err == nil {
-		table, err = cfg.GetTable(user.ID, &sheet.ID, ctx)
+		DbTable, err := cfg.db.GetTableFromSheet(ctx, sheet.ID)
+		if err != nil {
+			msg := fmt.Sprintf("Problem with getting table from sheet id", err)
+			respondWithError(w, 500, msg)
+			return
+		}
+		optional_table_id := uuid.NullUUID{
+			UUID:  DbTable.ID,
+			Valid: true,
+		}
+		table, err = cfg.GetTable(user.ID, optional_table_id, ctx)
 		if err != nil {
 			msg := fmt.Sprintf("Problem with getting table data: %s", err)
 			respondWithError(w, 500, msg)

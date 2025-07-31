@@ -70,13 +70,12 @@ type User struct {
 	UpdatedAt      time.Time
 	Email          string
 	HashedPassword string
-	OpenedSheet    *uuid.UUID
+	OpenedSheet    uuid.NullUUID
 }
 
 type UserTable struct {
 	UserID     uuid.UUID
 	TableID    uuid.UUID
-	SheetID    *uuid.UUID
 	Permission string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time

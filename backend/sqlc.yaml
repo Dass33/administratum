@@ -11,4 +11,4 @@ sql:
             go_type: "github.com/google/uuid.UUID"
           - db_type: "UUID"
             nullable: true
-            go_type: "*github.com/google/uuid.UUID"
+            go_type: "github.com/google/uuid.NullUUID"

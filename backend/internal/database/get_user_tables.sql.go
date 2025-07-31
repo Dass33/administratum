@@ -12,7 +12,7 @@ import (
 )
 
 const getUserTables = `-- name: GetUserTables :one
-select user_id, table_id, sheet_id, permission, created_at, updated_at from user_tables
+select user_id, table_id, permission, created_at, updated_at from user_tables
 where user_id = ? and table_id = ?
 `
 
@@ -27,7 +27,6 @@ func (q *Queries) GetUserTables(ctx context.Context, arg GetUserTablesParams) (U
 	err := row.Scan(
 		&i.UserID,
 		&i.TableID,
-		&i.SheetID,
 		&i.Permission,
 		&i.CreatedAt,
 		&i.UpdatedAt,
