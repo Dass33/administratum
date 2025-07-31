@@ -15,10 +15,11 @@ const acc_expire_time = time.Hour
 const ref_expire_time = time.Hour * 24 * 60
 
 type LoginData struct {
-	Email       string    `json:"email"`
-	Token       string    `json:"token"`
-	OpenedTable TableData `json:"opened_table"`
-	TableNames  []string  `json:"table_names"`
+	Email        string    `json:"email"`
+	Token        string    `json:"token"`
+	OpenedTable  TableData `json:"opened_table"`
+	OpenedSheet  Sheet     `json:"opened_sheet"`
+	TableIdNames []IdName  `json:"table_names"`
 }
 
 func (cfg *apiConfig) login_handler(w http.ResponseWriter, req *http.Request) {
@@ -86,19 +87,35 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 		SameSite: http.SameSiteStrictMode,
 	})
 
-	table, _ := cfg.GetTable(user.ID, user.OpenedTable, ctx)
+	table := TableData{}
+
+	sheet, err := cfg.GetSheet(user.OpenedSheet, ctx)
+	if err == nil {
+		table, err = cfg.GetTable(user.ID, &sheet.ID, ctx)
+		if err != nil {
+			msg := fmt.Sprintf("Problem with getting table data: %s", err)
+			respondWithError(w, 500, msg)
+			return
+		}
+	}
+
 	tables, _ := cfg.db.GetTablesFromUser(ctx, user.ID)
-	tableNames := make([]string, 0, len(tables))
+	tableIdNames := make([]IdName, 0, len(tables))
 
 	for i := range tables {
-		tableNames = append(tableNames, tables[i].Name)
+		item := IdName{
+			ID:   tables[i].ID,
+			Name: tables[i].Name,
+		}
+		tableIdNames = append(tableIdNames, item)
 	}
 
 	ret := LoginData{
-		Email:       user.Email,
-		Token:       token,
-		OpenedTable: table,
-		TableNames:  tableNames,
+		Email:        user.Email,
+		Token:        token,
+		OpenedTable:  table,
+		OpenedSheet:  sheet,
+		TableIdNames: tableIdNames,
 	}
 	respondWithJSON(w, code, ret)
 }

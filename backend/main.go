@@ -26,6 +26,11 @@ type apiConfig struct {
 	jwt_key  string
 }
 
+type IdName struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {

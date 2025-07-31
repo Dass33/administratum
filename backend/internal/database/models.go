@@ -31,9 +31,9 @@ type Column struct {
 
 type ColumnDatum struct {
 	ID        uuid.UUID
-	IndexNum  int64
+	Idx       int64
 	Value     sql.NullString
-	SheetID   uuid.UUID
+	ColumnID  uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -70,7 +70,7 @@ type User struct {
 	UpdatedAt      time.Time
 	Email          string
 	HashedPassword string
-	OpenedTable    *uuid.UUID
+	OpenedSheet    *uuid.UUID
 }
 
 type UserTable struct {

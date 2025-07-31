@@ -10,7 +10,7 @@ import (
 )
 
 const getUserByMail = `-- name: GetUserByMail :one
-select id, created_at, updated_at, email, hashed_password, opened_table from users
+select id, created_at, updated_at, email, hashed_password, opened_sheet from users
 where email = ?
 `
 
@@ -23,7 +23,7 @@ func (q *Queries) GetUserByMail(ctx context.Context, email string) (User, error)
 		&i.UpdatedAt,
 		&i.Email,
 		&i.HashedPassword,
-		&i.OpenedTable,
+		&i.OpenedSheet,
 	)
 	return i, err
 }
