@@ -9,19 +9,16 @@ import (
 
 	"github.com/Dass33/administratum/backend/internal/auth"
 	"github.com/Dass33/administratum/backend/internal/database"
-	"github.com/google/uuid"
 )
 
 const acc_expire_time = time.Hour
 const ref_expire_time = time.Hour * 24 * 60
 
-type Login struct {
-	ID          uuid.UUID `json:"id"`
-	Created_at  time.Time `json:"created_at"`
-	Updated_at  time.Time `json:"updated_at"`
+type LoginData struct {
 	Email       string    `json:"email"`
 	Token       string    `json:"token"`
-	OpenedTable Table     `json:"opened_table"`
+	OpenedTable TableData `json:"opened_table"`
+	TableNames  []string  `json:"table_names"`
 }
 
 func (cfg *apiConfig) login_handler(w http.ResponseWriter, req *http.Request) {
@@ -89,19 +86,19 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 		SameSite: http.SameSiteStrictMode,
 	})
 
-	table, err := cfg.GetTable(user.ID, user.OpenedTable, ctx)
-	if err != nil {
-		msg := fmt.Sprintf("With getting an opened table: %s", err)
-		respondWithError(w, 500, msg)
-		return
+	table, _ := cfg.GetTable(user.ID, user.OpenedTable, ctx)
+	tables, _ := cfg.db.GetTablesFromUser(ctx, user.ID)
+	tableNames := make([]string, 0, len(tables))
+
+	for i := range tables {
+		tableNames = append(tableNames, tables[i].Name)
 	}
 
-	ret := Login{
-		ID:         user.ID,
-		Created_at: user.CreatedAt,
-		Updated_at: user.UpdatedAt,
-		Email:      user.Email,
-		Token:      token,
+	ret := LoginData{
+		Email:       user.Email,
+		Token:       token,
+		OpenedTable: table,
+		TableNames:  tableNames,
 	}
 	respondWithJSON(w, code, ret)
 }

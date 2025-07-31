@@ -59,9 +59,8 @@ CREATE TABLE rows (
 );
 
 CREATE TABLE user_tables (
-    user_id UUID,
-    table_id UUID,
-    branch_id UUID,
+    user_id UUID not null,
+    table_id UUID not null,
     sheet_id UUID,
     permission text not null,
     created_at timestamp not null,
@@ -75,10 +74,6 @@ CREATE TABLE user_tables (
         foreign key (table_id)
         references tables(id)
         on delete cascade,
-    constraint fk_user_tables_branch_id
-        foreign key (branch_id)
-        references branches(id)
-        on delete set null,
     constraint fk_user_tables_sheet_id
         foreign key (sheet_id)
         references sheets(id)

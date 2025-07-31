@@ -7,16 +7,18 @@ package database
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 const getUserTables = `-- name: GetUserTables :one
-select user_id, table_id, branch_id, sheet_id, permission, created_at, updated_at from user_tables
+select user_id, table_id, sheet_id, permission, created_at, updated_at from user_tables
 where user_id = ? and table_id = ?
 `
 
 type GetUserTablesParams struct {
-	UserID  interface{}
-	TableID interface{}
+	UserID  uuid.UUID
+	TableID uuid.UUID
 }
 
 func (q *Queries) GetUserTables(ctx context.Context, arg GetUserTablesParams) (UserTable, error) {
@@ -25,7 +27,6 @@ func (q *Queries) GetUserTables(ctx context.Context, arg GetUserTablesParams) (U
 	err := row.Scan(
 		&i.UserID,
 		&i.TableID,
-		&i.BranchID,
 		&i.SheetID,
 		&i.Permission,
 		&i.CreatedAt,

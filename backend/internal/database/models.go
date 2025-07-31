@@ -29,6 +29,15 @@ type Column struct {
 	UpdatedAt time.Time
 }
 
+type ColumnDatum struct {
+	ID        uuid.UUID
+	IndexNum  int64
+	Value     sql.NullString
+	SheetID   uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type RefreshToken struct {
 	Token     string
 	CreatedAt time.Time
@@ -36,15 +45,6 @@ type RefreshToken struct {
 	UserID    uuid.UUID
 	ExpiresAt time.Time
 	RevokedAt sql.NullTime
-}
-
-type Row struct {
-	ID        uuid.UUID
-	IndexNum  int64
-	Value     sql.NullString
-	SheetID   uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 type Sheet struct {
@@ -61,6 +61,7 @@ type Table struct {
 	GameUrl   sql.NullString
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Name      string
 }
 
 type User struct {
@@ -69,14 +70,13 @@ type User struct {
 	UpdatedAt      time.Time
 	Email          string
 	HashedPassword string
-	OpenedTable    interface{}
+	OpenedTable    *uuid.UUID
 }
 
 type UserTable struct {
-	UserID     interface{}
-	TableID    interface{}
-	BranchID   interface{}
-	SheetID    interface{}
+	UserID     uuid.UUID
+	TableID    uuid.UUID
+	SheetID    *uuid.UUID
 	Permission string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
