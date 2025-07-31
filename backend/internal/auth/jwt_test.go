@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Dass33/go_http_server/internal/auth"
+	"github.com/Dass33/administratum/backend/internal/auth"
 	"github.com/google/uuid"
 )
 
