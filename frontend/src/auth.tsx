@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useApp, TableData } from './AppContext';
+import { useApp, LoginData } from './AppContext';
 import logo from "./assets/logo.svg";
 import reload_black from "./assets/reload_black.svg";
 import reload from "./assets/reload.svg";
 
-type loginData = {
+type LoginCredentials = {
     email: string;
     password: string;
 };
@@ -14,16 +14,12 @@ enum AuthAction {
     Register = "register"
 }
 
-type LoginData = {
-    refresh_token: string
-    token: string
-    opened_table: TableData
-}
 
 const Auth = () => {
     const {
         setAuthenticated,
         setAccessToken,
+        setLoginData,
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -34,7 +30,7 @@ const Auth = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<string | null>(null);
 
-    const handleSubmit = async (data: loginData, type: string) => {
+    const handleSubmit = async (data: LoginCredentials, type: string) => {
         setLoading(type);
         try {
             const response = await fetch("/" + type, {
@@ -53,7 +49,7 @@ const Auth = () => {
             }
             const result: LoginData = await response.json();
             console.log(result);
-            // todo setTableData(result)
+            setLoginData(result)
             setError(null);
             setAccessToken(result.token)
             setAuthenticated(true);

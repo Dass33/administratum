@@ -1,5 +1,6 @@
 import React, { useState, createContext, useContext, useEffect } from "react";
 
+
 export type TableType = Record<string, any>[]
 
 interface AppState {
@@ -33,6 +34,8 @@ interface AppState {
     setAccessToken: Function,
     loading: boolean,
     setLoading: Function,
+    loginData: LoginData | undefined,
+    setLoginData: Function,
 }
 
 export interface ColumnProps {
@@ -61,37 +64,46 @@ export const CurrSheet = 'currSheet'
 export const Sheets = 'sheets'
 export const ColSuffix = '/columns'
 
+export type IdName = {
+    name: string
+    id: string
+}
+
+export type LoginData = {
+    email: string
+    token: string
+    opened_table: TableData
+    opened_sheet: Sheet
+    table_names: IdName[]
+}
+
 export type Column = {
     name: string
+    id: string
     type: string
     require: boolean
-    data: any
+    data: any[]
 }
 
 export type Sheet = {
     name: string
-    columns: Column
-    opened_branch_name: string
+    id: string
+    columns: Column[]
+    branch_id_name: IdName
+    sheets_id_names: IdName[]
 }
 
 export type TableData = {
+    name: string
+    id: string
     game_url: string
     permision: string
-    opened_sheet: Sheet
-    sheets_names: string[]
-    branches_names: string[]
+    branches_names: IdName[]
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // const data = [
-    //     { name: "John", age: 30, city: "New York", active: true },
-    //     { name: "Jane", age: 25, city: "Los Angeles" },
-    //     { name: "Bob", age: 35, active: false, salary: 75000 },
-    // ];
-    const data: TableType = [];
-
     const [cellModal, setCellModal] = useState(null);
     const [currSheet, setCurrSheet] = useState(() => {
         const stored = localStorage.getItem(CurrSheet);
@@ -99,7 +111,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
     const [currTable, setCurrTable] = useState<TableType>(() => {
         const stored = localStorage.getItem(currSheet);
-        return stored ? JSON.parse(stored) : data;
+        return stored ? JSON.parse(stored) : [];
     });
     const [colModal, setColModal] = useState(-1);
     const [columns, setColumns] = useState<ColumnProps[]>(() => {
@@ -130,6 +142,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [authenticated, setAuthenticated] = useState(false);
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [loading, setLoading] = useState(true);
+    const [loginData, setLoginData] = useState();
 
     useEffect(() => {
         localStorage.setItem(currSheet, JSON.stringify(currTable));
@@ -180,6 +193,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             authenticated, setAuthenticated,
             accessToken, setAccessToken,
             loading, setLoading,
+            loginData, setLoginData,
         }}>
             {children}
         </AppContext.Provider>
