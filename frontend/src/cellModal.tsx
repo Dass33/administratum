@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useApp, TableType, EnumColTypes } from './AppContext';
+import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID } from './AppContext';
 import Dropdown from "./dropdown";
 import { DropdownOption } from "./dropdown";
 import cross from "./assets/cross.svg";
@@ -12,7 +12,9 @@ interface ArrayItem {
 const CellModal = () => {
     const {
         setCellModal, cellModal,
-        currTable, setCurrTable,
+        columns, setColumns,
+        accessToken,
+        currSheet, setCurrSheet,
     } = useApp();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const numberInputRef = useRef<HTMLInputElement>(null);
@@ -21,8 +23,16 @@ const CellModal = () => {
         e.stopPropagation();
     };
 
-    const initCellVal = cellModal
-        ? currTable[cellModal[0]][cellModal[1].name]
+    const rowIdx = cellModal
+        ? cellModal[0]
+        : -1;
+
+    const currCol = cellModal
+        ? cellModal[1]
+        : null;
+
+    const initCellVal = currCol && rowIdx < currCol.data.length
+        ? currCol.data[rowIdx].value.String
         : ""
 
     const [cellVal, setCellVal] = useState(initCellVal);
@@ -31,7 +41,7 @@ const CellModal = () => {
     const [arrayType, setArrayType] = useState<EnumColTypes.TEXT | EnumColTypes.NUMBER>(EnumColTypes.TEXT);
 
     const colType = cellModal
-        ? cellModal[1].columnType
+        ? cellModal[1].type
         : EnumColTypes.TEXT;
 
     const optionsBranches: DropdownOption[] = [
@@ -91,29 +101,50 @@ const CellModal = () => {
         setArrayItems(prev => prev.filter((_, i) => i !== index));
     };
 
-    const updateCell = (newVal: any, rowIndex: number, col: string) => {
-        setCurrTable((prevTable: TableType) => {
-            const newTable = [...prevTable];
-            newTable[rowIndex][col] = newVal;
-            return newTable;
-        });
-    }
+    const updateCell = (newVal: any, rowIndex: number, col: Column) => {
+        const item = col.data.find(item => item.idx == rowIndex)
+        let item_id = item
+            ? item.id
+            : DEFAULT_UUID;
 
-    const removeEmptyRow = (newVal: any, rowIndex: number, col: string): boolean => {
-        if (currTable.length - 1 == rowIndex) return false
-        const len = Object.entries(currTable[rowIndex]).filter(([key, val]) => {
-            return key != col && val
-        }).length
-        if (!len && (newVal === null || newVal === "" || newVal === undefined)) {
-            setCurrTable(currTable.filter((_, idx) => { return rowIndex != idx }))
-            return true
+        let newCol = col
+        const newColData: ColumnData = {
+            id: item_id,
+            idx: rowIndex,
+            value: { String: newVal, Valid: true },
         }
+        newCol.data.push(newColData);
+        const newColumns = columns.map(item => {
+            if (item.id == col.id) return newCol;
+            return item;
+        })
+        setColumns(newColumns);
+        if (item) postAdjustedColumnData(newColData, accessToken ?? "")
+        else {
+            postNewColumnData(col, newColData, accessToken ?? "")
+            let newSheet = currSheet;
+            if (newSheet) newSheet.row_count++;
+            setCurrSheet(newSheet);
+        }
+    };
+
+    const removeEmptyRow = (newVal: any, rowIndex: number): boolean => {
+        // if (newVal) return false;
+        //
+        // if (currTable.length - 1 == rowIndex) return false
+        // const len = Object.entries(currTable[rowIndex]).filter(([key, val]) => {
+        //     return key != col && val
+        // }).length
+        // if (!len && (newVal === null || newVal === "" || newVal === undefined)) {
+        //     setCurrTable(currTable.filter((_, idx) => { return rowIndex != idx }))
+        //     return true
+        // }
         return false
     }
 
     const saveAndExit = () => {
-        setCellModal(null);
         if (!cellModal) return
+        setCellModal(null);
 
         let updatedValue: any;
         const rowIndex = cellModal[0];
@@ -150,8 +181,8 @@ const CellModal = () => {
                 updatedValue = cellVal;
         }
 
-        if (!removeEmptyRow(updatedValue, rowIndex, col.name)) {
-            updateCell(updatedValue, rowIndex, col.name)
+        if (!removeEmptyRow(updatedValue, rowIndex)) {
+            updateCell(updatedValue, rowIndex, col)
         }
     }
 
@@ -277,5 +308,48 @@ const CellModal = () => {
         </div>
     );
 };
+
+const postNewColumnData = async (col: Column, data: ColumnData, token: string) => {
+    const newColDataParams: { column_id: string; data: ColumnData } = {
+        column_id: col.id,
+        data: data,
+    };
+
+    fetch('/add_column_data', {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(newColDataParams)
+    })
+        .then(response => {
+            if (response.status != 200) {
+                throw "Could not update column data"
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+const postAdjustedColumnData = (data: ColumnData, token: string) => {
+    fetch('/update_column_data', {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (response.status != 200) {
+                throw "Could not update column"
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
 
 export default CellModal;

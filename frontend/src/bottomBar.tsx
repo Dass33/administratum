@@ -1,11 +1,10 @@
 import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
-import { useApp, CurrSheet, ColSuffix } from "./AppContext";
+import { useApp, CurrSheet } from "./AppContext";
 
 const BottomBar = () => {
     const {
         currSheet, setCurrSheet,
-        setCurrTable,
         columns, setColumns,
         setSheetModal,
         setSettingsModal,
@@ -21,17 +20,17 @@ const BottomBar = () => {
         : "Sheets"
 
     const selectSheets = (item: DropdownOption) => {
-        localStorage.setItem(currSheet + ColSuffix, JSON.stringify(columns));
-        setCurrSheet(item.value)
-        localStorage.setItem(CurrSheet, item.value);
-        setColumns(() => {
-            const stored = localStorage.getItem(item.value + ColSuffix);
-            return stored ? JSON.parse(stored) : [];
-        })
-        setCurrTable(() => {
-            const stored = localStorage.getItem(item.value);
-            return stored ? JSON.parse(stored) : [];
-        })
+        // localStorage.setItem(currSheet + ColSuffix, JSON.stringify(columns));
+        // setCurrSheet(item.value)
+        // localStorage.setItem(CurrSheet, item.value);
+        // setColumns(() => {
+        //     const stored = localStorage.getItem(item.value + ColSuffix);
+        //     return stored ? JSON.parse(stored) : [];
+        // })
+        // setCurrTable(() => {
+        //     const stored = localStorage.getItem(item.value);
+        //     return stored ? JSON.parse(stored) : [];
+        // })
     }
 
     return (

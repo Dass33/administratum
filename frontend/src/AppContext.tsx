@@ -53,7 +53,7 @@ export const ColTypes = [
 
 export const CurrSheet = 'currSheet'
 export const Sheets = 'sheets'
-export const ColSuffix = '/columns'
+export const DEFAULT_UUID = "00000000-0000-0000-0000-000000000000"
 
 export type IdName = {
     name: string

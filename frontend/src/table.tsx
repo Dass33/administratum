@@ -29,7 +29,7 @@ const Table = () => {
             if (!item || !item.value.Valid) {
                 return true;
             }
-            const value = col.data[rowIdx].value.String;
+            const value = item.value.String;
             return value === null || value === undefined || value === '';
         });
     };
@@ -137,10 +137,11 @@ const Table = () => {
 };
 
 const renderCellValue = (data: ColumnData[], idx: number): JSX.Element => {
-    if (data.length <= idx) {
+    const item = data.find(item => item.idx == idx)
+    if (!item) {
         return <span className="text-gray-400">null</span>;
     }
-    let value = data[idx].value.String
+    let value = item.value.String
     if (value === null || value === undefined || value === "") {
         return <span className="text-gray-400">null</span>;
     }

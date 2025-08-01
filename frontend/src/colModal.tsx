@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, ColTypes, Column, Sheet } from './AppContext';
+import { useApp, ColTypes, Column, Sheet, DEFAULT_UUID } from './AppContext';
 import Dropdown from './dropdown';
 
 const ColModal = () => {
@@ -75,7 +75,7 @@ const ColModal = () => {
         }
         if (addColumn) {
             const item: Column = {
-                id: "00000000-0000-0000-0000-000000000000",
+                id: DEFAULT_UUID,
                 name: name,
                 type: columnType,
                 required: required,
