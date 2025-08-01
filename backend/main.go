@@ -75,6 +75,8 @@ func main() {
 	router.Post("/logout", apiCfg.revoke_handler)
 	router.Post("/update_column", apiCfg.middlewareAuth(apiCfg.UpdateColumn))
 	router.Post("/add_column", apiCfg.middlewareAuth(apiCfg.AddColumn))
+	router.Post("/update_column_data", apiCfg.middlewareAuth(apiCfg.UpdateColumnData))
+	router.Post("/add_column_data", apiCfg.middlewareAuth(apiCfg.AddColumnData))
 
 	srv := &http.Server{
 		Addr:              ":" + port,
