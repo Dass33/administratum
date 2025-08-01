@@ -75,7 +75,7 @@ const ColModal = () => {
         }
         if (addColumn) {
             const item: Column = {
-                id: "",
+                id: "00000000-0000-0000-0000-000000000000",
                 name: name,
                 type: columnType,
                 required: required,
@@ -83,7 +83,7 @@ const ColModal = () => {
             }
             const newCols = [...columns, item]
             setColumns(newCols);
-            postNewColumn(currSheet, item);
+            postNewColumn(currSheet, item, accessToken ?? "");
         } else {
             updateExistingColumn();
         }
@@ -139,8 +139,28 @@ const ColModal = () => {
     );
 };
 
-const postNewColumn = async (sheet: Sheet, col: Column) => {
-    //todo
+const postNewColumn = async (sheet: Sheet, col: Column, token: string) => {
+    const newColParams: { sheet_id: string; col: Column } = {
+        sheet_id: sheet.id,
+        col: col,
+    };
+
+    fetch('/add_column', {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(newColParams)
+    })
+        .then(response => {
+            if (response.status != 200) {
+                throw "Could not update column"
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
 }
 
 const postAdjustedColumn = (col: Column, token: string) => {
