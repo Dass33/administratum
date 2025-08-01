@@ -2,17 +2,24 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 
 	"github.com/google/uuid"
 )
 
+type ColumnData struct {
+	ID    uuid.UUID      `json:"id"`
+	Idx   int64          `json:"idx"`
+	Value sql.NullString `json:"value"`
+}
+
 type Column struct {
-	ID       uuid.UUID `json:"id"`
-	Name     string    `json:"name"`
-	Type     string    `json:"type"`
-	Required bool      `json:"required"`
-	Data     []any     `json:"data"`
+	ID       uuid.UUID    `json:"id"`
+	Name     string       `json:"name"`
+	Type     string       `json:"type"`
+	Required bool         `json:"required"`
+	Data     []ColumnData `json:"data"`
 }
 
 func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Column, error) {
@@ -29,12 +36,17 @@ func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Col
 		if err != nil {
 			return nil, errors.New("Could not get columns data with given column id")
 		}
-		vals := make([]any, 0)
-		for e, item := range columns_data {
-			if int64(e) != item.Idx {
+		vals := make([]ColumnData, 0)
+		for e, _ := range columns_data {
+			if int64(e) != columns_data[e].Idx {
 				continue
 			}
-			vals = append(vals, item.Value)
+			item := ColumnData{
+				ID:    columns_data[e].ID,
+				Idx:   columns_data[e].Idx,
+				Value: columns_data[e].Value,
+			}
+			vals = append(vals, item)
 		}
 		col := Column{
 			ID:       columns[i].ID,
