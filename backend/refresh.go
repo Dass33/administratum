@@ -14,7 +14,6 @@ func (cfg *apiConfig) refresh_handler(w http.ResponseWriter, req *http.Request) 
 		respondWithError(w, 400, msg)
 		return
 	}
-	fmt.Println(token_req)
 	token_db, err := cfg.db.GetRefreshToken(req.Context(), token_req)
 	if err != nil {
 		msg := fmt.Sprintf("Could not find the token in database: %v", err)
