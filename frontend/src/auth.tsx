@@ -35,7 +35,7 @@ const Auth = () => {
         try {
             const response = await fetch("/" + type, {
                 method: 'POST',
-                credentials: "omit",
+                credentials: "include",
                 headers: {
                     'Content-Type': 'application/json',
                 },
