@@ -6,8 +6,7 @@ import plus from "./assets/plus.svg";
 const Table = () => {
     const {
         setCellModal,
-        currTable, setCurrTable,
-        currSheet,
+        currSheet, setCurrSheet,
         setColModal,
         columns,
         setAddColumn,
@@ -24,33 +23,32 @@ const Table = () => {
         }))
     }, [columns]);
 
-    // const isRowEmpty = (row: Record<string, any>) => {
-    //     return columns.every(col => {
-    //         const value = row[col.name];
-    //         return value === null || value === undefined || value === '';
-    //     });
-    // };
-    //
-    // const createEmptyRow = () => {
-    //     const emptyRow: Record<string, any> = {};
-    //     columns.forEach(col => {
-    //         emptyRow[col.name] = '';
-    //     });
-    //     return emptyRow;
-    // };
-    // useEffect(() => {
-    //     if (!columns) return
-    //     if (!currTable || currTable.length == 0) {
-    //         setCurrTable([...currTable, createEmptyRow()]);
-    //         return
-    //     }
-    //     if (currTable && currTable.length > 0 && columns.length > 0) {
-    //         const lastRow = currTable[currTable.length - 1];
-    //         if (!isRowEmpty(lastRow)) {
-    //             setCurrTable([...currTable, createEmptyRow()]);
-    //         }
-    //     }
-    // }, [currTable, columns]);
+    const isRowEmpty = (rowIdx: number) => {
+        return columns.every(col => {
+            const item = col.data.find(item => item.idx == rowIdx)
+            if (!item || !item.value.Valid) {
+                return true;
+            }
+            const value = col.data[rowIdx].value.String;
+            return value === null || value === undefined || value === '';
+        });
+    };
+
+    const createEmptyRow = () => {
+        if (currSheet?.row_count !== undefined) {
+            setCurrSheet({
+                ...currSheet,
+                row_count: currSheet.row_count + 1
+            });
+        }
+    };
+    useEffect(() => {
+        if (!columns || !currSheet) return
+        if (currSheet.row_count == 0 || !isRowEmpty(currSheet.row_count - 1)) {
+            createEmptyRow()
+            return
+        }
+    }, [columns]);
 
     if (!columns) {
         return (
@@ -159,10 +157,11 @@ const renderCellValue = (data: ColumnData[], idx: number): JSX.Element => {
 }
 
 const validateCellType = (idx: number, col: Column): boolean => {
-    if (idx >= col.data.length || !col.data[idx].value.Valid) {
+    const item = col.data.find(item => item.idx == idx)
+    if (!item || !item.value.Valid) {
         return !col.required;
     }
-    let val = col.data[idx].value
+    const val = item.value.String
 
     switch (col.type) {
         case EnumColTypes.TEXT:

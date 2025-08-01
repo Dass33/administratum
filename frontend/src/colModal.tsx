@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, ColumnProps, ColTypes, TableType, ColSuffix } from './AppContext';
+import { useApp, ColTypes, Column, Sheet } from './AppContext';
 import Dropdown from './dropdown';
 
 const ColModal = () => {
@@ -7,18 +7,17 @@ const ColModal = () => {
         colModal, setColModal,
         columns, setColumns,
         addColumn, setAddColumn,
-        setCurrTable,
         currSheet,
+        accessToken,
     } = useApp();
 
-    const colLocalStorage = currSheet + ColSuffix
     const optionsColTypes = ColTypes.map(item => ({ label: item.val, value: item.val }));
     const [name, setName] = useState(() => {
         if (!addColumn) return columns[colModal].name
         return ''
     });
     const [columnType, setColumnType] = useState(() => {
-        if (!addColumn) return columns[colModal].columnType
+        if (!addColumn) return columns[colModal].type
         return ColTypes[0].val
     });
     const [required, setRequired] = useState(() => {
@@ -31,7 +30,12 @@ const ColModal = () => {
     };
 
     const validJSON = (str: string) => {
-        return /^[a-zA-Z_$][a-zA-Z0-9_$\-\.]*$/.test(str)
+        try {
+            JSON.parse(`{"${str}": 1}`);
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
     const nameExists = (name: string) => {
@@ -53,48 +57,37 @@ const ColModal = () => {
         else setRequired(false)
     };
 
-    const updateTableColumnNames = (prevName: string, newName: string) => {
-        setCurrTable((prevTable: TableType) => {
-            const newTable = prevTable.map(item => {
-                const newItem = { ...item };
-                newItem[newName] = newItem[prevName];
-                delete newItem[prevName];
-                return newItem;
-            });
-            return newTable;
-        });
-    };
-
-    const updateExistingColumn = (item: ColumnProps) => {
-        const prevName = columns[colModal].name
-        if (prevName !== name) {
-            updateTableColumnNames(prevName, name);
-        }
+    const updateExistingColumn = () => {
+        let newCol = columns[colModal]
+        newCol.name = name;
+        newCol.type = columnType
+        newCol.required = required
         const newCols = [...columns];
-        newCols[colModal] = item;
+        newCols[colModal] = newCol;
         setColumns(newCols);
-        localStorage.setItem(colLocalStorage, JSON.stringify(newCols));
+        postAdjustedColumn(newCol, accessToken ?? "")
     };
 
     const saveAndExit = () => {
         setColModal(-1)
-        setAddColumn(false)
-        if (!validName || name.length <= 0) return
-
-        const item: ColumnProps = {
-            name: name,
-            columnType: columnType,
-            required: required
-        }
-
-        if (addColumn) {
-            const newCols = [...columns, item]
-            setColumns(newCols)
-            localStorage.setItem(colLocalStorage, JSON.stringify(newCols));
+        if (!validName || name.length <= 0 || !currSheet) {
             return
         }
-
-        updateExistingColumn(item);
+        if (addColumn) {
+            const item: Column = {
+                id: "",
+                name: name,
+                type: columnType,
+                required: required,
+                data: [],
+            }
+            const newCols = [...columns, item]
+            setColumns(newCols);
+            postNewColumn(currSheet, item);
+        } else {
+            updateExistingColumn();
+        }
+        setAddColumn(false)
     }
 
     useEffect(() => {
@@ -145,5 +138,28 @@ const ColModal = () => {
         </div>
     );
 };
+
+const postNewColumn = async (sheet: Sheet, col: Column) => {
+    //todo
+}
+
+const postAdjustedColumn = (col: Column, token: string) => {
+    fetch('/update_column', {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(col)
+    })
+        .then(response => {
+            if (response.status != 200) {
+                throw "Could not update column"
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
 
 export default ColModal;

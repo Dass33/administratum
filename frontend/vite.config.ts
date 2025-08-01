@@ -11,6 +11,7 @@ export default defineConfig({
             '/login': 'http://localhost:8080',
             '/logout': 'http://localhost:8080',
             '/register': 'http://localhost:8080',
+            '/update_column': 'http://localhost:8080',
         }
     }
 })

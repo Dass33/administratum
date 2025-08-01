@@ -111,10 +111,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [currSheet, setCurrSheet] = useState<Sheet | undefined>();
     const [currTable, setCurrTable] = useState<TableData | undefined>();
     const [colModal, setColModal] = useState(-1);
-    const [columns, setColumns] = useState<Column[]>(() => {
-        const stored = localStorage.getItem(currSheet + ColSuffix);
-        return stored ? JSON.parse(stored) : [];
-    });
+    const [columns, setColumns] = useState<Column[]>([]);
 
     const [addColumn, setAddColumn] = useState(false);
     const [sheets, setSheets] = useState([]);
@@ -139,9 +136,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }, [loginData]);
 
     useEffect(() => {
-        interface Token {
-            token: string
-        }
         fetch('/refresh', {
             method: "POST",
             credentials: "include"
@@ -152,11 +146,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 }
                 return response.json()
             })
-            .then((data: Token) => {
+            .then((data: LoginData) => {
                 if (data) {
-                    setAccessToken(data.token);
                     setAuthenticated(true);
                     setLoading(false);
+                    setLoginData(data);
+                    setAccessToken(data.token);
+                    console.log(data)
                 }
             })
             .catch(err => {
