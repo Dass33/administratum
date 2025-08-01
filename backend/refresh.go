@@ -26,20 +26,12 @@ func (cfg *apiConfig) refresh_handler(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	acc_token, err := auth.MakeJWT(token_db.UserID, cfg.jwt_key, acc_expire_time)
+	user, err := cfg.db.GetUser(req.Context(), token_db.UserID)
 	if err != nil {
-		msg := fmt.Sprintf("Problem with creating access token: %s", err)
+		msg := fmt.Sprintf("User with id not found: %s", err)
 		respondWithError(w, 500, msg)
 		return
 	}
 
-	type Token struct {
-		Token string `json:"token"`
-	}
-
-	ret := Token{
-		Token: acc_token,
-	}
-
-	respondWithJSON(w, 200, ret)
+	cfg.ReturnLoginData(w, user, req.Context(), 200)
 }

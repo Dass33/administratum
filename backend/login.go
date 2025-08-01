@@ -35,7 +35,7 @@ func (cfg *apiConfig) login_handler(w http.ResponseWriter, req *http.Request) {
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding parameters: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, 400, msg)
 		return
 	}
 
