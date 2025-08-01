@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes, EnumColTypes, ColumnProps } from "./AppContext";
+import { useApp, ColTypes, EnumColTypes, Column, ColumnData } from "./AppContext";
 import plus from "./assets/plus.svg";
 
 
@@ -7,6 +7,7 @@ const Table = () => {
     const {
         setCellModal,
         currTable, setCurrTable,
+        currSheet,
         setColModal,
         columns,
         setAddColumn,
@@ -17,41 +18,39 @@ const Table = () => {
     useEffect(() => {
         if (!columns) return
         setBorderColors(columns.map(col => {
-            const colType = ColTypes.find(item => col.columnType === item.val)
+            const colType = ColTypes.find(item => col.type === item.val)
             if (colType) return colType.color
             return ColTypes[0].color
         }))
     }, [columns]);
 
-
-
-    const isRowEmpty = (row: Record<string, any>) => {
-        return columns.every(col => {
-            const value = row[col.name];
-            return value === null || value === undefined || value === '';
-        });
-    };
-
-    const createEmptyRow = () => {
-        const emptyRow: Record<string, any> = {};
-        columns.forEach(col => {
-            emptyRow[col.name] = '';
-        });
-        return emptyRow;
-    };
-    useEffect(() => {
-        if (!columns) return
-        if (currTable.length == 0) {
-            setCurrTable([...currTable, createEmptyRow()]);
-            return
-        }
-        if (currTable && currTable.length > 0 && columns.length > 0) {
-            const lastRow = currTable[currTable.length - 1];
-            if (!isRowEmpty(lastRow)) {
-                setCurrTable([...currTable, createEmptyRow()]);
-            }
-        }
-    }, [currTable, columns]);
+    // const isRowEmpty = (row: Record<string, any>) => {
+    //     return columns.every(col => {
+    //         const value = row[col.name];
+    //         return value === null || value === undefined || value === '';
+    //     });
+    // };
+    //
+    // const createEmptyRow = () => {
+    //     const emptyRow: Record<string, any> = {};
+    //     columns.forEach(col => {
+    //         emptyRow[col.name] = '';
+    //     });
+    //     return emptyRow;
+    // };
+    // useEffect(() => {
+    //     if (!columns) return
+    //     if (!currTable || currTable.length == 0) {
+    //         setCurrTable([...currTable, createEmptyRow()]);
+    //         return
+    //     }
+    //     if (currTable && currTable.length > 0 && columns.length > 0) {
+    //         const lastRow = currTable[currTable.length - 1];
+    //         if (!isRowEmpty(lastRow)) {
+    //             setCurrTable([...currTable, createEmptyRow()]);
+    //         }
+    //     }
+    // }, [currTable, columns]);
 
     if (!columns) {
         return (
@@ -65,17 +64,17 @@ const Table = () => {
         );
     }
 
-    if (!Array.isArray(currTable)) {
-        return (
-            <div className="max-w-full mx-auto">
-                <div className="rounded-lg p-6">
-                    <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
-                        Error: Data malformed
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    // if (!Array.isArray(currTable)) {
+    //     return (
+    //         <div className="max-w-full mx-auto">
+    //             <div className="rounded-lg p-6">
+    //                 <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
+    //                     Error: Data malformed
+    //                 </div>
+    //             </div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="max-w-full mx-auto flex items-start">
@@ -105,12 +104,12 @@ const Table = () => {
                         <tr></tr>
                     </thead>
                     <tbody>
-                        {currTable.map((row, rowIdx) => (
+                        {(Array.from({ length: currSheet?.row_count ?? 0 }, (_, rowIdx) => (
                             <tr key={rowIdx}>
                                 {columns.map((col, colIdx) => (
                                     <td key={colIdx}
                                         className={`border px-3 py-2 text-sm truncate
-                                        ${!col.required || validateCellType(row[col.name], col)
+                                        ${!col.required || validateCellType(rowIdx, col)
                                                 ? "border-gray-300"
                                                 : "border-red-600"}`}
                                     >
@@ -119,12 +118,12 @@ const Table = () => {
                                             className="w-full text-left focus:outline-none"
                                             onClick={() => setCellModal([rowIdx, col])}
                                         >
-                                            {renderCellValue(row[col.name])}
+                                            {renderCellValue(col.data, rowIdx)}
                                         </button>
                                     </td>
                                 ))}
                             </tr>
-                        ))}
+                        )))}
                     </tbody>
                 </table>
             </div>
@@ -139,7 +138,11 @@ const Table = () => {
     );
 };
 
-const renderCellValue = (value: any): JSX.Element => {
+const renderCellValue = (data: ColumnData[], idx: number): JSX.Element => {
+    if (data.length <= idx) {
+        return <span className="text-gray-400">null</span>;
+    }
+    let value = data[idx].value.String
     if (value === null || value === undefined || value === "") {
         return <span className="text-gray-400">null</span>;
     }
@@ -155,22 +158,23 @@ const renderCellValue = (value: any): JSX.Element => {
     return <span>{String(value)}</span>;
 }
 
-const validateCellType = (cellVal: any, col: ColumnProps): boolean => {
-    if (cellVal === null || cellVal === undefined || cellVal === "") {
+const validateCellType = (idx: number, col: Column): boolean => {
+    if (idx >= col.data.length || !col.data[idx].value.Valid) {
         return !col.required;
     }
+    let val = col.data[idx].value
 
-    switch (col.columnType) {
+    switch (col.type) {
         case EnumColTypes.TEXT:
-            return typeof cellVal === 'string';
+            return typeof val === 'string';
         case EnumColTypes.NUMBER:
-            return typeof cellVal === 'number' && !isNaN(cellVal);
+            return typeof val === 'number' && !isNaN(val);
         case EnumColTypes.BOOL:
-            return typeof cellVal === 'boolean';
+            return typeof val === 'boolean';
         case EnumColTypes.ARRAY:
-            if (!Array.isArray(cellVal)) return false;
+            if (!Array.isArray(val)) return false;
             if (col.required) {
-                return cellVal.length > 0 && cellVal.some((item: any) =>
+                return val.length > 0 && val.some((item: any) =>
                     item !== null && item !== undefined && item !== ""
                 );
             }

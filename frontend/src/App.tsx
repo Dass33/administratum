@@ -12,7 +12,6 @@ import SheetModal from "./sheetModal";
 import SettingsModal from "./settingsModal";
 import Auth from "./auth";
 
-GameView
 function App() {
     const {
         cellModal,

@@ -1,22 +1,19 @@
 import React, { useState, createContext, useContext, useEffect } from "react";
 
-
-export type TableType = Record<string, any>[]
-
 interface AppState {
-    cellModal: [number, ColumnProps] | null
+    cellModal: [number, Column] | null
     setCellModal: Function
-    currTable: TableType
+    currTable: TableData | undefined
     setCurrTable: Function
     colModal: number
     setColModal: Function
-    columns: ColumnProps[],
+    columns: Column[],
     setColumns: Function,
     addColumn: boolean,
     setAddColumn: Function,
     sheets: string[],
     setSheets: Function,
-    currSheet: string,
+    currSheet: Sheet | undefined,
     setCurrSheet: Function,
     sheetModal: boolean,
     setSheetModal: Function,
@@ -36,12 +33,6 @@ interface AppState {
     setLoading: Function,
     loginData: LoginData | undefined,
     setLoginData: Function,
-}
-
-export interface ColumnProps {
-    name: string;
-    columnType: string;
-    required: boolean;
 }
 
 export enum EnumColTypes {
@@ -69,6 +60,11 @@ export type IdName = {
     id: string
 }
 
+export type NullString = {
+    String: string
+    Valid: boolean
+}
+
 export type LoginData = {
     email: string
     token: string
@@ -77,17 +73,24 @@ export type LoginData = {
     table_names: IdName[]
 }
 
+export type ColumnData = {
+    id: string
+    idx: number
+    value: NullString
+}
+
 export type Column = {
     name: string
     id: string
     type: string
-    require: boolean
-    data: any[]
+    required: boolean
+    data: ColumnData[]
 }
 
 export type Sheet = {
     name: string
     id: string
+    row_count: number
     columns: Column[]
     branch_id_name: IdName
     sheets_id_names: IdName[]
@@ -105,32 +108,13 @@ const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [cellModal, setCellModal] = useState(null);
-    const [currSheet, setCurrSheet] = useState(() => {
-        const stored = localStorage.getItem(CurrSheet);
-        return stored ? stored : "config";
-    });
-    const [currTable, setCurrTable] = useState<TableType>(() => {
-        const stored = localStorage.getItem(currSheet);
-        return stored ? JSON.parse(stored) : [];
-    });
+    const [currSheet, setCurrSheet] = useState<Sheet | undefined>();
+    const [currTable, setCurrTable] = useState<TableData | undefined>();
     const [colModal, setColModal] = useState(-1);
-    const [columns, setColumns] = useState<ColumnProps[]>(() => {
+    const [columns, setColumns] = useState<Column[]>(() => {
         const stored = localStorage.getItem(currSheet + ColSuffix);
         return stored ? JSON.parse(stored) : [];
     });
-
-    useEffect(() => {
-        if (columns.length) return
-        fetch('http://localhost:8080/columns')
-            .then(response => response.json())
-            .then(data => {
-                setColumns(data);
-                localStorage.setItem(currSheet + ColSuffix, JSON.stringify(data));
-            })
-            .catch(_ => {
-                setColumns([]);
-            });
-    }, [currSheet]);
 
     const [addColumn, setAddColumn] = useState(false);
     const [sheets, setSheets] = useState([]);
@@ -142,11 +126,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [authenticated, setAuthenticated] = useState(false);
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [loading, setLoading] = useState(true);
-    const [loginData, setLoginData] = useState();
+    const [loginData, setLoginData] = useState<LoginData | undefined>();
 
     useEffect(() => {
-        localStorage.setItem(currSheet, JSON.stringify(currTable));
-    }, [currTable]);
+        if (!loginData) return
+        if (loginData?.opened_sheet) {
+            setCurrSheet(loginData.opened_sheet)
+        }
+        if (loginData?.opened_sheet?.columns) {
+            setColumns(loginData.opened_sheet.columns);
+        }
+    }, [loginData]);
 
     useEffect(() => {
         interface Token {
