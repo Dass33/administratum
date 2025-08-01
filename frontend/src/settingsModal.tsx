@@ -7,6 +7,11 @@ const SettingsModal = () => {
         setSettingsModal,
         gameUrl, setGameUrl,
         setAuthenticated,
+        setColumns,
+        setSheets,
+        setProjectName,
+        setBranchName,
+        setCurrSheet,
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -42,6 +47,11 @@ const SettingsModal = () => {
             .then(() => {
                 setAuthenticated(false);
                 setSettingsModal(false);
+                setColumns([]);
+                setSheets([]);
+                setProjectName(undefined);
+                setBranchName(undefined);
+                setCurrSheet(undefined);
             })
             .catch(err => {
                 SetLogoutError(true);
