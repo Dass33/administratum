@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Dass33/administratum/backend/internal/auth"
 )
@@ -20,5 +21,17 @@ func (cfg *apiConfig) revoke_handler(w http.ResponseWriter, req *http.Request) {
 		respondWithError(w, 500, msg)
 		return
 	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     auth.RefreshTokenName,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Now().Add(-1 * time.Hour),
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   cfg.platform != PlatformDev,
+		SameSite: http.SameSiteStrictMode,
+	})
+
 	respondWithJSON(w, 204, "")
 }
