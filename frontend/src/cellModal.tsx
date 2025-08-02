@@ -102,30 +102,49 @@ const CellModal = () => {
     };
 
     const updateCell = (newVal: any, rowIndex: number, col: Column) => {
-        const item = col.data.find(item => item.idx == rowIndex)
-        let item_id = item
-            ? item.id
-            : DEFAULT_UUID;
+        let item_id = DEFAULT_UUID;
+        let itemFound = false;
+        let newCol = { ...col };
 
-        let newCol = col
-        const newColData: ColumnData = {
-            id: item_id,
-            idx: rowIndex,
-            value: { String: newVal, Valid: true },
-        }
-        newCol.data.push(newColData);
-        const newColumns = columns.map(item => {
-            if (item.id == col.id) return newCol;
+        newCol.data = col.data.map(item => {
+            if (item.idx === rowIndex) {
+                itemFound = true;
+                item_id = item.id;
+                return {
+                    id: item_id,
+                    idx: rowIndex,
+                    value: { String: newVal, Valid: true },
+                };
+            }
             return item;
-        })
-        setColumns(newColumns);
-        if (item) postAdjustedColumnData(newColData, accessToken ?? "")
-        else {
-            postNewColumnData(col, newColData, accessToken ?? "")
+        });
+
+        if (itemFound) {
+            const updatedData: ColumnData = {
+                id: item_id,
+                idx: rowIndex,
+                value: { String: newVal, Valid: true },
+            };
+            postAdjustedColumnData(updatedData, accessToken ?? "");
+        } else {
+            const newColData: ColumnData = {
+                id: item_id,
+                idx: rowIndex,
+                value: { String: newVal, Valid: true },
+            };
+            newCol.data.push(newColData);
+            postNewColumnData(col, newColData, accessToken ?? "");
+
             let newSheet = currSheet;
-            if (newSheet) newSheet.row_count++;
+            if (newSheet && newSheet.row_count - 1 <= rowIndex) newSheet.row_count++;
             setCurrSheet(newSheet);
         }
+
+        const newColumns = columns.map(item => {
+            if (item.id === col.id) return newCol;
+            return item;
+        });
+        setColumns(newColumns);
     };
 
     const removeEmptyRow = (newVal: any, rowIndex: number): boolean => {
@@ -181,7 +200,7 @@ const CellModal = () => {
                 updatedValue = cellVal;
         }
 
-        if (!removeEmptyRow(updatedValue, rowIndex)) {
+        if (!removeEmptyRow(updatedValue, rowIndex) && updatedValue) {
             updateCell(updatedValue, rowIndex, col)
         }
     }

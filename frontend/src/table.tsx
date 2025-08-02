@@ -23,32 +23,31 @@ const Table = () => {
         }))
     }, [columns]);
 
-    const isRowEmpty = (rowIdx: number) => {
-        return columns.every(col => {
-            const item = col.data.find(item => item.idx == rowIdx)
-            if (!item || !item.value.Valid) {
-                return true;
-            }
-            const value = item.value.String;
-            return value === null || value === undefined || value === '';
-        });
-    };
+    // const isRowEmpty = (rowIdx: number) => {
+    //     return columns.every(col => {
+    //         const item = col.data.find(item => item.idx == rowIdx)
+    //         if (!item || !item.value.Valid) {
+    //             return true;
+    //         }
+    //         const value = item.value.String;
+    //         return value === null || value === undefined || value === '';
+    //     });
+    // };
 
-    const createEmptyRow = () => {
-        if (currSheet?.row_count !== undefined) {
-            setCurrSheet({
-                ...currSheet,
-                row_count: currSheet.row_count + 1
-            });
-        }
-    };
-    useEffect(() => {
-        if (!columns || !currSheet) return
-        if (currSheet.row_count == 0 || !isRowEmpty(currSheet.row_count - 1)) {
-            createEmptyRow()
-            return
-        }
-    }, [columns]);
+    // const createEmptyRow = () => {
+    //     if (currSheet?.row_count !== undefined) {
+    //         setCurrSheet({
+    //             ...currSheet,
+    //             row_count: currSheet.row_count + 1
+    //         });
+    //     }
+    // };
+    // useEffect(() => {
+    //     if (!columns || !currSheet) return
+    //     if (currSheet.row_count === 0 || !isRowEmpty(currSheet.row_count - 1)) {
+    //         createEmptyRow()
+    //     }
+    // }, [columns]);
 
     if (!columns) {
         return (
@@ -102,7 +101,7 @@ const Table = () => {
                         <tr></tr>
                     </thead>
                     <tbody>
-                        {(Array.from({ length: currSheet?.row_count ?? 0 }, (_, rowIdx) => (
+                        {(Array.from({ length: currSheet?.row_count ?? 0 + 1 }, (_, rowIdx) => (
                             <tr key={rowIdx}>
                                 {columns.map((col, colIdx) => (
                                     <td key={colIdx}
