@@ -37,14 +37,11 @@ func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Col
 			return nil, errors.New("Could not get columns data with given column id")
 		}
 		vals := make([]ColumnData, 0)
-		for e, _ := range columns_data {
-			if int64(e) != columns_data[e].Idx {
-				continue
-			}
+		for _, v := range columns_data {
 			item := ColumnData{
-				ID:    columns_data[e].ID,
-				Idx:   columns_data[e].Idx,
-				Value: columns_data[e].Value,
+				ID:    v.ID,
+				Idx:   v.Idx,
+				Value: v.Value,
 			}
 			vals = append(vals, item)
 		}

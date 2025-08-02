@@ -2,5 +2,6 @@
 UPDATE columns
 SET name = ?,
     type = ?,
-    required = ?
+    required = ?,
+    updated_at = datetime('now')
 WHERE id = ?;

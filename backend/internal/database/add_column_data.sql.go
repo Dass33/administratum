@@ -44,3 +44,28 @@ func (q *Queries) AddColumnData(ctx context.Context, arg AddColumnDataParams) (C
 	)
 	return i, err
 }
+
+const updateSheetRowCountByColumn = `-- name: UpdateSheetRowCountByColumn :exec
+UPDATE sheets
+SET row_count = CASE 
+    WHEN row_count < ? THEN ?
+    ELSE row_count
+    END,
+    updated_at = datetime('now')
+WHERE id = (
+    SELECT c.sheet_id 
+    FROM columns c 
+    WHERE c.id = ?
+)
+`
+
+type UpdateSheetRowCountByColumnParams struct {
+	RowCount   int64
+	RowCount_2 int64
+	ID         uuid.UUID
+}
+
+func (q *Queries) UpdateSheetRowCountByColumn(ctx context.Context, arg UpdateSheetRowCountByColumnParams) error {
+	_, err := q.db.ExecContext(ctx, updateSheetRowCountByColumn, arg.RowCount, arg.RowCount_2, arg.ID)
+	return err
+}
