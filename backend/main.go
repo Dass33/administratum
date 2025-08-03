@@ -73,10 +73,11 @@ func main() {
 	router.Post("/register", apiCfg.create_user_handler)
 	router.Post("/refresh", apiCfg.refresh_handler)
 	router.Post("/logout", apiCfg.revoke_handler)
-	router.Post("/update_column", apiCfg.middlewareAuth(apiCfg.UpdateColumn))
+	router.Put("/update_column", apiCfg.middlewareAuth(apiCfg.UpdateColumn))
 	router.Post("/add_column", apiCfg.middlewareAuth(apiCfg.AddColumn))
-	router.Post("/update_column_data", apiCfg.middlewareAuth(apiCfg.UpdateColumnData))
+	router.Put("/update_column_data", apiCfg.middlewareAuth(apiCfg.UpdateColumnData))
 	router.Post("/add_column_data", apiCfg.middlewareAuth(apiCfg.AddColumnData))
+	router.Delete("/delete_column", apiCfg.middlewareAuth(apiCfg.DeleteColumn))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

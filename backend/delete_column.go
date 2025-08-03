@@ -9,12 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type ColParams struct {
-	Sheet_id string `json:"sheet_id"`
-	Col      Column `json:"col"`
-}
-
-func (cfg *apiConfig) AddColumn(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
+func (cfg *apiConfig) DeleteColumn(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	decoder := json.NewDecoder(r.Body)
 	params := ColParams{}
 
@@ -32,16 +27,14 @@ func (cfg *apiConfig) AddColumn(w http.ResponseWriter, r *http.Request, id uuid.
 		return
 	}
 
-	addColumnParams := database.AddColumnParams{
-		Name:     params.Col.Name,
-		Type:     params.Col.Type,
-		Required: params.Col.Required,
-		SheetID:  sheet_id,
+	deleteColumnParams := database.DeleteColumnParams{
+		Name:    params.Col.Name,
+		SheetID: sheet_id,
 	}
-	newCol, err := cfg.db.AddColumn(r.Context(), addColumnParams)
+	err = cfg.db.DeleteColumn(r.Context(), deleteColumnParams)
 	if err != nil {
-		msg := fmt.Sprintf("Column could not be updated: %s", err)
+		msg := fmt.Sprintf("Column could not be deleted: %s", err)
 		respondWithError(w, 500, msg)
 	}
-	respondWithJSON(w, 200, newCol)
+	respondWithJSON(w, 200, "")
 }

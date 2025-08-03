@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID, Sheet } from './AppContext';
+import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID, Sheet, NullString } from './AppContext';
 import Dropdown from "./dropdown";
 import { DropdownOption } from "./dropdown";
 import cross from "./assets/cross.svg";
@@ -101,7 +101,7 @@ const CellModal = () => {
         setArrayItems(prev => prev.filter((_, i) => i !== index));
     };
 
-    const updateCell = (newVal: any, rowIndex: number, col: Column) => {
+    const updateCell = (newVal: NullString, rowIndex: number, col: Column) => {
         if (!currSheet) return;
         let item_id = DEFAULT_UUID;
         let itemFound = false;
@@ -114,7 +114,7 @@ const CellModal = () => {
                 return {
                     id: item_id,
                     idx: rowIndex,
-                    value: { String: newVal, Valid: true },
+                    value: newVal,
                 };
             }
             return item;
@@ -124,14 +124,14 @@ const CellModal = () => {
             const updatedData: ColumnData = {
                 id: item_id,
                 idx: rowIndex,
-                value: { String: newVal, Valid: true },
+                value: newVal,
             };
-            postAdjustedColumnData(updatedData, accessToken ?? "");
+            putAdjustedColumnData(updatedData, accessToken ?? "");
         } else {
             const newColData: ColumnData = {
                 id: item_id,
                 idx: rowIndex,
-                value: { String: newVal, Valid: true },
+                value: newVal,
             };
             newCol.data.push(newColData);
             postNewColumnData(col, newColData, currSheet, accessToken ?? "");
@@ -166,39 +166,31 @@ const CellModal = () => {
         if (!cellModal) return
         setCellModal(null);
 
-        let updatedValue: any;
+        let updatedValue: NullString;
         const rowIndex = cellModal[0];
         const col = cellModal[1];
 
         switch (colType) {
-            case EnumColTypes.TEXT:
-                updatedValue = cellVal;
-                break;
-            case EnumColTypes.NUMBER:
-                updatedValue = (cellVal !== null)
-                    ? Number(cellVal)
-                    : null;
-                break;
             case EnumColTypes.BOOL:
-                updatedValue = boolVal;
+                updatedValue = { String: String(boolVal), Valid: cellVal !== null }
                 break;
             case EnumColTypes.ARRAY:
                 const hasInvalidItems = arrayItems.some(item => !item.isValid);
                 if (hasInvalidItems) {
                     return;
                 }
-
                 if (arrayItems.length === 0) {
-                    updatedValue = null;
+                    updatedValue = { String: "", Valid: false }
                 } else {
                     const arrayValues = arrayItems.map(item =>
                         arrayType === EnumColTypes.NUMBER ? Number(item.value) : item.value
                     );
-                    updatedValue = JSON.stringify(arrayValues);
+                    const arrayString = JSON.stringify(arrayValues);
+                    updatedValue = { String: arrayString, Valid: false }
                 }
                 break;
             default:
-                updatedValue = cellVal;
+                updatedValue = { String: cellVal, Valid: cellVal !== null }
         }
 
         if (!removeEmptyRow(updatedValue, rowIndex) && updatedValue) {
@@ -354,9 +346,9 @@ const postNewColumnData = async (col: Column, data: ColumnData, sheet: Sheet, to
         });
 }
 
-const postAdjustedColumnData = (data: ColumnData, token: string) => {
+const putAdjustedColumnData = (data: ColumnData, token: string) => {
     fetch('/update_column_data', {
-        method: "POST",
+        method: "put",
         headers: {
             'Authorization': `Bearer ${token}`
         },

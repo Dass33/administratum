@@ -161,23 +161,36 @@ const validateCellType = (idx: number, col: Column): boolean => {
     if (!item || !item.value.Valid) {
         return !col.required;
     }
+
     const val = item.value.String
 
     switch (col.type) {
         case EnumColTypes.TEXT:
             return typeof val === 'string';
+
         case EnumColTypes.NUMBER:
-            return typeof val === 'number' && !isNaN(val);
+            const numVal = Number(val);
+            return !isNaN(numVal) && isFinite(numVal);
+
         case EnumColTypes.BOOL:
-            return typeof val === 'boolean';
+            const lowerVal = val.toLowerCase().trim();
+            return lowerVal === 'true' || lowerVal === 'false';
+
         case EnumColTypes.ARRAY:
-            if (!Array.isArray(val)) return false;
-            if (col.required) {
-                return val.length > 0 && val.some((item: any) =>
-                    item !== null && item !== undefined && item !== ""
-                );
+            try {
+                const parsedArray = JSON.parse(val);
+                if (!Array.isArray(parsedArray)) return false;
+
+                if (col.required) {
+                    return parsedArray.length > 0 && parsedArray.some((item: any) =>
+                        item !== null && item !== undefined && item !== ""
+                    );
+                }
+                return true;
+            } catch {
+                return false;
             }
-            return true;
+
         default:
             return false;
     }
