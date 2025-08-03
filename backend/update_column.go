@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cfg *apiConfig) UpdateColumn(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
+func (cfg *apiConfig) updateColumnHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	decoder := json.NewDecoder(r.Body)
 	col := Column{}
 

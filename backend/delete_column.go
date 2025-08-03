@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (cfg *apiConfig) DeleteColumn(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
+func (cfg *apiConfig) deleteColumnHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	decoder := json.NewDecoder(r.Body)
 	params := ColParams{}
 

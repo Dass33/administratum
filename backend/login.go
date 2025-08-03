@@ -23,7 +23,7 @@ type LoginData struct {
 	TableIdNames []IdName  `json:"table_names"`
 }
 
-func (cfg *apiConfig) login_handler(w http.ResponseWriter, req *http.Request) {
+func (cfg *apiConfig) loginHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type parameters struct {

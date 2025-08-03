@@ -69,15 +69,15 @@ func main() {
 		MaxAge:           300,
 	}))
 
-	router.Post("/login", apiCfg.login_handler)
-	router.Post("/register", apiCfg.create_user_handler)
-	router.Post("/refresh", apiCfg.refresh_handler)
-	router.Post("/logout", apiCfg.revoke_handler)
-	router.Put("/update_column", apiCfg.middlewareAuth(apiCfg.UpdateColumn))
-	router.Post("/add_column", apiCfg.middlewareAuth(apiCfg.AddColumn))
-	router.Put("/update_column_data", apiCfg.middlewareAuth(apiCfg.UpdateColumnData))
-	router.Post("/add_column_data", apiCfg.middlewareAuth(apiCfg.AddColumnData))
-	router.Delete("/delete_column", apiCfg.middlewareAuth(apiCfg.DeleteColumn))
+	router.Post("/login", apiCfg.loginHandler)
+	router.Post("/register", apiCfg.createUserHandler)
+	router.Post("/refresh", apiCfg.refreshHandler)
+	router.Post("/logout", apiCfg.revokeHandler)
+	router.Put("/update_column", apiCfg.middlewareAuth(apiCfg.updateColumnHandler))
+	router.Post("/add_column", apiCfg.middlewareAuth(apiCfg.addColumnHandler))
+	router.Put("/update_column_data", apiCfg.middlewareAuth(apiCfg.updateColumnDataHandler))
+	router.Post("/add_column_data", apiCfg.middlewareAuth(apiCfg.addColumnDataHandler))
+	router.Delete("/delete_column", apiCfg.middlewareAuth(apiCfg.deleteColumnHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

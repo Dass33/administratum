@@ -10,7 +10,7 @@ import (
 	"github.com/Dass33/administratum/backend/internal/database"
 )
 
-func (cfg *apiConfig) create_user_handler(w http.ResponseWriter, req *http.Request) {
+func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type parameters struct {

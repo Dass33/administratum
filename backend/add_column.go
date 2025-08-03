@@ -14,7 +14,7 @@ type ColParams struct {
 	Col      Column `json:"col"`
 }
 
-func (cfg *apiConfig) AddColumn(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
+func (cfg *apiConfig) addColumnHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	decoder := json.NewDecoder(r.Body)
 	params := ColParams{}
 

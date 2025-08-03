@@ -8,7 +8,7 @@ import (
 	"github.com/Dass33/administratum/backend/internal/auth"
 )
 
-func (cfg *apiConfig) revoke_handler(w http.ResponseWriter, req *http.Request) {
+func (cfg *apiConfig) revokeHandler(w http.ResponseWriter, req *http.Request) {
 	token_req, err := auth.GetRerfreshCookie(req)
 	if err != nil {
 		msg := fmt.Sprintf("Could not get the token from cookie: %v", err)

@@ -15,7 +15,7 @@ type newColDataParams struct {
 	Sheet_id uuid.UUID  `json:"sheet_id"`
 }
 
-func (cfg *apiConfig) AddColumnData(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
+func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	decoder := json.NewDecoder(r.Body)
 	params := newColDataParams{}
 
