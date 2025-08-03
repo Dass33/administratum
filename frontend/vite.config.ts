@@ -17,6 +17,7 @@ export default defineConfig({
             '/get_sheet': 'http://localhost:8080',
             '/get_project': 'http://localhost:8080',
             '/create_project': 'http://localhost:8080',
+            '/create_sheet': 'http://localhost:8080',
         }
     }
 })

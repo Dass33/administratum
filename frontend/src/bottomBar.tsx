@@ -11,21 +11,22 @@ const BottomBar = () => {
         setSettingsModal,
         accessToken,
         openedSheet,
+        currSheet,
     } = useApp();
 
     const optionsSheets = (openedSheet?.sheets_id_names ?? []).map(item => ({
         value: item.id,
         label: item.name
     }))
-    const placeholderSheets = openedSheet?.name != ""
-        ? openedSheet?.name
+    const placeholderSheets = currSheet?.name != ""
+        ? currSheet?.name
         : "Sheets"
-
+    const setData = (sheet: Sheet) => {
+        setCurrSheet(sheet);
+        setColumns(sheet.columns);
+    }
     const selectSheets = (item: DropdownOption) => {
-        getCurrSheet(item.value, accessToken ?? "", (sheet: Sheet) => {
-            setCurrSheet(sheet);
-            setColumns(sheet.columns);
-        })
+        getCurrSheet(item.value, accessToken ?? "", setData)
     }
 
     return (
@@ -44,7 +45,8 @@ const BottomBar = () => {
                     const props: NewNameProps = {
                         currNames: openedSheet?.sheets_id_names ?? [],
                         assignNewName: (name: string) => {
-                            console.log(name);
+                            if (!openedSheet) return
+                            createSheet(name, openedSheet.branch_id_name.id, accessToken ?? "", setData);
                         },
                     }
                     setNewNameModal(props)
@@ -78,5 +80,33 @@ const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
             console.error(err);
         });
 };
+
+const createSheet = (name: string, branchId: string, token: string, setData: Function) => {
+    const createSheetParams: { Name: string, BranchID: string } = {
+        Name: name,
+        BranchID: branchId,
+    }
+
+    fetch("/create_sheet", {
+        method: "POST",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(createSheetParams)
+    })
+        .then(response => {
+            if (response.status !== 201) {
+                throw new Error("Could not retrieve sheet");
+            }
+            return response.json();
+        })
+        .then((result: Sheet) => {
+            setData(result);
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
 
 export default BottomBar;

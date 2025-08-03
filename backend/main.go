@@ -83,6 +83,7 @@ func main() {
 	router.Get("/get_sheet/{sheet_id}", apiCfg.middlewareAuth(apiCfg.getSheetHandler))
 	router.Get("/get_project/{table_id}", apiCfg.middlewareAuth(apiCfg.getProjectHandler))
 	router.Post("/create_project", apiCfg.middlewareAuth(apiCfg.createProjectHandler))
+	router.Post("/create_sheet", apiCfg.middlewareAuth(apiCfg.createSheetHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,
