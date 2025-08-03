@@ -1,14 +1,15 @@
 import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
-import { useApp, CurrSheet } from "./AppContext";
+import { useApp, Sheet } from "./AppContext";
 
 const BottomBar = () => {
     const {
-        currSheet, setCurrSheet,
-        columns, setColumns,
+        setCurrSheet,
+        setColumns,
         setSheetModal,
         setSettingsModal,
         loginData,
+        accessToken
     } = useApp();
 
     const optionsSheets = (loginData?.opened_sheet?.sheets_id_names ?? []).map(item => ({
@@ -20,6 +21,10 @@ const BottomBar = () => {
         : "Sheets"
 
     const selectSheets = (item: DropdownOption) => {
+        getCurrSheet(item.value, accessToken ?? "", (sheet: Sheet) => {
+            setCurrSheet(sheet);
+            setColumns(sheet.columns);
+        })
         // localStorage.setItem(currSheet + ColSuffix, JSON.stringify(columns));
         // setCurrSheet(item.value)
         // localStorage.setItem(CurrSheet, item.value);
@@ -51,5 +56,29 @@ const BottomBar = () => {
     );
 }
 
-export default BottomBar;
 
+const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
+    const url = `/get_sheet/${sheet_id}`;
+
+    fetch(url, {
+        method: "GET",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include"
+    })
+        .then(response => {
+            if (response.status !== 200) {
+                throw new Error("Could not retrieve sheet");
+            }
+            return response.json();
+        })
+        .then((result: Sheet) => {
+            setData(result);
+        })
+        .catch(err => {
+            console.error(err);
+        });
+};
+
+export default BottomBar;

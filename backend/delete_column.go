@@ -36,5 +36,5 @@ func (cfg *apiConfig) deleteColumnHandler(w http.ResponseWriter, r *http.Request
 		msg := fmt.Sprintf("Column could not be deleted: %s", err)
 		respondWithError(w, 500, msg)
 	}
-	respondWithJSON(w, 200, "")
+	respondWithJSON(w, 204, "")
 }

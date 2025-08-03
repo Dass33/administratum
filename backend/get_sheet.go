@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
@@ -14,6 +17,26 @@ type Sheet struct {
 	Columns       []Column  `json:"columns"`
 	BranchIdName  IdName    `json:"branch_id_name"`
 	SheetsIdNames []IdName  `json:"sheets_id_names"`
+}
+
+func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, _ uuid.UUID) {
+	sheetIdStr := chi.URLParam(r, "sheet_id")
+	fmt.Println(sheetIdStr)
+	sheetId, err := uuid.Parse(sheetIdStr)
+	if err != nil {
+		msg := fmt.Sprintf("Could not parse the sheet id from url: %s", err)
+		respondWithError(w, 400, msg)
+	}
+	optionalSheetId := uuid.NullUUID{
+		UUID:  sheetId,
+		Valid: true,
+	}
+	sheet, err := cfg.GetSheet(optionalSheetId, r.Context())
+	if err != nil {
+		msg := fmt.Sprintf("Could not get sheet: %s", err)
+		respondWithError(w, 500, msg)
+	}
+	respondWithJSON(w, 200, sheet)
 }
 
 func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Context) (Sheet, error) {
