@@ -11,7 +11,8 @@ import (
 
 type newColDataParams struct {
 	Data     ColumnData `json:"data"`
-	ColumnId uuid.UUID  `json:"column_id"`
+	Col      Column     `json:"column"`
+	Sheet_id uuid.UUID  `json:"sheet_id"`
 }
 
 func (cfg *apiConfig) AddColumnData(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
@@ -26,14 +27,24 @@ func (cfg *apiConfig) AddColumnData(w http.ResponseWriter, r *http.Request, id u
 	}
 
 	addColumnDataParams := database.AddColumnDataParams{
-		Idx:      params.Data.Idx,
-		Value:    params.Data.Value,
-		ColumnID: params.ColumnId,
+		Idx:     params.Data.Idx,
+		Value:   params.Data.Value,
+		Name:    params.Col.Name,
+		SheetID: params.Sheet_id,
 	}
 	_, err = cfg.db.AddColumnData(r.Context(), addColumnDataParams)
 	if err != nil {
 		msg := fmt.Sprintf("Column data could not be updated: %s", err)
 		respondWithError(w, 500, msg)
+	}
+
+	updateSheetRowCountParams := database.UpdateSheetRowCountParams{
+		RowCount:   params.Data.Idx + 1,
+		RowCount_2: params.Data.Idx + 1,
+		ID:         params.Sheet_id,
+	}
+	err = cfg.db.UpdateSheetRowCount(r.Context(), updateSheetRowCountParams)
+	if err != nil {
 	}
 	respondWithJSON(w, 200, "")
 }

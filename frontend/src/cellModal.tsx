@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID } from './AppContext';
+import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID, Sheet } from './AppContext';
 import Dropdown from "./dropdown";
 import { DropdownOption } from "./dropdown";
 import cross from "./assets/cross.svg";
@@ -102,6 +102,7 @@ const CellModal = () => {
     };
 
     const updateCell = (newVal: any, rowIndex: number, col: Column) => {
+        if (!currSheet) return;
         let item_id = DEFAULT_UUID;
         let itemFound = false;
         let newCol = { ...col };
@@ -133,7 +134,7 @@ const CellModal = () => {
                 value: { String: newVal, Valid: true },
             };
             newCol.data.push(newColData);
-            postNewColumnData(col, newColData, accessToken ?? "");
+            postNewColumnData(col, newColData, currSheet, accessToken ?? "");
 
             let newSheet = currSheet;
             if (newSheet && newSheet.row_count - 1 <= rowIndex) newSheet.row_count++;
@@ -328,10 +329,11 @@ const CellModal = () => {
     );
 };
 
-const postNewColumnData = async (col: Column, data: ColumnData, token: string) => {
-    const newColDataParams: { column_id: string; data: ColumnData } = {
-        column_id: col.id,
+const postNewColumnData = async (col: Column, data: ColumnData, sheet: Sheet, token: string) => {
+    const newColDataParams: { column: Column; data: ColumnData, sheet_id: String } = {
+        column: col,
         data: data,
+        sheet_id: sheet.id,
     };
 
     fetch('/add_column_data', {

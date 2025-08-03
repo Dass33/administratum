@@ -12,18 +12,26 @@ import (
 )
 
 const updateSheetRowCount = `-- name: UpdateSheetRowCount :exec
-UPDATE sheets 
-SET row_count = MAX(row_count, ?),
+UPDATE sheets
+SET row_count = CASE 
+    WHEN row_count < ? THEN ?
+    ELSE row_count
+    END,
     updated_at = datetime('now')
-WHERE id = ?
+WHERE id = (
+    SELECT c.sheet_id 
+    FROM columns c 
+    WHERE c.id = ?
+)
 `
 
 type UpdateSheetRowCountParams struct {
-	MAX interface{}
-	ID  uuid.UUID
+	RowCount   int64
+	RowCount_2 int64
+	ID         uuid.UUID
 }
 
 func (q *Queries) UpdateSheetRowCount(ctx context.Context, arg UpdateSheetRowCountParams) error {
-	_, err := q.db.ExecContext(ctx, updateSheetRowCount, arg.MAX, arg.ID)
+	_, err := q.db.ExecContext(ctx, updateSheetRowCount, arg.RowCount, arg.RowCount_2, arg.ID)
 	return err
 }

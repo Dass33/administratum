@@ -18,7 +18,7 @@ VALUES (
     gen_random_uuid(),
     ?,
     ?,
-    ?,
+    (SELECT id FROM columns WHERE name = ? AND sheet_id = ?),
     datetime('now'),
     datetime('now')
 )
@@ -26,13 +26,19 @@ RETURNING id, idx, value, column_id, created_at, updated_at
 `
 
 type AddColumnDataParams struct {
-	Idx      int64
-	Value    sql.NullString
-	ColumnID uuid.UUID
+	Idx     int64
+	Value   sql.NullString
+	Name    string
+	SheetID uuid.UUID
 }
 
 func (q *Queries) AddColumnData(ctx context.Context, arg AddColumnDataParams) (ColumnDatum, error) {
-	row := q.db.QueryRowContext(ctx, addColumnData, arg.Idx, arg.Value, arg.ColumnID)
+	row := q.db.QueryRowContext(ctx, addColumnData,
+		arg.Idx,
+		arg.Value,
+		arg.Name,
+		arg.SheetID,
+	)
 	var i ColumnDatum
 	err := row.Scan(
 		&i.ID,
@@ -43,29 +49,4 @@ func (q *Queries) AddColumnData(ctx context.Context, arg AddColumnDataParams) (C
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const updateSheetRowCountByColumn = `-- name: UpdateSheetRowCountByColumn :exec
-UPDATE sheets
-SET row_count = CASE 
-    WHEN row_count < ? THEN ?
-    ELSE row_count
-    END,
-    updated_at = datetime('now')
-WHERE id = (
-    SELECT c.sheet_id 
-    FROM columns c 
-    WHERE c.id = ?
-)
-`
-
-type UpdateSheetRowCountByColumnParams struct {
-	RowCount   int64
-	RowCount_2 int64
-	ID         uuid.UUID
-}
-
-func (q *Queries) UpdateSheetRowCountByColumn(ctx context.Context, arg UpdateSheetRowCountByColumnParams) error {
-	_, err := q.db.ExecContext(ctx, updateSheetRowCountByColumn, arg.RowCount, arg.RowCount_2, arg.ID)
-	return err
 }
