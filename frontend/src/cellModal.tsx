@@ -31,8 +31,9 @@ const CellModal = () => {
         ? cellModal[1]
         : null;
 
-    const initCellVal = currCol && rowIdx < currCol.data.length
-        ? currCol.data[rowIdx].value.String
+    const initCell = currCol?.data.find(item => item.idx == rowIdx)
+    const initCellVal = initCell
+        ? initCell.value.String
         : ""
 
     const [cellVal, setCellVal] = useState(initCellVal);
