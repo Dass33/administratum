@@ -14,15 +14,11 @@ import (
 const updateSheetRowCount = `-- name: UpdateSheetRowCount :exec
 UPDATE sheets
 SET row_count = CASE 
-    WHEN row_count < ? THEN ?
-    ELSE row_count
-    END,
+    WHEN row_count > ? THEN row_count 
+    ELSE ? 
+END,
     updated_at = datetime('now')
-WHERE id = (
-    SELECT c.sheet_id 
-    FROM columns c 
-    WHERE c.id = ?
-)
+WHERE id = ?
 `
 
 type UpdateSheetRowCountParams struct {

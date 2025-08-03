@@ -45,6 +45,8 @@ func (cfg *apiConfig) AddColumnData(w http.ResponseWriter, r *http.Request, id u
 	}
 	err = cfg.db.UpdateSheetRowCount(r.Context(), updateSheetRowCountParams)
 	if err != nil {
+		msg := fmt.Sprintf("Could not update the row count: %s", err)
+		respondWithError(w, 500, msg)
 	}
 	respondWithJSON(w, 200, "")
 }

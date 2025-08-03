@@ -138,7 +138,7 @@ const CellModal = () => {
             postNewColumnData(col, newColData, currSheet, accessToken ?? "");
 
             let newSheet = currSheet;
-            if (newSheet && newSheet.row_count - 1 <= rowIndex) newSheet.row_count++;
+            if (newSheet && newSheet.row_count <= rowIndex) newSheet.row_count++;
             setCurrSheet(newSheet);
         }
 

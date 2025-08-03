@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 import { useApp, ColTypes, EnumColTypes, Column, ColumnData } from "./AppContext";
 import plus from "./assets/plus.svg";
 
-
 const Table = () => {
     const {
         setCellModal,
-        currSheet, setCurrSheet,
+        currSheet,
         setColModal,
         columns,
         setAddColumn,
@@ -23,33 +22,7 @@ const Table = () => {
         }))
     }, [columns]);
 
-    // const isRowEmpty = (rowIdx: number) => {
-    //     return columns.every(col => {
-    //         const item = col.data.find(item => item.idx == rowIdx)
-    //         if (!item || !item.value.Valid) {
-    //             return true;
-    //         }
-    //         const value = item.value.String;
-    //         return value === null || value === undefined || value === '';
-    //     });
-    // };
-
-    // const createEmptyRow = () => {
-    //     if (currSheet?.row_count !== undefined) {
-    //         setCurrSheet({
-    //             ...currSheet,
-    //             row_count: currSheet.row_count + 1
-    //         });
-    //     }
-    // };
-    // useEffect(() => {
-    //     if (!columns || !currSheet) return
-    //     if (currSheet.row_count === 0 || !isRowEmpty(currSheet.row_count - 1)) {
-    //         createEmptyRow()
-    //     }
-    // }, [columns]);
-
-    if (!columns) {
+    if (!columns || !currSheet) {
         return (
             <div className="max-w-full mx-auto">
                 <div className="rounded-lg p-6">
@@ -101,7 +74,7 @@ const Table = () => {
                         <tr></tr>
                     </thead>
                     <tbody>
-                        {(Array.from({ length: currSheet?.row_count ?? 0 + 1 }, (_, rowIdx) => (
+                        {Array.from({ length: (currSheet?.row_count ?? 0) + 1 }, (_, rowIdx) => (
                             <tr key={rowIdx}>
                                 {columns.map((col, colIdx) => (
                                     <td key={colIdx}
@@ -120,7 +93,7 @@ const Table = () => {
                                     </td>
                                 ))}
                             </tr>
-                        )))}
+                        ))}
                     </tbody>
                 </table>
             </div>
