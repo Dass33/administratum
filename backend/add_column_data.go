@@ -36,6 +36,7 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		msg := fmt.Sprintf("Column data could not be updated: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	updateSheetRowCountParams := database.UpdateSheetRowCountParams{
@@ -47,6 +48,7 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		msg := fmt.Sprintf("Could not update the row count: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 	respondWithJSON(w, 201, "")
 }

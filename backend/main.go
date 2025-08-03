@@ -84,6 +84,7 @@ func main() {
 	router.Get("/get_project/{table_id}", apiCfg.middlewareAuth(apiCfg.getProjectHandler))
 	router.Post("/create_project", apiCfg.middlewareAuth(apiCfg.createProjectHandler))
 	router.Post("/create_sheet", apiCfg.middlewareAuth(apiCfg.createSheetHandler))
+	router.Get("/json/{branch_id}", apiCfg.getJsonHandler)
 
 	srv := &http.Server{
 		Addr:              ":" + port,

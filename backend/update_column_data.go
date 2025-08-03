@@ -27,6 +27,7 @@ func (cfg *apiConfig) updateColumnDataHandler(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		msg := fmt.Sprintf("column data could not be updated: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 	respondWithJSON(w, 200, "")
 }

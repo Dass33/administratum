@@ -32,6 +32,7 @@ func (cfg *apiConfig) createProjectHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		msg := fmt.Sprintf("Could not create table: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 	createUserTableParams := database.CreateUserTableParams{
 		UserID:     userId,
@@ -42,6 +43,7 @@ func (cfg *apiConfig) createProjectHandler(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		msg := fmt.Sprintf("Could not create user table: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	cfg.switchProject(w, r, table.ID, userId, 201)
@@ -56,12 +58,14 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 	if err != nil {
 		msg := fmt.Sprintf("Could not get table: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	sheets, err := cfg.db.GetSheetsFromTable(r.Context(), tableId)
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheets from table: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	sheetId := uuid.UUID{}
@@ -75,6 +79,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 			if err != nil {
 				msg := fmt.Sprintf("Could not create a main branch: %s", err)
 				respondWithError(w, 500, msg)
+				return
 			}
 			branchIdName := IdName{ID: branch.ID, Name: branch.Name}
 			table.BranchesNames = append(table.BranchesNames, branchIdName)
@@ -88,6 +93,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 		if err != nil {
 			msg := fmt.Sprintf("Could not create a config sheet: %s", err)
 			respondWithError(w, 500, msg)
+			return
 		}
 		sheetId = dbSheet.ID
 	} else {
@@ -102,6 +108,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheet: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	setOpenedSheetParams := database.SetOpenedSheetParams{
@@ -112,6 +119,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 	if err != nil {
 		msg := fmt.Sprintf("Could not set opened sheet: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 	data := ProjectData{
 		Table: table,

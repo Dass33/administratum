@@ -23,6 +23,7 @@ func (cfg *apiConfig) createSheetHandler(w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		msg := fmt.Sprintf("Could not create sheet: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	optionalSheetId := uuid.NullUUID{
@@ -33,6 +34,7 @@ func (cfg *apiConfig) createSheetHandler(w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheet: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	setOpenedSheetParams := database.SetOpenedSheetParams{
@@ -43,6 +45,7 @@ func (cfg *apiConfig) createSheetHandler(w http.ResponseWriter, r *http.Request,
 	if err != nil {
 		msg := fmt.Sprintf("Could not set opened sheet: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	respondWithJSON(w, 201, sheetData)

@@ -26,6 +26,7 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, us
 	if err != nil {
 		msg := fmt.Sprintf("Could not parse the sheet id from url: %s", err)
 		respondWithError(w, 400, msg)
+		return
 	}
 	optionalSheetId := uuid.NullUUID{
 		UUID:  sheetId,
@@ -35,6 +36,7 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, us
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheet: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	setOpenedSheetParams := database.SetOpenedSheetParams{
@@ -45,6 +47,7 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, us
 	if err != nil {
 		msg := fmt.Sprintf("Could not set opened sheet: %s", err)
 		respondWithError(w, 500, msg)
+		return
 	}
 
 	respondWithJSON(w, 200, sheet)

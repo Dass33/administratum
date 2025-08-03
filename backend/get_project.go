@@ -19,6 +19,7 @@ func (cfg *apiConfig) getProjectHandler(w http.ResponseWriter, r *http.Request, 
 	if err != nil {
 		msg := fmt.Sprintf("Could not parse the table id from url: %s", err)
 		respondWithError(w, 400, msg)
+		return
 	}
 
 	cfg.switchProject(w, r, tableId, userId, 200)
