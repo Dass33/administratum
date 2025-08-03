@@ -56,6 +56,7 @@ export const ColTypes = [
 
 export const CurrSheet = 'currSheet'
 export const Sheets = 'sheets'
+export const Domain = "localhost:8080"
 export const DEFAULT_UUID = "00000000-0000-0000-0000-000000000000"
 
 export type IdName = {
@@ -137,6 +138,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (loginData?.opened_sheet?.columns) {
             setColumns(loginData.opened_sheet.columns);
         }
+        setCurrTable(loginData.opened_table);
     }, [loginData]);
 
     useEffect(() => {

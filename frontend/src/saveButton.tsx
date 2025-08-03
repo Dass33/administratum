@@ -1,6 +1,6 @@
 import { useState } from "react";
 import dropdownArrow from "./assets/dropdown_arrow.svg";
-import { useApp } from "./AppContext";
+import { useApp, Domain } from "./AppContext";
 import reload from "./assets/reload.svg";
 import danger from "./assets/danger.svg";
 
@@ -70,12 +70,27 @@ function SaveButton() {
 export default SaveButton;
 
 
+enum SaveOptoins {
+    EXPORT = "Export",
+    SHARE = "Share",
+    COPY_LINK = "Copy Link",
+}
+
 const SaveDropdown = () => {
+    const {
+        currSheet
+    } = useApp();
     const [isOpen, setIsOpen] = useState(false);
-    const options = ["Export", "Share"]
+    const options = [SaveOptoins.EXPORT, SaveOptoins.SHARE, SaveOptoins.COPY_LINK]
 
     const handleSelect = (option: string): void => {
-        console.log(option);
+        switch (option) {
+            case SaveOptoins.SHARE:
+            case SaveOptoins.EXPORT:
+                break;
+            case SaveOptoins.COPY_LINK:
+                navigator.clipboard.writeText(`${Domain}/json/${currSheet?.branch_id_name.id}`);
+        }
         setIsOpen(false);
     };
 
