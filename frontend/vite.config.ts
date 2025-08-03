@@ -15,6 +15,7 @@ export default defineConfig({
             '/add_column': 'http://localhost:8080',
             '/delete_column': 'http://localhost:8080',
             '/get_sheet': 'http://localhost:8080',
+            '/get_project': 'http://localhost:8080',
         }
     }
 })

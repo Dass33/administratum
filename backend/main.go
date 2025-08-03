@@ -79,6 +79,7 @@ func main() {
 	router.Post("/add_column_data", apiCfg.middlewareAuth(apiCfg.addColumnDataHandler))
 	router.Delete("/delete_column", apiCfg.middlewareAuth(apiCfg.deleteColumnHandler))
 	router.Get("/get_sheet/{sheet_id}", apiCfg.middlewareAuth(apiCfg.getSheetHandler))
+	router.Get("/get_project/{table_id}", apiCfg.middlewareAuth(apiCfg.getProjectHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

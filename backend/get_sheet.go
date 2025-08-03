@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Dass33/administratum/backend/internal/database"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -19,9 +20,8 @@ type Sheet struct {
 	SheetsIdNames []IdName  `json:"sheets_id_names"`
 }
 
-func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, _ uuid.UUID) {
+func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, userId uuid.UUID) {
 	sheetIdStr := chi.URLParam(r, "sheet_id")
-	fmt.Println(sheetIdStr)
 	sheetId, err := uuid.Parse(sheetIdStr)
 	if err != nil {
 		msg := fmt.Sprintf("Could not parse the sheet id from url: %s", err)
@@ -36,6 +36,17 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, _ 
 		msg := fmt.Sprintf("Could not get sheet: %s", err)
 		respondWithError(w, 500, msg)
 	}
+
+	setOpenedSheetParams := database.SetOpenedSheetParams{
+		ID:          userId,
+		OpenedSheet: optionalSheetId,
+	}
+	err = cfg.db.SetOpenedSheet(r.Context(), setOpenedSheetParams)
+	if err != nil {
+		msg := fmt.Sprintf("Could not set opened sheet: %s", err)
+		respondWithError(w, 500, msg)
+	}
+
 	respondWithJSON(w, 200, sheet)
 }
 

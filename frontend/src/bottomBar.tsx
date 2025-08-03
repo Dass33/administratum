@@ -8,16 +8,16 @@ const BottomBar = () => {
         setColumns,
         setSheetModal,
         setSettingsModal,
-        loginData,
-        accessToken
+        accessToken,
+        openedSheet,
     } = useApp();
 
-    const optionsSheets = (loginData?.opened_sheet?.sheets_id_names ?? []).map(item => ({
+    const optionsSheets = (openedSheet.sheets_id_names ?? []).map(item => ({
         value: item.id,
         label: item.name
     }))
-    const placeholderSheets = loginData?.opened_sheet?.name != ""
-        ? loginData?.opened_sheet?.name
+    const placeholderSheets = openedSheet.name != ""
+        ? openedSheet.name
         : "Sheets"
 
     const selectSheets = (item: DropdownOption) => {
@@ -25,17 +25,6 @@ const BottomBar = () => {
             setCurrSheet(sheet);
             setColumns(sheet.columns);
         })
-        // localStorage.setItem(currSheet + ColSuffix, JSON.stringify(columns));
-        // setCurrSheet(item.value)
-        // localStorage.setItem(CurrSheet, item.value);
-        // setColumns(() => {
-        //     const stored = localStorage.getItem(item.value + ColSuffix);
-        //     return stored ? JSON.parse(stored) : [];
-        // })
-        // setCurrTable(() => {
-        //     const stored = localStorage.getItem(item.value);
-        //     return stored ? JSON.parse(stored) : [];
-        // })
     }
 
     return (

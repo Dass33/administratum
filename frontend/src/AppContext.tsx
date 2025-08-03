@@ -33,6 +33,8 @@ interface AppState {
     setLoading: Function,
     loginData: LoginData | undefined,
     setLoginData: Function,
+    openedSheet: Sheet,
+    setOpenedSheet: Function,
 }
 
 export enum EnumColTypes {
@@ -124,6 +126,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [loading, setLoading] = useState(true);
     const [loginData, setLoginData] = useState<LoginData | undefined>();
+    const [openedSheet, setOpenedSheet] = useState<Sheet | undefined>();
 
     useEffect(() => {
         if (!loginData) return
@@ -152,6 +155,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     setLoading(false);
                     setLoginData(data);
                     setAccessToken(data.token);
+                    setOpenedSheet(data.opened_sheet)
                     console.log(data)
                 }
             })
@@ -180,6 +184,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             accessToken, setAccessToken,
             loading, setLoading,
             loginData, setLoginData,
+            openedSheet, setOpenedSheet,
         }}>
             {children}
         </AppContext.Provider>
