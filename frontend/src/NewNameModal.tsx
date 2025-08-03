@@ -1,36 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Sheets, useApp } from './AppContext';
+import { useApp, IdName } from './AppContext';
 
-const SheetModal = () => {
+export interface NewNameProps {
+    assignNewName: (name: string) => void;
+    currNames: IdName[]
+}
+
+const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames }) => {
     const {
-        setSheetModal,
-        sheets, setSheets
+        setNewNameModal,
     } = useApp();
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
     };
 
-    const [name, setName] = useState("");
-
     const validJSON = (str: string) => {
-        return /^[a-zA-Z_$][a-zA-Z0-9_$\-\.]*$/.test(str)
+        try {
+            JSON.parse(`{"${str}": 1}`);
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
-    const nameExists = (name: string) => {
-        return sheets.find(item => item == name)
-    }
-
+    const [name, setName] = useState("");
     const [validName, setValidName] = useState(validJSON(name))
 
+    const nameExists = (name: string) => {
+        return currNames.find(item => item.name == name)
+    }
+
     const saveAndExit = () => {
-        setSheetModal(false);
+        setNewNameModal(null);
 
         if (validName && name.length > 0) {
-            const newSheets = [...sheets, name];
-            setSheets(newSheets);
-            localStorage.setItem(Sheets, JSON.stringify(newSheets));
+            assignNewName(name);
         }
     }
 
@@ -43,12 +49,11 @@ const SheetModal = () => {
     };
 
     useEffect(() => {
-        const textarea = textareaRef.current;
-
-        if (textarea) {
-            textarea.focus();
-            const length = textarea.value.length;
-            textarea.setSelectionRange(length, length);
+        const input = inputRef.current;
+        if (input) {
+            input.focus();
+            const length = input.value.length;
+            input.setSelectionRange(length, length);
         }
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') saveAndExit()
@@ -58,7 +63,7 @@ const SheetModal = () => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [setSheetModal]);
+    }, []);
 
     return (
         <div
@@ -68,6 +73,7 @@ const SheetModal = () => {
             <div onClick={stopPropagation}>
                 <input className={`p-4 rounded-lg text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12
                     overflow-y-auto focus:outline-none ${(!validName && name) && "text-red-600"}`}
+                    ref={inputRef}
                     placeholder='Name'
                     onChange={handleNameChange}
                 />
@@ -76,4 +82,4 @@ const SheetModal = () => {
     );
 };
 
-export default SheetModal;
+export default NewNameModal;

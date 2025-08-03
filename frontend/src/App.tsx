@@ -8,7 +8,7 @@ import Table from "./table";
 import { useApp } from "./AppContext";
 import CellModal from "./cellModal";
 import ColModal from "./colModal";
-import SheetModal from "./sheetModal";
+import NewNameModal from "./NewNameModal";
 import SettingsModal from "./settingsModal";
 import Auth from "./auth";
 
@@ -16,7 +16,7 @@ function App() {
     const {
         cellModal,
         colModal,
-        sheetModal,
+        newNameModal,
         settingsModal,
         authenticated,
         loading,
@@ -38,7 +38,10 @@ function App() {
         <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex flex-row'>
             {cellModal && <CellModal />}
             {colModal > -1 && <ColModal />}
-            {sheetModal && <SheetModal />}
+            {newNameModal && <NewNameModal
+                currNames={newNameModal.currNames}
+                assignNewName={newNameModal.assignNewName}
+            />}
             {settingsModal && <SettingsModal />}
             <div className="flex flex-col flex-grow my-10">
                 <div className="flex flex-row gap-4">

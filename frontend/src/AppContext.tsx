@@ -1,4 +1,5 @@
 import React, { useState, createContext, useContext, useEffect } from "react";
+import { NewNameProps } from "./NewNameModal";
 
 interface AppState {
     cellModal: [number, Column] | null
@@ -15,8 +16,8 @@ interface AppState {
     setSheets: Function,
     currSheet: Sheet | undefined,
     setCurrSheet: Function,
-    sheetModal: boolean,
-    setSheetModal: Function,
+    newNameModal: NewNameProps | null,
+    setNewNameModal: Function,
     settingsModal: boolean,
     setSettingsModal: Function,
     gameUrl: string,
@@ -33,7 +34,7 @@ interface AppState {
     setLoading: Function,
     loginData: LoginData | undefined,
     setLoginData: Function,
-    openedSheet: Sheet,
+    openedSheet: Sheet | undefined,
     setOpenedSheet: Function,
 }
 
@@ -117,7 +118,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const [addColumn, setAddColumn] = useState(false);
     const [sheets, setSheets] = useState([]);
-    const [sheetModal, setSheetModal] = useState(false);
+    const [newNameModal, setNewNameModal] = useState(null);
     const [settingsModal, setSettingsModal] = useState(false);
     const [gameUrl, setGameUrl] = useState("https://dass33.github.io/guess_game/");
     const [projectName, setProjectName] = useState();
@@ -126,7 +127,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [loading, setLoading] = useState(true);
     const [loginData, setLoginData] = useState<LoginData | undefined>();
-    const [openedSheet, setOpenedSheet] = useState<Sheet | undefined>();
+    const [openedSheet, setOpenedSheet] = useState<Sheet>();
 
     useEffect(() => {
         if (!loginData) return
@@ -175,7 +176,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             addColumn, setAddColumn,
             sheets, setSheets,
             currSheet, setCurrSheet,
-            sheetModal, setSheetModal,
+            newNameModal, setNewNameModal,
             settingsModal, setSettingsModal,
             gameUrl, setGameUrl,
             projectName, setProjectName,

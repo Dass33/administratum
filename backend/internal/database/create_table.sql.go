@@ -11,9 +11,10 @@ import (
 )
 
 const createTable = `-- name: CreateTable :one
-INSERT INTO tables (id, game_url, created_at, updated_at)
+INSERT INTO tables (id, name, game_url, created_at, updated_at)
 VALUES (
     gen_random_uuid(),
+    ?,
     ?,
     datetime('now'),
     datetime('now')
@@ -21,8 +22,13 @@ VALUES (
 RETURNING id, game_url, created_at, updated_at, name
 `
 
-func (q *Queries) CreateTable(ctx context.Context, gameUrl sql.NullString) (Table, error) {
-	row := q.db.QueryRowContext(ctx, createTable, gameUrl)
+type CreateTableParams struct {
+	Name    string
+	GameUrl sql.NullString
+}
+
+func (q *Queries) CreateTable(ctx context.Context, arg CreateTableParams) (Table, error) {
+	row := q.db.QueryRowContext(ctx, createTable, arg.Name, arg.GameUrl)
 	var i Table
 	err := row.Scan(
 		&i.ID,

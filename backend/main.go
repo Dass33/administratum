@@ -29,6 +29,8 @@ type IdName struct {
 	Name string    `json:"name"`
 }
 
+const OwnerPermission string = "owner"
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -80,6 +82,7 @@ func main() {
 	router.Delete("/delete_column", apiCfg.middlewareAuth(apiCfg.deleteColumnHandler))
 	router.Get("/get_sheet/{sheet_id}", apiCfg.middlewareAuth(apiCfg.getSheetHandler))
 	router.Get("/get_project/{table_id}", apiCfg.middlewareAuth(apiCfg.getProjectHandler))
+	router.Post("/create_project", apiCfg.middlewareAuth(apiCfg.createProjectHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

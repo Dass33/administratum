@@ -43,5 +43,5 @@ func (cfg *apiConfig) addColumnHandler(w http.ResponseWriter, r *http.Request, i
 		msg := fmt.Sprintf("Column could not be updated: %s", err)
 		respondWithError(w, 500, msg)
 	}
-	respondWithJSON(w, 200, newCol)
+	respondWithJSON(w, 201, newCol)
 }

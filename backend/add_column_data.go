@@ -48,5 +48,5 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 		msg := fmt.Sprintf("Could not update the row count: %s", err)
 		respondWithError(w, 500, msg)
 	}
-	respondWithJSON(w, 200, "")
+	respondWithJSON(w, 201, "")
 }

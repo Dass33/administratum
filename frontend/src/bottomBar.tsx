@@ -1,23 +1,24 @@
 import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
 import { useApp, Sheet } from "./AppContext";
+import { NewNameProps } from "./NewNameModal";
 
 const BottomBar = () => {
     const {
         setCurrSheet,
         setColumns,
-        setSheetModal,
+        setNewNameModal,
         setSettingsModal,
         accessToken,
         openedSheet,
     } = useApp();
 
-    const optionsSheets = (openedSheet.sheets_id_names ?? []).map(item => ({
+    const optionsSheets = (openedSheet?.sheets_id_names ?? []).map(item => ({
         value: item.id,
         label: item.name
     }))
-    const placeholderSheets = openedSheet.name != ""
-        ? openedSheet.name
+    const placeholderSheets = openedSheet?.name != ""
+        ? openedSheet?.name
         : "Sheets"
 
     const selectSheets = (item: DropdownOption) => {
@@ -39,7 +40,15 @@ const BottomBar = () => {
                 placeholder={placeholderSheets}
                 onSelect={(item) => selectSheets(item)}
                 isDown={false}
-                addNewValue={() => setSheetModal(true)}
+                addNewValue={() => {
+                    const props: NewNameProps = {
+                        currNames: openedSheet?.sheets_id_names ?? [],
+                        assignNewName: (name: string) => {
+                            console.log(name);
+                        },
+                    }
+                    setNewNameModal(props)
+                }}
             />
         </div>
     );

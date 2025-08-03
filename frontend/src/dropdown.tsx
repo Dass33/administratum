@@ -75,7 +75,10 @@ const Dropdown: React.FC<DropdownProps> = ({
                         ))}
                         {addNewValue &&
                             <li
-                                onClick={() => addNewValue()}
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    addNewValue();
+                                }}
                                 className="px-4 py-2 text-sm text-gray-700 hover:bg-figma-gray hover:text-figma-black cursor-pointer flex"
                             >
                                 <span className='font-medium'>New</span>
