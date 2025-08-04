@@ -7,45 +7,33 @@ package database
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 const getSheetsFromBranch = `-- name: GetSheetsFromBranch :many
 select
-    s.id id,
-    s.name name,
-    row_count,
-    s.updated_at updated_at,
-    s.created_at created_at
+    s.id, s.name, s.row_count, s.branch_id, s.created_at, s.updated_at
 from branches b
 join sheets s on b.id = s.branch_id and b.id = ?
 `
 
-type GetSheetsFromBranchRow struct {
-	ID        uuid.UUID
-	Name      string
-	RowCount  int64
-	UpdatedAt time.Time
-	CreatedAt time.Time
-}
-
-func (q *Queries) GetSheetsFromBranch(ctx context.Context, id uuid.UUID) ([]GetSheetsFromBranchRow, error) {
+func (q *Queries) GetSheetsFromBranch(ctx context.Context, id uuid.UUID) ([]Sheet, error) {
 	rows, err := q.db.QueryContext(ctx, getSheetsFromBranch, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetSheetsFromBranchRow
+	var items []Sheet
 	for rows.Next() {
-		var i GetSheetsFromBranchRow
+		var i Sheet
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.RowCount,
-			&i.UpdatedAt,
+			&i.BranchID,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

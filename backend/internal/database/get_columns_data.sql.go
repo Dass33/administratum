@@ -14,6 +14,7 @@ import (
 const getColumnsData = `-- name: GetColumnsData :many
 select id, idx, value, column_id, created_at, updated_at from column_data cd
 where column_id = ?
+order by idx asc
 `
 
 func (q *Queries) GetColumnsData(ctx context.Context, columnID uuid.UUID) ([]ColumnDatum, error) {
