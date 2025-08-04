@@ -22,4 +22,3 @@ Makes config to web apps more accessible.
 - sharing tables
 - exporting tables
 - implement branches
-- implement resizing gameView

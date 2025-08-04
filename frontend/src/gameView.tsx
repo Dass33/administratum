@@ -1,23 +1,14 @@
 import { useApp } from "./AppContext"
-import expand from "./assets/expand.svg"
 
 function GameView() {
     const { gameUrl } = useApp();
-
     return (
-        <div className="flex items-center">
-            <div className="flex flex-row">
-                <button className="size-8 hover:scale-125 transition-transform duration-100" >
-                    <img
-                        src={expand}
-                        alt="dropdown arrow"
-                    />
-                </button>
-                <div className="embedded-container">
-                    <iframe className="rounded-lg"
+        <div className="w-full h-full flex items-center justify-center py-10 pl-10">
+            <div className="w-full h-full">
+                <div className="embedded-container w-full h-full">
+                    <iframe
+                        className="rounded-lg w-full h-full"
                         src={gameUrl}
-                        width="370"
-                        height="750"
                         title="Embedded Website"
                     />
                 </div>
