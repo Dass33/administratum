@@ -81,7 +81,7 @@ const Table = () => {
                                 {columns.map((col, colIdx) => (
                                     <td key={colIdx}
                                         className={`border px-3 py-2 text-sm truncate
-                                        ${!col.required || validateCellType(rowIdx, col)
+                                        ${rowIdx == currSheet.row_count || validateCellType(rowIdx, col)
                                                 ? "border-gray-300"
                                                 : "border-red-600"}`}
                                     >
