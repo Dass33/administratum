@@ -32,7 +32,6 @@ const Dropdown: React.FC<DropdownProps> = ({
         if (options.length > 0) return options[0]
         return undefined
     });
-    console.log(options);
 
     useEffect(() => {
         const selected = options.find((item) => item.value === selectedOption?.value);

@@ -85,6 +85,10 @@ func main() {
 	router.Post("/create_project", apiCfg.middlewareAuth(apiCfg.createProjectHandler))
 	router.Post("/create_sheet", apiCfg.middlewareAuth(apiCfg.createSheetHandler))
 	router.Get("/json/{branch_id}", apiCfg.getJsonHandler)
+	router.Put("/rename_sheet", apiCfg.middlewareAuth(apiCfg.renameSheetHandler))
+	router.Delete("/delete_sheet", apiCfg.middlewareAuth(apiCfg.deleteSheetHandler))
+	router.Put("/rename_project", apiCfg.middlewareAuth(apiCfg.renemeProjectHandler))
+	router.Delete("/delete_project", apiCfg.middlewareAuth(apiCfg.deleteProjectHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

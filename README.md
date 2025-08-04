@@ -16,4 +16,4 @@ Makes config to web apps more accessible.
 
 ## 🎒 TODO
 - enum support
-- store table in database
+- fix multiple new column bug
