@@ -338,7 +338,7 @@ const postNewColumnData = async (col: Column, data: ColumnData, sheet: Sheet, to
         body: JSON.stringify(newColDataParams)
     })
         .then(response => {
-            if (response.status != 200) {
+            if (response.status < 200 || response.status > 299) {
                 throw "Could not update column data"
             }
         })
@@ -357,7 +357,7 @@ const putAdjustedColumnData = (data: ColumnData, token: string) => {
         body: JSON.stringify(data)
     })
         .then(response => {
-            if (response.status != 200) {
+            if (response.status < 200 || response.status > 299) {
                 throw "Could not update column"
             }
         })

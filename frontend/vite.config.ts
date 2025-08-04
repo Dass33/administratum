@@ -18,6 +18,10 @@ export default defineConfig({
             '/get_project': 'http://localhost:8080',
             '/create_project': 'http://localhost:8080',
             '/create_sheet': 'http://localhost:8080',
+            '/rename_sheet': 'http://localhost:8080',
+            '/delete_sheet': 'http://localhost:8080',
+            '/rename_project': 'http://localhost:8080',
+            '/delete_project': 'http://localhost:8080',
         }
     }
 })

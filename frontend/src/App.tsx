@@ -41,6 +41,8 @@ function App() {
             {newNameModal && <NewNameModal
                 currNames={newNameModal.currNames}
                 assignNewName={newNameModal.assignNewName}
+                defaultIdName={newNameModal.defaultIdName}
+                deleteItem={newNameModal.deleteItem}
             />}
             {settingsModal && <SettingsModal />}
             <div className="flex flex-col flex-grow my-10">

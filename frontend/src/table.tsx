@@ -9,7 +9,9 @@ const Table = () => {
         setColModal,
         columns,
         setAddColumn,
+        sheetDeleted,
     } = useApp()
+    // console.log(columns)
 
     const [borderColors, setBorderColors] = useState<string[]>([]);
 
@@ -34,17 +36,17 @@ const Table = () => {
         );
     }
 
-    // if (!Array.isArray(currTable)) {
-    //     return (
-    //         <div className="max-w-full mx-auto">
-    //             <div className="rounded-lg p-6">
-    //                 <div className="p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
-    //                     Error: Data malformed
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     );
-    // }
+    if (sheetDeleted) {
+        return (
+            <div className="max-w-full mx-auto">
+                <div className="rounded-lg p-6">
+                    <div className="p-3 text-figma-black rounded-md">
+                        Sheet has been deleted.
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-full mx-auto flex items-start">

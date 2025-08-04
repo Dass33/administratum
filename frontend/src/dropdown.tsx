@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import plus from "./assets/plus.svg"
+import React, { useState, useEffect } from 'react';
+import plus from "./assets/plus.svg";
+import settings from "./assets/settings.svg";
 
 export interface DropdownOption {
     value: string;
@@ -13,6 +14,7 @@ export interface DropdownProps {
     isDown?: boolean;
     defaultValue?: string;
     addNewValue?: () => void;
+    updateValue?: (option: DropdownOption) => void;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -21,14 +23,23 @@ const Dropdown: React.FC<DropdownProps> = ({
     onSelect,
     isDown = true,
     defaultValue,
-    addNewValue
+    addNewValue,
+    updateValue,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<DropdownOption | undefined>(() => {
         if (defaultValue) return options.find((item) => item.value === defaultValue)
-        if (options.length > 0) options[0].label
+        if (options.length > 0) return options[0]
         return undefined
     });
+    console.log(options);
+
+    useEffect(() => {
+        const selected = options.find((item) => item.value === selectedOption?.value);
+        if (selected && selected.label !== selectedOption?.label) {
+            setSelectedOption(selected);
+        }
+    }, [options]);
 
     const handleSelect = (option: DropdownOption): void => {
         setSelectedOption(option);
@@ -39,7 +50,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     };
 
     return (
-        <div className="relative inline-block text-left">
+        <div className="relative inline-block text-left min-w-28">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full bg-figma-white border border-figma-gray rounded-lg px-4 py-2 text-left shadow-sm hover:bg-gray-50 focus:border-figma-black pr-8"
@@ -65,13 +76,26 @@ const Dropdown: React.FC<DropdownProps> = ({
                     }`}>
                     <ul className="max-h-60 overflow-auto py-1">
                         {options.map((option, index) => (
-                            <li
+                            <div className='flex items-center hover:bg-figma-gray hover:text-figma-black justify-between pl-4 pr-2 py-2'
                                 key={option.value || index}
-                                onClick={() => handleSelect(option)}
-                                className="px-4 py-2 text-sm text-gray-700 hover:bg-figma-gray hover:text-figma-black cursor-pointer"
                             >
-                                {option.label}
-                            </li>
+                                <li
+                                    onClick={() => handleSelect(option)}
+                                    className='mr-2 text-sm text-gray-700 cursor-pointer h-5 overflow-hidden text-ellipsis whitespace-nowrap flex-1'
+                                >
+                                    {option.label}
+                                </li>
+                                {updateValue &&
+                                    <button className='w-4 h-4 hover:scale-110 transition-transform duration-100 flex-shrink-0'
+                                        onClick={() => {
+                                            setIsOpen(false);
+                                            updateValue(option);
+                                        }}
+                                    >
+                                        <img className="w-full h-full" src={settings} />
+                                    </button>
+                                }
+                            </div>
                         ))}
                         {addNewValue &&
                             <li

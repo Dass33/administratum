@@ -5,16 +5,16 @@ import { NewNameProps } from "./NewNameModal";
 function SelectBranch() {
     const {
         setBranchName,
-        loginData,
-        openedSheet,
+        currSheet,
         setNewNameModal,
+        currTable,
     } = useApp();
-    const optionsBranches = (loginData?.opened_table?.branches_names ?? []).map(item => ({
+    const optionsBranches = (currTable?.branches_names ?? []).map(item => ({
         value: item.id,
         label: item.name
     }))
-    const placeholderBranch = loginData?.opened_sheet.branch_id_name.name != ""
-        ? loginData?.opened_sheet.branch_id_name.name
+    const placeholderBranch = currSheet?.branch_id_name.name != ""
+        ? currSheet?.branch_id_name.name
         : "Branch"
 
     const createBranch = (name: string) => {
@@ -29,7 +29,7 @@ function SelectBranch() {
             onSelect={(e) => { setBranchName(e.value) }}
             addNewValue={() => {
                 const props: NewNameProps = {
-                    currNames: openedSheet?.sheets_id_names ?? [],
+                    currNames: currSheet?.sheets_id_names ?? [],
                     assignNewName: createBranch,
                 }
                 setNewNameModal(props)

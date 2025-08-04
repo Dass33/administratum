@@ -19,7 +19,10 @@ const Auth = () => {
     const {
         setAuthenticated,
         setAccessToken,
-        setLoginData,
+        setColumns,
+        setCurrSheet,
+        setCurrTable,
+        setTableNames,
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -49,7 +52,10 @@ const Auth = () => {
             }
             const result: LoginData = await response.json();
             console.log(result);
-            setLoginData(result)
+            setCurrSheet(result.opened_sheet)
+            setCurrTable(result.opened_table)
+            setColumns(result.opened_sheet.columns);
+            setTableNames(result.table_names)
             setError(null);
             setAccessToken(result.token)
             setAuthenticated(true);

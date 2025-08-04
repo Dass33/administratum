@@ -3,10 +3,12 @@ import { useApp, IdName } from './AppContext';
 
 export interface NewNameProps {
     assignNewName: (name: string) => void;
-    currNames: IdName[]
+    currNames: IdName[];
+    defaultIdName?: IdName;
+    deleteItem?: () => void;
 }
 
-const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames }) => {
+const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames, defaultIdName, deleteItem }) => {
     const {
         setNewNameModal,
     } = useApp();
@@ -71,12 +73,27 @@ const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames }) => {
             onClick={saveAndExit}
         >
             <div onClick={stopPropagation}>
-                <input className={`p-4 rounded-lg text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12
+                <div className='p-4 rounded-lg bg-figma-white'>
+                    <input className={`rounded-lg bg-figma-white text-figma-black text-2xl font-medium h-12
                     overflow-y-auto focus:outline-none ${(!validName && name) && "text-red-600"}`}
-                    ref={inputRef}
-                    placeholder='Name'
-                    onChange={handleNameChange}
-                />
+                        ref={inputRef}
+                        placeholder='Name'
+                        defaultValue={defaultIdName?.name}
+                        onChange={handleNameChange}
+                    />
+                    {deleteItem &&
+                        <div className='w-full flex justify-end mt-2 '>
+                            <button className='bg-red-600 w-24 rounded-lg p-2 px-4 text-figma-white font-bold mt-4'
+                                onClick={() => {
+                                    deleteItem()
+                                    setNewNameModal(null)
+                                }}
+                            >
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     );

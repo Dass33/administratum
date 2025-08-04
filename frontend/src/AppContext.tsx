@@ -32,10 +32,10 @@ interface AppState {
     setAccessToken: Function,
     loading: boolean,
     setLoading: Function,
-    loginData: LoginData | undefined,
-    setLoginData: Function,
-    openedSheet: Sheet | undefined,
-    setOpenedSheet: Function,
+    sheetDeleted: boolean,
+    setSheetDeleted: Function,
+    tableNames: IdName[],
+    setTableNames: Function,
 }
 
 export enum EnumColTypes {
@@ -127,19 +127,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [authenticated, setAuthenticated] = useState(false);
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [loading, setLoading] = useState(true);
-    const [loginData, setLoginData] = useState<LoginData | undefined>();
-    const [openedSheet, setOpenedSheet] = useState<Sheet>();
-
-    useEffect(() => {
-        if (!loginData) return
-        if (loginData?.opened_sheet) {
-            setCurrSheet(loginData.opened_sheet)
-        }
-        if (loginData?.opened_sheet?.columns) {
-            setColumns(loginData.opened_sheet.columns);
-        }
-        setCurrTable(loginData.opened_table);
-    }, [loginData]);
+    const [sheetDeleted, setSheetDeleted] = useState<boolean>(false);
+    const [tableNames, setTableNames] = useState<IdName[]>([]);
 
     useEffect(() => {
         fetch('/refresh', {
@@ -156,9 +145,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 if (data) {
                     setAuthenticated(true);
                     setLoading(false);
-                    setLoginData(data);
                     setAccessToken(data.token);
-                    setOpenedSheet(data.opened_sheet)
+                    setCurrSheet(data.opened_sheet)
+                    setCurrTable(data.opened_table)
+                    setColumns(data.opened_sheet.columns);
+                    setTableNames(data.table_names)
                     console.log(data)
                 }
             })
@@ -186,8 +177,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             authenticated, setAuthenticated,
             accessToken, setAccessToken,
             loading, setLoading,
-            loginData, setLoginData,
-            openedSheet, setOpenedSheet,
+            sheetDeleted, setSheetDeleted,
+            tableNames, setTableNames,
         }}>
             {children}
         </AppContext.Provider>

@@ -9,28 +9,62 @@ type ProjectData = {
 
 function SelectProject() {
     const {
-        loginData,
         accessToken,
-        setCurrTable,
-        setCurrSheet,
+        currTable, setCurrTable,
+        currSheet, setCurrSheet,
         setColumns,
-        setOpenedSheet,
         setNewNameModal,
-        openedSheet,
+        setSheetDeleted,
+        tableNames, setTableNames,
     } = useApp();
-    const optionsProjects = (loginData?.table_names ?? []).map(item => ({
+    const optionsProjects = tableNames.map(item => ({
         value: item.id,
         label: item.name
     }))
-    const placeholderProjectas = loginData?.opened_table?.name != ""
-        ? loginData?.opened_table?.name
+    const placeholderProjectas = currTable?.name != ""
+        ? currTable?.name
         : "Branch"
 
     const setData = (data: ProjectData) => {
         setCurrTable(data.Table);
         setCurrSheet(data.Sheet);
         setColumns(data.Sheet.columns);
-        setOpenedSheet(data.Sheet);
+    }
+
+    const assignNewName = (name: string, option: DropdownOption) => {
+        renameProject(name, option.value, accessToken);
+
+        const newTableNames = tableNames.map(idName => {
+            if (idName.id === option.value) {
+                return { id: idName.id, name: name }
+            }
+            return idName;
+        })
+        setTableNames(newTableNames);
+    }
+
+    const deleteItem = (option: DropdownOption) => {
+        deleteProject(option.value, accessToken)
+
+        const newTableNames = tableNames.filter(
+            idName => idName.id !== option.value
+        )
+        setTableNames(newTableNames);
+
+        if (currTable?.id === option.value) {
+            setCurrTable();
+            setSheetDeleted(true);
+        }
+    }
+
+    const updateValue = (option: DropdownOption) => {
+        const props: NewNameProps = {
+            currNames: tableNames,
+            defaultIdName: { name: option.label, id: option.value },
+            assignNewName(name: string) { assignNewName(name, option) },
+            deleteItem() { deleteItem(option) },
+        }
+        setNewNameModal(props)
     }
 
     return (
@@ -40,11 +74,12 @@ function SelectProject() {
             onSelect={(e) => getCurrTable(e.value, accessToken ?? "", setData)}
             addNewValue={() => {
                 const props: NewNameProps = {
-                    currNames: openedSheet?.sheets_id_names ?? [],
+                    currNames: currSheet?.sheets_id_names ?? [],
                     assignNewName: (name) => postTable(name, accessToken ?? "", setData),
                 }
                 setNewNameModal(props)
             }}
+            updateValue={(option) => { updateValue(option) }}
         />
     );
 }
@@ -97,5 +132,53 @@ const postTable = (name: string, token: string, setData: Function) => {
             console.error(err);
         });
 };
+
+const renameProject = (name: string, projectId: string, token: string | undefined) => {
+    const renameProjectParams: { Name: string, ProjectId: string } = {
+        Name: name,
+        ProjectId: projectId,
+    }
+
+    fetch("/rename_project", {
+        method: "PUT",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(renameProjectParams)
+    })
+        .then(response => {
+            if (response.status < 200 || response.status > 299) {
+                throw new Error("Could not rename project");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+const deleteProject = (projectId: string, token: string | undefined) => {
+    const deleteProjectParams: { ProjectId: string } = {
+        ProjectId: projectId,
+    };
+
+    fetch('/delete_project', {
+        method: "DELETE",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(deleteProjectParams)
+    })
+        .then(response => {
+            if (response.status < 200 || response.status > 299) {
+                console.log(response.status)
+                throw "Could not delete project"
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
 
 export default SelectProject;

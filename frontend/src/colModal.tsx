@@ -177,7 +177,7 @@ const postNewColumn = (sheet: Sheet, col: Column, token: string) => {
         body: JSON.stringify(newColParams)
     })
         .then(response => {
-            if (response.status != 200) {
+            if (response.status != 201) {
                 throw "Could not update column"
             }
         })
@@ -196,7 +196,7 @@ const putAdjustedColumn = (col: Column, token: string) => {
         body: JSON.stringify(col)
     })
         .then(response => {
-            if (response.status != 200) {
+            if (response.status < 200 || response.status > 299) {
                 throw "Could not update column"
             }
         })
@@ -220,7 +220,8 @@ const deleteColumn = (sheet: Sheet, col: Column, token: string) => {
         body: JSON.stringify(deleteColParams)
     })
         .then(response => {
-            if (response.status != 200) {
+            if (response.status < 200 || response.status > 299) {
+                console.log(response.status)
                 throw "Could not delete column"
             }
         })

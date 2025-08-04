@@ -5,16 +5,15 @@ import { NewNameProps } from "./NewNameModal";
 
 const BottomBar = () => {
     const {
-        setCurrSheet,
+        currSheet, setCurrSheet,
         setColumns,
         setNewNameModal,
         setSettingsModal,
         accessToken,
-        openedSheet,
-        currSheet,
+        setSheetDeleted,
     } = useApp();
 
-    const optionsSheets = (openedSheet?.sheets_id_names ?? []).map(item => ({
+    const optionsSheets = (currSheet?.sheets_id_names ?? []).map(item => ({
         value: item.id,
         label: item.name
     }))
@@ -27,6 +26,62 @@ const BottomBar = () => {
     }
     const selectSheets = (item: DropdownOption) => {
         getCurrSheet(item.value, accessToken ?? "", setData)
+        setSheetDeleted(false);
+    }
+
+    const addNewValue = () => {
+        const props: NewNameProps = {
+            currNames: currSheet?.sheets_id_names ?? [],
+            assignNewName: (name: string) => {
+                if (!currSheet) return
+                createSheet(name, currSheet.branch_id_name.id, accessToken, setData);
+            },
+        }
+        setNewNameModal(props)
+    }
+
+    const assignNewName = (name: string, option: DropdownOption) => {
+        if (!currSheet) return
+        renameSheet(name, currSheet.branch_id_name.id, accessToken);
+
+        const newSheetNames = currSheet.sheets_id_names.map(idName => {
+            if (idName.id === option.value) {
+                return { id: idName.id, name: name }
+            }
+            return idName;
+        })
+        setCurrSheet({
+            ...currSheet,
+            sheets_id_names: newSheetNames,
+        });
+    }
+
+    const delteItem = (option: DropdownOption) => {
+        deleteSheet(option.value, accessToken)
+        if (!currSheet) return;
+
+        const newSheetNames = currSheet.sheets_id_names.filter(
+            idName => idName.id !== option.value
+        )
+        setCurrSheet({
+            ...currSheet,
+            sheets_id_names: newSheetNames,
+        });
+
+        if (currSheet.id === option.value) {
+            setSheetDeleted(true);
+            return;
+        }
+    }
+
+    const updateValue = (option: DropdownOption) => {
+        const props: NewNameProps = {
+            currNames: currSheet?.sheets_id_names ?? [],
+            defaultIdName: { name: option.label, id: option.value },
+            assignNewName(name: string) { assignNewName(name, option) },
+            deleteItem() { delteItem(option) },
+        }
+        setNewNameModal(props)
     }
 
     return (
@@ -41,16 +96,8 @@ const BottomBar = () => {
                 placeholder={placeholderSheets}
                 onSelect={(item) => selectSheets(item)}
                 isDown={false}
-                addNewValue={() => {
-                    const props: NewNameProps = {
-                        currNames: openedSheet?.sheets_id_names ?? [],
-                        assignNewName: (name: string) => {
-                            if (!openedSheet) return
-                            createSheet(name, openedSheet.branch_id_name.id, accessToken ?? "", setData);
-                        },
-                    }
-                    setNewNameModal(props)
-                }}
+                addNewValue={addNewValue}
+                updateValue={(option) => { updateValue(option) }}
             />
         </div>
     );
@@ -68,7 +115,7 @@ const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
         credentials: "include"
     })
         .then(response => {
-            if (response.status !== 200) {
+            if (response.status < 200 || response.status > 299) {
                 throw new Error("Could not retrieve sheet");
             }
             return response.json();
@@ -81,7 +128,7 @@ const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
         });
 };
 
-const createSheet = (name: string, branchId: string, token: string, setData: Function) => {
+const createSheet = (name: string, branchId: string, token: string | undefined, setData: Function) => {
     const createSheetParams: { Name: string, BranchID: string } = {
         Name: name,
         BranchID: branchId,
@@ -96,13 +143,61 @@ const createSheet = (name: string, branchId: string, token: string, setData: Fun
         body: JSON.stringify(createSheetParams)
     })
         .then(response => {
-            if (response.status !== 201) {
+            if (response.status < 200 || response.status > 299) {
                 throw new Error("Could not retrieve sheet");
             }
             return response.json();
         })
         .then((result: Sheet) => {
             setData(result);
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+const renameSheet = (name: string, sheetId: string, token: string | undefined) => {
+    const renameSheetParams: { Name: string, SheetId: string } = {
+        Name: name,
+        SheetId: sheetId,
+    }
+
+    fetch("/rename_sheet", {
+        method: "PUT",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(renameSheetParams)
+    })
+        .then(response => {
+            if (response.status < 200 || response.status > 299) {
+                throw new Error("Could not rename sheet");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+const deleteSheet = (sheetId: string, token: string | undefined) => {
+    const deleteSheetParams: { SheetId: string } = {
+        SheetId: sheetId,
+    };
+
+    fetch('/delete_sheet', {
+        method: "DELETE",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(deleteSheetParams)
+    })
+        .then(response => {
+            if (response.status < 200 || response.status > 299) {
+                console.log(response.status)
+                throw "Could not delete sheet"
+            }
         })
         .catch(err => {
             console.error(err);
