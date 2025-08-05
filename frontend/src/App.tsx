@@ -11,6 +11,7 @@ import CellModal from "./cellModal";
 import ColModal from "./colModal";
 import NewNameModal from "./NewNameModal";
 import SettingsModal from "./settingsModal";
+import ShareModal from "./shareModal";
 import Auth from "./auth";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         colModal,
         newNameModal,
         settingsModal,
+        shareModal,
         authenticated,
         loading,
     } = useApp()
@@ -75,7 +77,7 @@ function App() {
     )
 
     return (
-        <div className='bg-figma-white h-screen px-10 flex flex-row' ref={containerRef}>
+        <div className='bg-figma-white h-screen px-9 flex flex-row' ref={containerRef}>
             {cellModal && <CellModal />}
             {colModal > -1 && <ColModal />}
             {newNameModal && <NewNameModal
@@ -85,6 +87,7 @@ function App() {
                 deleteItem={newNameModal.deleteItem}
             />}
             {settingsModal && <SettingsModal />}
+            {shareModal && <ShareModal />}
 
             <div
                 className="flex flex-col my-10 overflow-hidden"
@@ -108,17 +111,17 @@ function App() {
             </div>
 
             <div
-                className={`w-1 bg-gray-300 cursor-col-resize hover:bg-gray-400 transition-colors duration-150 ${isDragging ? 'bg-gray-400' : ''
-                    }`}
+                className="w-4 flex items-center justify-center self-center cursor-col-resize group"
+                style={{ height: '256px' }} // A generous, invisible grab area
                 onMouseDown={handleMouseDown}
-                style={{
-                    minWidth: '4px',
-                    cursor: 'col-resize'
-                }}
             >
-                <div className="h-full flex items-center justify-center">
-                    <div className="w-0.5 h-8 bg-gray-500 rounded-full opacity-50"></div>
-                </div>
+                <div
+                    className={`
+            w-1.5 h-24 bg-gray-300 rounded-full transition-colors duration-200
+            group-hover:bg-gray-400
+            ${isDragging ? 'bg-gray-400' : ''}
+        `}
+                ></div>
             </div>
 
             <div
