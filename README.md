@@ -19,6 +19,5 @@ Makes config to web apps more accessible.
 - fix multiple new column bug
 - different sheet type
 - permissions
-- sharing tables
 - exporting tables
 - implement branches

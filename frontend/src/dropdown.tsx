@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import plus from "./assets/plus.svg";
-import settings from "./assets/settings.svg";
+import menu from "./assets/menu.svg";
 
 export interface DropdownOption {
     value: string;
@@ -89,13 +89,13 @@ const Dropdown: React.FC<DropdownProps> = ({
                                     {option.label}
                                 </li>
                                 {updateValue &&
-                                    <button className='w-4 h-4 hover:scale-110 transition-transform duration-100 flex-shrink-0'
+                                    <button className='w-5 pl-0.5 hover:scale-110 transition-transform duration-100 flex-shrink-0'
                                         onClick={() => {
                                             setIsOpen(false);
                                             updateValue(option, setSelectedOption);
                                         }}
                                     >
-                                        <img className="w-full h-full" src={settings} />
+                                        <img className="w-full h-full" src={menu} />
                                     </button>
                                 }
                             </div>
