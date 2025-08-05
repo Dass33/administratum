@@ -15,6 +15,7 @@ export interface DropdownProps {
     defaultValue?: string;
     addNewValue?: (setSelected: Function) => void;
     updateValue?: (option: DropdownOption, setSelected: Function) => void;
+    everyRender?: (setSelected: Function) => void;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -25,6 +26,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     defaultValue,
     addNewValue,
     updateValue,
+    everyRender,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<DropdownOption | undefined>(() => {
@@ -47,6 +49,8 @@ const Dropdown: React.FC<DropdownProps> = ({
             onSelect(option);
         }
     };
+
+    if (everyRender) everyRender(setSelectedOption);
 
     return (
         <div className="relative inline-block text-left min-w-28">

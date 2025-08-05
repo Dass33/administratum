@@ -2,6 +2,7 @@ import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
 import { useApp, Sheet } from "./AppContext";
 import { NewNameProps } from "./NewNameModal";
+import { useEffect } from "react";
 
 const BottomBar = () => {
     const {
@@ -11,6 +12,7 @@ const BottomBar = () => {
         setSettingsModal,
         accessToken,
         setSheetDeleted,
+        currTable,
     } = useApp();
 
     const optionsSheets = (currSheet?.sheets_id_names ?? []).map(item => ({
@@ -90,6 +92,13 @@ const BottomBar = () => {
         setNewNameModal(props)
     }
 
+    const everyRender = (setSelected: Function) => {
+        useEffect(() => {
+            if (!currSheet) return
+            setSelected({ name: currSheet.name, value: currSheet.id })
+        }, [currTable])
+    }
+
     return (
         <div className="flex flex-row gap-4 items-center">
             <button className="hover:scale-110 transition-transform duration-100 mr-1"
@@ -104,6 +113,7 @@ const BottomBar = () => {
                 isDown={false}
                 addNewValue={addNewValue}
                 updateValue={updateValue}
+                everyRender={everyRender}
             />
         </div>
     );
