@@ -39,6 +39,12 @@ func (cfg *apiConfig) loginHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if !auth.IsValidEmail(params.Email) {
+		msg := fmt.Sprintf("Provided email is not valid: %s", err)
+		respondWithError(w, 400, msg)
+		return
+	}
+
 	user, err := cfg.db.GetUserByMail(req.Context(), params.Email)
 	if err != nil {
 		msg := fmt.Sprintf("User with email %s not found: %s", params.Email, err)
