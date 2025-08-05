@@ -11,7 +11,6 @@ const Table = () => {
         setAddColumn,
         sheetDeleted,
     } = useApp()
-    // console.log(columns)
 
     const [borderColors, setBorderColors] = useState<string[]>([]);
 
@@ -49,7 +48,7 @@ const Table = () => {
     }
 
     return (
-        <div className="ml-2 max-w-full mx-auto flex items-start">
+        <div className="ml-2 max-w-full flex items-start">
             <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[65vw] xl:max-w-[calc(100vw-500px)]">
                 <table className="table-fixed border-separate border-spacing-3 w-full">
                     <colgroup>
@@ -99,12 +98,12 @@ const Table = () => {
                     </tbody>
                 </table>
             </div>
-            <button className="ml-8 mt-2 text-[3rem] font-light hover:scale-125 transition-transform duration-100"
+            <button className="ml-4 w-12 h-12 flex items-center justify-center text-[3rem] font-light hover:scale-125 transition-transform duration-100 flex-shrink-0"
                 onClick={() => {
                     setColModal(true)
                     setAddColumn(true)
                 }}>
-                <img src={plus} />
+                <img src={plus} className="w-7 h-7" />
             </button>
         </div>
     );
