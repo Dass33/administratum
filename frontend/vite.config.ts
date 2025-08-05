@@ -22,6 +22,7 @@ export default defineConfig({
             '/delete_sheet': 'http://localhost:8080',
             '/rename_project': 'http://localhost:8080',
             '/delete_project': 'http://localhost:8080',
+            '/add_share': 'http://localhost:8080',
         }
     }
 })

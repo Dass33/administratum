@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp, LoginData } from './AppContext';
+import { useApp, LoginData, isValidEmail } from './AppContext';
 import logo from "./assets/logo.svg";
 import reload_black from "./assets/reload_black.svg";
 import reload from "./assets/reload.svg";
@@ -13,7 +13,6 @@ enum AuthAction {
     Login = "login",
     Register = "register"
 }
-
 
 const Auth = () => {
     const {
@@ -34,6 +33,11 @@ const Auth = () => {
     const [loading, setLoading] = useState<string | null>(null);
 
     const handleSubmit = async (data: LoginCredentials, type: string) => {
+        if (!isValidEmail(data.email)) {
+            setError('Please enter a valid email address');
+            return;
+        }
+
         setLoading(type);
         try {
             const response = await fetch("/" + type, {
@@ -95,7 +99,9 @@ const Auth = () => {
                     {/*<button className='rounded-lg mt-2 text-xs underline ml-1 text-figma-black'>
                         Reset password
                     </button>*/}
-                    {error && <span className='text-red-600 text-xs ml-1'>Incorrect credentials</span>}
+                    {error && <span className='text-red-600 text-xs ml-1'>
+                        {error === 'Incorrect credentials' ? 'Incorrect credentials' : error}
+                    </span>}
 
 
                     <div className={`flex gap-4 justify-between ${error ? "mt-2" : "mt-5"}`}>

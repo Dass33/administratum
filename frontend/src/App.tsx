@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import BottomBar from "./bottomBar";
 import GameView from "./gameView"
-import SaveButton from "./saveButton";
+import ShareButton from "./shareButton";
 import SelectBranch from "./selectBranch";
 import SelectProject from "./selectProject";
 import Permissions from "./permissions";
@@ -94,7 +94,7 @@ function App() {
                 style={{ width: `${leftWidth}%` }}
             >
                 <div className="flex flex-row gap-4">
-                    <SaveButton />
+                    <ShareButton />
                     <div className="flex items-center text-lg">
                         <SelectProject />
                         <span className="mx-2">/</span>

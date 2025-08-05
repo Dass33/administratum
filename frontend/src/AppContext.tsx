@@ -20,6 +20,8 @@ interface AppState {
     setNewNameModal: Function,
     settingsModal: boolean,
     setSettingsModal: Function,
+    shareModal: boolean,
+    setShareModal: Function,
     gameUrl: string,
     setGameUrl: Function,
     projectName: string | undefined,
@@ -44,6 +46,11 @@ export enum EnumColTypes {
     BOOL = 'bool',
     EDITION = 'edition',
     ARRAY = 'array',
+}
+
+export enum Permissions {
+    OWNER = 'owner',
+    CONTRIBUTOR = 'contributor',
 }
 
 export const ColTypes = [
@@ -108,6 +115,12 @@ export type TableData = {
     branches_names: IdName[]
 }
 
+export const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
+
 const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -121,6 +134,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [sheets, setSheets] = useState([]);
     const [newNameModal, setNewNameModal] = useState(null);
     const [settingsModal, setSettingsModal] = useState(false);
+    const [shareModal, setShareModal] = useState(false);
     const [gameUrl, setGameUrl] = useState("https://dass33.github.io/guess_game/");
     const [projectName, setProjectName] = useState();
     const [branchName, setBranchName] = useState();
@@ -171,6 +185,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             currSheet, setCurrSheet,
             newNameModal, setNewNameModal,
             settingsModal, setSettingsModal,
+            shareModal, setShareModal,
             gameUrl, setGameUrl,
             projectName, setProjectName,
             branchName, setBranchName,
