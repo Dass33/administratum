@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, Permissions } from './AppContext';
+import { useApp, Permissions, isValidEmail } from './AppContext';
 import Dropdown from './dropdown';
 
 const ShareModal = () => {
@@ -35,8 +35,8 @@ const ShareModal = () => {
     }, [setShareModal]);
 
     const handleShare = () => {
-        if (!email || !accessToken || !currTable) return;
-        postNewShare(email, selectedPerm, accessToken, currTable.id);
+        if (!email || !accessToken || !currTable || !isValidEmail(email)) return;
+        postNewShare(email, selectedPerm, currTable.id, accessToken);
         setShareModal(false);
     };
 
@@ -51,7 +51,8 @@ const ShareModal = () => {
                     <h2 className='text-2xl mb-6'>Share Project</h2>
 
                     <div className='flex gap-4 mb-6 w-full'>
-                        <input className="grow border border-figma-gray bg-figma-white focus:outline-none rounded-lg p-2"
+                        <input className={`grow border bg-figma-white focus:outline-none rounded-lg p-2
+                                        ${isValidEmail(email) || !email?.length ? "border-figma-gray" : "border-red-600"}`}
                             type='email'
                             placeholder="Email"
                             onChange={(e) => { setEmail(e.target.value) }}
@@ -94,7 +95,7 @@ const postNewShare = (email: string, perm: string, tableId: string, token: strin
     })
         .then(response => {
             if (response.status != 201) {
-                throw "Could not update column"
+                throw "Could not share"
             }
         })
         .catch(err => {

@@ -13,8 +13,8 @@ export interface DropdownProps {
     onSelect?: (option: DropdownOption) => void;
     isDown?: boolean;
     defaultValue?: string;
-    addNewValue?: () => void;
-    updateValue?: (option: DropdownOption) => void;
+    addNewValue?: (setSelected: Function) => void;
+    updateValue?: (option: DropdownOption, setSelected: Function) => void;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -88,7 +88,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                                     <button className='w-4 h-4 hover:scale-110 transition-transform duration-100 flex-shrink-0'
                                         onClick={() => {
                                             setIsOpen(false);
-                                            updateValue(option);
+                                            updateValue(option, setSelectedOption);
                                         }}
                                     >
                                         <img className="w-full h-full" src={settings} />
@@ -100,7 +100,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                             <li
                                 onClick={() => {
                                     setIsOpen(false);
-                                    addNewValue();
+                                    addNewValue(setSelectedOption);
                                 }}
                                 className="px-4 py-2 text-sm text-gray-700 hover:bg-figma-gray hover:text-figma-black cursor-pointer flex"
                             >

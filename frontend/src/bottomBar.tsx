@@ -29,24 +29,29 @@ const BottomBar = () => {
         setSheetDeleted(false);
     }
 
-    const addNewValue = () => {
+    const addNewValue = (setSelected: Function) => {
         const props: NewNameProps = {
             currNames: currSheet?.sheets_id_names ?? [],
             assignNewName: (name: string) => {
                 if (!currSheet) return
-                createSheet(name, currSheet.branch_id_name.id, accessToken, setData);
+                createSheet(name, currSheet.branch_id_name.id, accessToken, (sheet: Sheet) => {
+                    setData(sheet);
+                    setSelected({ value: sheet.id, label: sheet.name });
+                });
             },
         }
         setNewNameModal(props)
     }
 
-    const assignNewName = (name: string, option: DropdownOption) => {
+    const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
         if (!currSheet) return
         renameSheet(name, currSheet.branch_id_name.id, accessToken);
 
         const newSheetNames = currSheet.sheets_id_names.map(idName => {
             if (idName.id === option.value) {
-                return { id: idName.id, name: name }
+                console.log(setSelected, name);
+                setSelected({ value: idName.id, label: name });
+                return { id: idName.id, name: name };
             }
             return idName;
         })
@@ -74,11 +79,12 @@ const BottomBar = () => {
         }
     }
 
-    const updateValue = (option: DropdownOption) => {
+    const updateValue = (option: DropdownOption, setSelected: Function) => {
+        const idName = { name: option.label, id: option.value }
         const props: NewNameProps = {
             currNames: currSheet?.sheets_id_names ?? [],
-            defaultIdName: { name: option.label, id: option.value },
-            assignNewName(name: string) { assignNewName(name, option) },
+            defaultIdName: idName,
+            assignNewName(name: string) { assignNewName(name, option, setSelected) },
             deleteItem() { delteItem(option) },
         }
         setNewNameModal(props)
@@ -97,7 +103,7 @@ const BottomBar = () => {
                 onSelect={(item) => selectSheets(item)}
                 isDown={false}
                 addNewValue={addNewValue}
-                updateValue={(option) => { updateValue(option) }}
+                updateValue={updateValue}
             />
         </div>
     );

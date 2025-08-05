@@ -31,11 +31,12 @@ function SelectProject() {
         setColumns(data.Sheet.columns);
     }
 
-    const assignNewName = (name: string, option: DropdownOption) => {
+    const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
         renameProject(name, option.value, accessToken);
 
         const newTableNames = tableNames.map(idName => {
             if (idName.id === option.value) {
+                setSelected({ value: idName.id, name: name })
                 return { id: idName.id, name: name }
             }
             return idName;
@@ -57,11 +58,11 @@ function SelectProject() {
         }
     }
 
-    const updateValue = (option: DropdownOption) => {
+    const updateValue = (option: DropdownOption, setSelected: Function) => {
         const props: NewNameProps = {
             currNames: tableNames,
             defaultIdName: { name: option.label, id: option.value },
-            assignNewName(name: string) { assignNewName(name, option) },
+            assignNewName(name: string) { assignNewName(name, option, setSelected) },
             deleteItem() { deleteItem(option) },
         }
         setNewNameModal(props)
@@ -72,14 +73,17 @@ function SelectProject() {
             options={optionsProjects}
             placeholder={placeholderProjectas}
             onSelect={(e) => getCurrTable(e.value, accessToken ?? "", setData)}
-            addNewValue={() => {
+            addNewValue={(setSelected: Function) => {
                 const props: NewNameProps = {
                     currNames: currSheet?.sheets_id_names ?? [],
-                    assignNewName: (name) => postTable(name, accessToken ?? "", setData),
+                    assignNewName: (name) => postTable(name, accessToken ?? "", (data: ProjectData) => {
+                        setData(data);
+                        setSelected({ name: data.Table.name, value: data.Table.id })
+                    }),
                 }
                 setNewNameModal(props)
             }}
-            updateValue={(option) => { updateValue(option) }}
+            updateValue={updateValue}
         />
     );
 }
