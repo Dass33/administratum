@@ -71,8 +71,12 @@ const SettingsModal = () => {
                     <div className='flex justify-between items-center'>
                         <span>Game url</span>
                         <input className="w-60 border border-figma-gray bg-figma-white focus:outline-none rounded-lg p-2"
-                            defaultValue={gameUrl}
-                            onChange={(e) => { setNewGameUrl(e.target.value) }}
+                            defaultValue={gameUrl.String}
+                            onChange={(e) => {
+                                const val = e.target.value
+                                if (val == "") return;
+                                setNewGameUrl({ Valid: true, String: val })
+                            }}
                         />
                     </div>
 

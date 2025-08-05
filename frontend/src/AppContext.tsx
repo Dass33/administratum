@@ -22,7 +22,7 @@ interface AppState {
     setSettingsModal: Function,
     shareModal: boolean,
     setShareModal: Function,
-    gameUrl: string,
+    gameUrl: NullString,
     setGameUrl: Function,
     projectName: string | undefined,
     setProjectName: Function,
@@ -110,7 +110,7 @@ export type Sheet = {
 export type TableData = {
     name: string
     id: string
-    game_url: string
+    game_url: NullString
     permision: string
     branches_names: IdName[]
 }
@@ -136,7 +136,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [newNameModal, setNewNameModal] = useState(null);
     const [settingsModal, setSettingsModal] = useState(false);
     const [shareModal, setShareModal] = useState(false);
-    const [gameUrl, setGameUrl] = useState("https://dass33.github.io/guess_game/");
+    const [gameUrl, setGameUrl] = useState({ Valid: false, String: "" });
     const [projectName, setProjectName] = useState();
     const [branchName, setBranchName] = useState();
     const [authenticated, setAuthenticated] = useState(false);
@@ -165,6 +165,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     setCurrTable(data.opened_table)
                     setColumns(data.opened_sheet.columns);
                     setTableNames(data.table_names)
+                    setGameUrl(data.opened_table.game_url)
                     console.log(data)
                 }
             })

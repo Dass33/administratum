@@ -22,6 +22,7 @@ const Auth = () => {
         setCurrSheet,
         setCurrTable,
         setTableNames,
+        setGameUrl,
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -63,7 +64,7 @@ const Auth = () => {
             setError(null);
             setAccessToken(result.token)
             setAuthenticated(true);
-
+            setGameUrl(result.opened_table.game_url)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
             setLoading(null);
