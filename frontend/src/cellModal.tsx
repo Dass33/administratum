@@ -149,20 +149,6 @@ const CellModal = () => {
         setColumns(newColumns);
     };
 
-    const removeEmptyRow = (newVal: any, rowIndex: number): boolean => {
-        if (newVal) return false;
-
-        //if (currSheet?.row_count == rowIndex + 1) return false
-        // const len = Object.entries(currTable[rowIndex]).filter(([key, val]) => {
-        //     return key != col && val
-        // }).length
-        // if (!len && (newVal === null || newVal === "" || newVal === undefined)) {
-        //     setCurrTable(currTable.filter((_, idx) => { return rowIndex != idx }))
-        //     return true
-        // }
-        return true;
-    }
-
     const saveAndExit = () => {
         if (!cellModal) return
         setCellModal(null);
@@ -191,10 +177,13 @@ const CellModal = () => {
                 }
                 break;
             default:
-                updatedValue = { String: cellVal, Valid: cellVal !== null }
+                updatedValue = {
+                    String: cellVal,
+                    Valid: cellVal != null && cellVal !== "" && !Number.isNaN(cellVal)
+                }
         }
 
-        if (!removeEmptyRow(updatedValue, rowIndex)) {
+        if (updatedValue.Valid) {
             updateCell(updatedValue, rowIndex, col)
         }
     }
