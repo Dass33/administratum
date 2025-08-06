@@ -9,14 +9,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type ColParams struct {
+type RowParams struct {
 	SheetId string `json:"sheet_id"`
-	Col     Column `json:"col"`
+	RowIdx  int64  `json:"row_idx"`
 }
 
-func (cfg *apiConfig) addColumnHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
+func (cfg *apiConfig) deleteRowHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	decoder := json.NewDecoder(r.Body)
-	params := ColParams{}
+	params := RowParams{}
 
 	err := decoder.Decode(&params)
 	if err != nil {
@@ -32,17 +32,15 @@ func (cfg *apiConfig) addColumnHandler(w http.ResponseWriter, r *http.Request, i
 		return
 	}
 
-	addColumnParams := database.AddColumnParams{
-		Name:     params.Col.Name,
-		Type:     params.Col.Type,
-		Required: params.Col.Required,
-		SheetID:  sheet_id,
+	deleteRowParams := database.DeleteRowParams{
+		SheetID: sheet_id,
+		Idx:     params.RowIdx,
 	}
-	newCol, err := cfg.db.AddColumn(r.Context(), addColumnParams)
+	err = cfg.db.DeleteRow(r.Context(), deleteRowParams)
 	if err != nil {
-		msg := fmt.Sprintf("Column could not be updated: %s", err)
+		msg := fmt.Sprintf("Row could not be deleted: %s", err)
 		respondWithError(w, 500, msg)
 		return
 	}
-	respondWithJSON(w, 201, newCol)
+	respondWithJSON(w, 204, "")
 }

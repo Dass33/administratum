@@ -23,6 +23,7 @@ export default defineConfig({
             '/rename_project': 'http://localhost:8080',
             '/delete_project': 'http://localhost:8080',
             '/add_share': 'http://localhost:8080',
+            '/delete_row': 'http://localhost:8080',
         }
     }
 })

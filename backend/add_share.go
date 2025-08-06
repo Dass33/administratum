@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 
-	"github.com/Dass33/administratum/backend/internal/auth"
 	"github.com/Dass33/administratum/backend/internal/database"
 	"github.com/google/uuid"
 )
@@ -27,9 +27,8 @@ func (cfg *apiConfig) addShareHandler(w http.ResponseWriter, r *http.Request, us
 		return
 	}
 
-	if !auth.IsValidEmail(params.Email) {
-
-		msg := fmt.Sprintf("Could not parse the sheet id: %s", err)
+	if _, err := mail.ParseAddress(params.Email); err != nil {
+		msg := fmt.Sprintf("Invalid email address: %s", err)
 		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}

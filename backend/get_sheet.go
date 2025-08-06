@@ -92,10 +92,18 @@ func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Cont
 		return Sheet{}, errors.New("Could not get columns with given sheet id")
 	}
 
+	rowCount := 0
+	for i := range columns {
+		currLen := len(columns[i].Data)
+		if currLen > rowCount {
+			rowCount = currLen
+		}
+	}
+
 	data := Sheet{
 		ID:            sheet_id,
 		Name:          sheet.Name,
-		RowCount:      sheet.RowCount,
+		RowCount:      int64(rowCount),
 		BranchIdName:  branchIdName,
 		SheetsIdNames: sheetsIdNames,
 		Columns:       columns,

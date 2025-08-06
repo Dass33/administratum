@@ -20,7 +20,7 @@ func (cfg *apiConfig) deleteColumnHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	sheet_id, err := uuid.Parse(params.Sheet_id)
+	sheet_id, err := uuid.Parse(params.SheetId)
 	if err != nil {
 		msg := fmt.Sprintf("Could not parse the sheet id: %s", err)
 		respondWithError(w, 400, msg)
