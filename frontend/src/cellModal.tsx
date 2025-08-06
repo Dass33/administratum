@@ -143,16 +143,16 @@ const CellModal = () => {
         }
 
         const newColumns = columns.map(item => {
-            if (item.id === col.id) return newCol;
+            if (item.name === col.name) return newCol;
             return item;
         });
         setColumns(newColumns);
     };
 
     const removeEmptyRow = (newVal: any, rowIndex: number): boolean => {
-        // if (newVal) return false;
-        //
-        // if (currTable.length - 1 == rowIndex) return false
+        if (newVal) return false;
+
+        //if (currSheet?.row_count == rowIndex + 1) return false
         // const len = Object.entries(currTable[rowIndex]).filter(([key, val]) => {
         //     return key != col && val
         // }).length
@@ -160,7 +160,7 @@ const CellModal = () => {
         //     setCurrTable(currTable.filter((_, idx) => { return rowIndex != idx }))
         //     return true
         // }
-        return false
+        return true;
     }
 
     const saveAndExit = () => {
@@ -194,7 +194,7 @@ const CellModal = () => {
                 updatedValue = { String: cellVal, Valid: cellVal !== null }
         }
 
-        if (!removeEmptyRow(updatedValue, rowIndex) && updatedValue) {
+        if (!removeEmptyRow(updatedValue, rowIndex)) {
             updateCell(updatedValue, rowIndex, col)
         }
     }
