@@ -26,8 +26,8 @@ interface AppState {
     setGameUrl: Function,
     projectName: string | undefined,
     setProjectName: Function,
-    branchName: string | undefined,
-    setBranchName: Function,
+    currBranch: Branch | undefined,
+    setCurrBranch: Function,
     authenticated: boolean,
     setAuthenticated: Function,
     accessToken: string | undefined,
@@ -48,7 +48,7 @@ export enum EnumColTypes {
     ARRAY = 'array',
 }
 
-export enum Permissions {
+export enum PermissionsEnum {
     OWNER = 'owner',
     CONTRIBUTOR = 'contributor',
 }
@@ -98,6 +98,12 @@ export type Column = {
     data: ColumnData[]
 }
 
+export type Branch = {
+    name: string
+    id: string
+    is_protected: boolean
+}
+
 export type Sheet = {
     name: string
     id: string
@@ -138,7 +144,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [shareModal, setShareModal] = useState(false);
     const [gameUrl, setGameUrl] = useState({ Valid: false, String: "" });
     const [projectName, setProjectName] = useState();
-    const [branchName, setBranchName] = useState();
+    const [currBranch, setCurrBranch] = useState();
     const [authenticated, setAuthenticated] = useState(false);
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [loading, setLoading] = useState(true);
@@ -190,7 +196,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             shareModal, setShareModal,
             gameUrl, setGameUrl,
             projectName, setProjectName,
-            branchName, setBranchName,
+            currBranch, setCurrBranch,
             authenticated, setAuthenticated,
             accessToken, setAccessToken,
             loading, setLoading,

@@ -10,7 +10,7 @@ const SettingsModal = () => {
         setColumns,
         setSheets,
         setProjectName,
-        setBranchName,
+        setCurrBranch,
         setCurrSheet,
         accessToken,
         currTable
@@ -53,7 +53,7 @@ const SettingsModal = () => {
                 setColumns([]);
                 setSheets([]);
                 setProjectName(undefined);
-                setBranchName(undefined);
+                setCurrBranch(undefined);
                 setCurrSheet(undefined);
             })
             .catch(err => {

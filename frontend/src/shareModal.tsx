@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, Permissions, isValidEmail } from './AppContext';
+import { useApp, PermissionsEnum, isValidEmail } from './AppContext';
 import Dropdown from './dropdown';
 
 const ShareModal = () => {
@@ -10,9 +10,9 @@ const ShareModal = () => {
     } = useApp();
 
     const [email, setEmail] = useState<string>();
-    const [selectedPerm, setSelectedPerm] = useState<string>(Permissions.CONTRIBUTOR);
+    const [selectedPerm, setSelectedPerm] = useState<string>(PermissionsEnum.CONTRIBUTOR);
 
-    const permissionsOptions = Object.values(Permissions).map(item => {
+    const permissionsOptions = Object.values(PermissionsEnum).map(item => {
         return { label: item, value: item }
     })
     const stopPropagation = (e: React.MouseEvent) => {
@@ -60,7 +60,7 @@ const ShareModal = () => {
 
                         <Dropdown
                             options={permissionsOptions}
-                            defaultValue={Permissions.CONTRIBUTOR}
+                            defaultValue={PermissionsEnum.CONTRIBUTOR}
                             onSelect={(val) => setSelectedPerm(val.value)}
                         />
                     </div>

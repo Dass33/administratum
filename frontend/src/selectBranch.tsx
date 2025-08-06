@@ -1,10 +1,10 @@
 import { useApp } from "./AppContext";
-import Dropdown from "./dropdown";
+import Dropdown, { DropdownOption } from "./dropdown";
 import { NewNameProps } from "./NewNameModal";
 
 function SelectBranch() {
     const {
-        setBranchName,
+        setCurrBranch,
         currSheet,
         setNewNameModal,
         currTable,
@@ -17,6 +17,11 @@ function SelectBranch() {
         ? currSheet?.branch_id_name.name
         : "Branch"
 
+    const selectBranch = (option: DropdownOption) => {
+        // TODO: 
+        //  setCurrBranch(e.label)
+    }
+
     const createBranch = (name: string) => {
         console.log(name);
     }
@@ -26,7 +31,7 @@ function SelectBranch() {
             options={optionsBranches}
             placeholder={placeholderBranch}
 
-            onSelect={(e) => { setBranchName(e.value) }}
+            onSelect={selectBranch}
             addNewValue={() => {
                 const props: NewNameProps = {
                     currNames: currSheet?.sheets_id_names ?? [],
