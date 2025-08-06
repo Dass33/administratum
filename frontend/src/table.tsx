@@ -12,6 +12,7 @@ const Table = () => {
         setAddColumn,
         sheetDeleted,
         accessToken,
+        tableNames,
     } = useApp()
 
     const [borderColors, setBorderColors] = useState<string[]>([]);
@@ -29,27 +30,23 @@ const Table = () => {
         }))
     }, [columns]);
 
-    if (!columns || !currSheet) {
-        return (
-            <div className="max-w-full mx-auto">
-                <div className="rounded-lg p-6">
-                    <div className="p-3 text-figma-black rounded-md">
-                        Loading...
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
-    if (sheetDeleted) {
+    const getMessage = () => {
+        if (sheetDeleted) return "Sheet has been deleted.";
+        if (tableNames.length == 0) return "Create a new project.";
+        if (!columns || !currSheet) return "Loading...";
+        return null;
+    };
+
+    const message = getMessage();
+
+    if (message || !currSheet) {
         return (
-            <div className="max-w-full mx-auto">
-                <div className="rounded-lg p-6">
-                    <div className="p-3 text-figma-black rounded-md">
-                        Sheet has been deleted.
-                    </div>
+            <div className="h-full flex justify-center items-center">
+                <div className="mb-20 font-medium text-2xl text-gray-500/70 rounded-md">
+                    {message}
                 </div>
-            </div>
+            </div >
         );
     }
 
