@@ -89,6 +89,7 @@ func main() {
 	router.Delete("/delete_project", apiCfg.middlewareAuth(apiCfg.deleteProjectHandler))
 	router.Post("/add_share", apiCfg.middlewareAuth(apiCfg.addShareHandler))
 	router.Delete("/delete_row", apiCfg.middlewareAuth(apiCfg.deleteRowHandler))
+	router.Put("/change_game_url", apiCfg.middlewareAuth(apiCfg.changeGameUrlHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

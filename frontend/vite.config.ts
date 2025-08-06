@@ -24,7 +24,8 @@ export default defineConfig({
             '/delete_project': 'http://localhost:8080',
             '/add_share': 'http://localhost:8080',
             '/delete_row': 'http://localhost:8080',
-            '/json': 'http://localhost:8080'
+            '/json': 'http://localhost:8080',
+            '/change_game_url': 'http://localhost:8080',
         }
     }
 })

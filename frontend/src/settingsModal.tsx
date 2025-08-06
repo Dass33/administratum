@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp } from './AppContext';
+import { NullString, TableData, useApp } from './AppContext';
 import danger from "./assets/danger.svg";
 
 const SettingsModal = () => {
@@ -12,6 +12,8 @@ const SettingsModal = () => {
         setProjectName,
         setBranchName,
         setCurrSheet,
+        accessToken,
+        currTable
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -22,6 +24,7 @@ const SettingsModal = () => {
 
     const saveAndExit = () => {
         setGameUrl(newGameUrl);
+        changeGameUrl(newGameUrl, currTable, accessToken ?? "");
         setSettingsModal(false);
     }
 
@@ -74,8 +77,7 @@ const SettingsModal = () => {
                             defaultValue={gameUrl.String}
                             onChange={(e) => {
                                 const val = e.target.value
-                                if (val == "") return;
-                                setNewGameUrl({ Valid: true, String: val })
+                                setNewGameUrl({ Valid: isValidUrl(val), String: val })
                             }}
                         />
                     </div>
@@ -95,5 +97,39 @@ const SettingsModal = () => {
         </div>
     );
 };
+
+const changeGameUrl = (gameUrl: NullString, table: TableData | undefined, token: string) => {
+    if (!table) return;
+    const postGameUrlParams: { game_url: NullString, table_id: string } = {
+        game_url: gameUrl,
+        table_id: table.id,
+    }
+
+    fetch("/change_game_url", {
+        method: "PUT",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(postGameUrlParams)
+    })
+        .then(response => {
+            if (response.status < 200 || response.status > 299) {
+                throw new Error("Could not change game url");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+function isValidUrl(url: string) {
+    try {
+        new URL(url);
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
 
 export default SettingsModal;

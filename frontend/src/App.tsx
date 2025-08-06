@@ -25,7 +25,7 @@ function App() {
         loading,
     } = useApp()
 
-    const [leftWidth, setLeftWidth] = useState(77);
+    const [leftWidth, setLeftWidth] = useState(70);
     const [isDragging, setIsDragging] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 

@@ -16,6 +16,7 @@ function SelectProject() {
         setNewNameModal,
         setSheetDeleted,
         tableNames, setTableNames,
+        setNewRegister,
     } = useApp();
     const optionsProjects = tableNames.map(item => ({
         value: item.id,
@@ -79,6 +80,7 @@ function SelectProject() {
                     assignNewName: (name) => postTable(name, accessToken ?? "", (data: ProjectData) => {
                         setData(data);
                         setSelected({ name: data.Table.name, value: data.Table.id })
+                        setNewRegister(false);
                     }),
                 }
                 setNewNameModal(props)

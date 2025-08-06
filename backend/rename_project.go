@@ -21,14 +21,14 @@ func (cfg *apiConfig) renemeProjectHandler(w http.ResponseWriter, r *http.Reques
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding parameters: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
 	projectId, err := uuid.Parse(params.ProjectId)
 	if err != nil {
 		msg := fmt.Sprintf("Could not parse the project id: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
@@ -39,8 +39,8 @@ func (cfg *apiConfig) renemeProjectHandler(w http.ResponseWriter, r *http.Reques
 	err = cfg.db.RenameTable(r.Context(), renameTableParams)
 	if err != nil {
 		msg := fmt.Sprintf("Project could not be renamed: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
-	respondWithJSON(w, 200, "")
+	respondWithJSON(w, http.StatusOK, "")
 }
