@@ -77,7 +77,7 @@ function App() {
     )
 
     return (
-        <div className='bg-figma-white h-screen px-9 flex flex-row' ref={containerRef}>
+        <div className='bg-figma-white h-screen px-2 md:px-9 flex flex-row' ref={containerRef}>
             {cellModal && <CellModal />}
             {colModal > -1 && <ColModal />}
             {newNameModal && <NewNameModal
@@ -89,11 +89,10 @@ function App() {
             {settingsModal && <SettingsModal />}
             {shareModal && <ShareModal />}
 
-            <div
-                className="flex flex-col my-10 overflow-hidden"
+            <div className="flex flex-col my-10 overflow-hidden !w-full !md:w-auto"
                 style={{ width: `${leftWidth}%` }}
             >
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-row gap-4 min-w-[30rem]">
                     <ShareButton />
                     <div className="flex items-center text-lg">
                         <SelectProject />
@@ -110,13 +109,11 @@ function App() {
                 </div>
             </div>
 
-            <div
-                className="w-4 flex items-center justify-center self-center cursor-col-resize group"
-                style={{ height: '256px' }} // A generous, invisible grab area
+            <div className="w-4 md:flex items-center justify-center self-center cursor-col-resize group hidden"
+                style={{ height: '256px' }}
                 onMouseDown={handleMouseDown}
             >
-                <div
-                    className={`
+                <div className={`
             w-1.5 h-24 bg-gray-300 rounded-full transition-colors duration-200
             group-hover:bg-gray-400
             ${isDragging ? 'bg-gray-400' : ''}
@@ -124,8 +121,7 @@ function App() {
                 ></div>
             </div>
 
-            <div
-                className="overflow-hidden"
+            <div className="overflow-hidden hidden md:block"
                 style={{ width: `${100 - leftWidth}%` }}
             >
                 <GameView />

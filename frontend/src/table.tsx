@@ -132,7 +132,7 @@ const Table = () => {
 
     return (
         <div className="ml-2 max-w-full flex items-start">
-            <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 max-w-[65vw] xl:max-w-[calc(100vw-500px)]">
+            <div className="overflow-x-scroll max-h-[calc(100vh-200px)] -mx-5 -my-2 md:max-w-[65vw] xl:max-w-[calc(100vw-500px)]">
                 <table className="table-fixed border-separate border-spacing-3 w-full">
                     <colgroup>
                         {columns.map((_, idx) => (
