@@ -23,7 +23,7 @@ function SelectProject() {
     }))
     const placeholderProjectas = currTable?.name != ""
         ? currTable?.name
-        : "Branch"
+        : "Project"
 
     const setData = (data: ProjectData) => {
         setCurrTable(data.Table);
