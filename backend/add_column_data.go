@@ -39,16 +39,5 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	updateSheetRowCountParams := database.UpdateSheetRowCountParams{
-		RowCount:   params.Data.Idx + 1,
-		RowCount_2: params.Data.Idx + 1,
-		ID:         params.Sheet_id,
-	}
-	err = cfg.db.UpdateSheetRowCount(r.Context(), updateSheetRowCountParams)
-	if err != nil {
-		msg := fmt.Sprintf("Could not update the row count: %s", err)
-		respondWithError(w, 500, msg)
-		return
-	}
 	respondWithJSON(w, 201, "")
 }
