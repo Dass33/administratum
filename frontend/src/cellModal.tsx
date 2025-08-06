@@ -173,7 +173,7 @@ const CellModal = () => {
                         arrayType === EnumColTypes.NUMBER ? Number(item.value) : item.value
                     );
                     const arrayString = JSON.stringify(arrayValues);
-                    updatedValue = { String: arrayString, Valid: false }
+                    updatedValue = { String: arrayString, Valid: true }
                 }
                 break;
             default:
