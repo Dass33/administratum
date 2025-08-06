@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/mail"
 	"time"
 
 	"github.com/Dass33/administratum/backend/internal/auth"
@@ -39,9 +40,10 @@ func (cfg *apiConfig) loginHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if !auth.IsValidEmail(params.Email) {
-		msg := fmt.Sprintf("Provided email is not valid: %s", err)
-		respondWithError(w, 400, msg)
+	_, err = mail.ParseAddress(params.Email)
+	if err != nil {
+		msg := fmt.Sprintf("Invalid email address: %s", err)
+		respondWithError(w, 500, msg)
 		return
 	}
 
