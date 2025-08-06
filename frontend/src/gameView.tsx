@@ -3,7 +3,7 @@ import { useApp } from "./AppContext"
 function GameView() {
     const { gameUrl } = useApp();
     return (
-        <div className="w-full h-full flex items-center justify-center py-10 pl-10">
+        <div className="w-full h-full flex items-center justify-center py-10 pl-1">
             <div className="w-full h-full">
                 {gameUrl.Valid
                     ? <div className="embedded-container w-full h-full">
