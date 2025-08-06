@@ -12,11 +12,12 @@ import (
 )
 
 type Branch struct {
-	ID        uuid.UUID
-	Name      string
-	TableID   uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uuid.UUID
+	Name        string
+	TableID     uuid.UUID
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	IsProtected bool
 }
 
 type Column struct {

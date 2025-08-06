@@ -72,8 +72,9 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 	if len(sheets) == 0 {
 		if len(table.BranchesNames) == 0 {
 			createBranchParams := database.CreateBranchParams{
-				Name:    "main",
-				TableID: tableId,
+				Name:        "main",
+				IsProtected: true,
+				TableID:     tableId,
 			}
 			branch, err := cfg.db.CreateBranch(r.Context(), createBranchParams)
 			if err != nil {

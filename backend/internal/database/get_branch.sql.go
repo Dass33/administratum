@@ -12,7 +12,7 @@ import (
 )
 
 const getBranch = `-- name: GetBranch :one
-select id, name, table_id, created_at, updated_at from branches
+select id, name, table_id, created_at, updated_at, is_protected from branches
 where id = ?
 `
 
@@ -25,6 +25,7 @@ func (q *Queries) GetBranch(ctx context.Context, id uuid.UUID) (Branch, error) {
 		&i.TableID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.IsProtected,
 	)
 	return i, err
 }

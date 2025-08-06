@@ -12,24 +12,26 @@ import (
 )
 
 const createBranch = `-- name: CreateBranch :one
-INSERT INTO branches (id, name, table_id, created_at, updated_at)
+INSERT INTO branches (id, name, is_protected, table_id, created_at, updated_at)
 VALUES (
     gen_random_uuid(),
+    ?,
     ?,
     ?,
     datetime('now'),
     datetime('now')
 )
-RETURNING id, name, table_id, created_at, updated_at
+RETURNING id, name, table_id, created_at, updated_at, is_protected
 `
 
 type CreateBranchParams struct {
-	Name    string
-	TableID uuid.UUID
+	Name        string
+	IsProtected bool
+	TableID     uuid.UUID
 }
 
 func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) (Branch, error) {
-	row := q.db.QueryRowContext(ctx, createBranch, arg.Name, arg.TableID)
+	row := q.db.QueryRowContext(ctx, createBranch, arg.Name, arg.IsProtected, arg.TableID)
 	var i Branch
 	err := row.Scan(
 		&i.ID,
@@ -37,6 +39,7 @@ func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) (Bra
 		&i.TableID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.IsProtected,
 	)
 	return i, err
 }

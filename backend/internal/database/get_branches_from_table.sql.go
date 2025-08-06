@@ -12,7 +12,7 @@ import (
 )
 
 const getBranchesFromTable = `-- name: GetBranchesFromTable :many
-select id, name, table_id, created_at, updated_at from branches
+select id, name, table_id, created_at, updated_at, is_protected from branches
 where table_id = ?
 `
 
@@ -31,6 +31,7 @@ func (q *Queries) GetBranchesFromTable(ctx context.Context, tableID uuid.UUID) (
 			&i.TableID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.IsProtected,
 		); err != nil {
 			return nil, err
 		}
