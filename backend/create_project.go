@@ -86,7 +86,6 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 		}
 		createSheetParams := database.CreateSheetParams{
 			Name:     "config",
-			RowCount: 0,
 			BranchID: table.BranchesNames[0].ID,
 		}
 		dbSheet, err := cfg.db.CreateSheet(r.Context(), createSheetParams)

@@ -50,7 +50,6 @@ type RefreshToken struct {
 type Sheet struct {
 	ID        uuid.UUID
 	Name      string
-	RowCount  int64
 	BranchID  uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time

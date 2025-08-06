@@ -12,7 +12,7 @@ import (
 )
 
 const getSheetsFromTable = `-- name: GetSheetsFromTable :many
-select s.id, s.name, s.row_count, s.branch_id, s.created_at, s.updated_at
+select s.id, s.name, s.branch_id, s.created_at, s.updated_at
 from tables t
 join branches b on t.id = b.table_id
 join sheets s on b.id = s.branch_id
@@ -32,7 +32,6 @@ func (q *Queries) GetSheetsFromTable(ctx context.Context, id uuid.UUID) ([]Sheet
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.RowCount,
 			&i.BranchID,
 			&i.CreatedAt,
 			&i.UpdatedAt,

@@ -13,7 +13,7 @@ import (
 
 const getSheetsFromBranch = `-- name: GetSheetsFromBranch :many
 select
-    s.id, s.name, s.row_count, s.branch_id, s.created_at, s.updated_at
+    s.id, s.name, s.branch_id, s.created_at, s.updated_at
 from branches b
 join sheets s on b.id = s.branch_id and b.id = ?
 `
@@ -30,7 +30,6 @@ func (q *Queries) GetSheetsFromBranch(ctx context.Context, id uuid.UUID) ([]Shee
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.RowCount,
 			&i.BranchID,
 			&i.CreatedAt,
 			&i.UpdatedAt,

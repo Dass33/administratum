@@ -49,9 +49,17 @@ func (cfg *apiConfig) stringMapsFromSheet(sheet database.Sheet, ctx context.Cont
 		return nil, errors.New("Could not get columns with given sheet id")
 	}
 
-	rows := make([]map[string]string, 0, sheet.RowCount)
+	var rowCount int64 = 0
+	for i := range columns {
+		currLen := int64(len(columns[i].Data))
+		if currLen > rowCount {
+			rowCount = currLen
+		}
+	}
 
-	for i := range sheet.RowCount {
+	rows := make([]map[string]string, 0, rowCount)
+
+	for i := range rowCount {
 		row := make(map[string]string)
 
 		for e := range columns {

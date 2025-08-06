@@ -12,31 +12,28 @@ import (
 )
 
 const createSheet = `-- name: CreateSheet :one
-INSERT INTO sheets (id, name, row_count, branch_id, created_at, updated_at)
+INSERT INTO sheets (id, name, branch_id, created_at, updated_at)
 VALUES (
     gen_random_uuid(),
-    ?,
     ?,
     ?,
     datetime('now'),
     datetime('now')
 )
-RETURNING id, name, row_count, branch_id, created_at, updated_at
+RETURNING id, name, branch_id, created_at, updated_at
 `
 
 type CreateSheetParams struct {
 	Name     string
-	RowCount int64
 	BranchID uuid.UUID
 }
 
 func (q *Queries) CreateSheet(ctx context.Context, arg CreateSheetParams) (Sheet, error) {
-	row := q.db.QueryRowContext(ctx, createSheet, arg.Name, arg.RowCount, arg.BranchID)
+	row := q.db.QueryRowContext(ctx, createSheet, arg.Name, arg.BranchID)
 	var i Sheet
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.RowCount,
 		&i.BranchID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
