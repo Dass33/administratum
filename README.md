@@ -16,8 +16,8 @@ Makes config to web apps more accessible.
 
 ## 🎒 TODO
 - enum support
-- fix multiple new column bug
 - different sheet type
 - permissions
 - exporting tables
 - implement branches
+- fix arrays
