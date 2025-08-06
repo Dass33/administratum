@@ -31,16 +31,20 @@ enum SaveOptoins {
 const SaveDropdown = () => {
     const {
         currSheet,
+        currTable,
     } = useApp();
     const [isOpen, setIsOpen] = useState(false);
     const options = [SaveOptoins.EXPORT, SaveOptoins.COPY_LINK]
 
     const handleSelect = (option: string): void => {
+        if (!currSheet || !currTable) return;
+        const jsonLink = `http://${Domain}/json/${currSheet?.branch_id_name.id}`
         switch (option) {
             case SaveOptoins.EXPORT:
+                downloadFromLink(jsonLink, currTable.name, currSheet.branch_id_name.name)
                 break;
             case SaveOptoins.COPY_LINK:
-                navigator.clipboard.writeText(`${Domain}/json/${currSheet?.branch_id_name.id}`);
+                navigator.clipboard.writeText(jsonLink);
         }
         setIsOpen(false);
     };
@@ -71,4 +75,29 @@ const SaveDropdown = () => {
             )}
         </div>
     );
+};
+
+
+const downloadFromLink = async (jsonLink: string, tableName: string, branchName: string) => {
+    try {
+        const response = await fetch(jsonLink);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(jsonBlob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${tableName}-${branchName}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Failed to download JSON:', error);
+    }
 };

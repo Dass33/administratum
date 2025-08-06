@@ -18,6 +18,4 @@ Makes config to web apps more accessible.
 - enum support
 - different sheet type
 - permissions
-- exporting tables
 - implement branches
-- fix arrays
