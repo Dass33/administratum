@@ -6,9 +6,10 @@ export interface NewItemProps {
     currNames: IdName[];
     defaultIdName?: IdName;
     deleteItem?: () => void;
+    ExpandingComponent?: React.FC;
 }
 
-const NewItemModal: React.FC<NewItemProps> = ({ assignNewName, currNames, defaultIdName, deleteItem }) => {
+const NewItemModal: React.FC<NewItemProps> = ({ assignNewName, currNames, defaultIdName, deleteItem, ExpandingComponent }) => {
     const {
         setNewItemModal,
     } = useApp();
@@ -81,6 +82,8 @@ const NewItemModal: React.FC<NewItemProps> = ({ assignNewName, currNames, defaul
                         defaultValue={defaultIdName?.name}
                         onChange={handleNameChange}
                     />
+                    {ExpandingComponent && <ExpandingComponent />}
+
                     {deleteItem &&
                         <div className='w-full flex justify-end mt-2 '>
                             <button className='bg-red-600 w-24 rounded-lg p-2 px-4 text-figma-white font-bold mt-4'

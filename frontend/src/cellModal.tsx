@@ -37,7 +37,7 @@ const CellModal = () => {
         : ""
 
     const [cellVal, setCellVal] = useState(initCellVal);
-    const [boolVal, setBoolVal] = useState(Boolean(initCellVal));
+    const [boolVal, setBoolVal] = useState(initCellVal == 'true');
     const [arrayItems, setArrayItems] = useState<ArrayItem[]>([]);
     const [arrayType, setArrayType] = useState<EnumColTypes.TEXT | EnumColTypes.NUMBER>(EnumColTypes.TEXT);
 
@@ -237,23 +237,17 @@ const CellModal = () => {
                 )}
 
                 {colType === EnumColTypes.BOOL && (
-                    <div className="bg-figma-white p-6 rounded-lg w-[35rem] mb-6">
-                        <label className="flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                checked={boolVal}
-                                onChange={(e) => setBoolVal(e.target.checked)}
-                                className="sr-only"
+                    <div className="bg-figma-white p-6 rounded-lg w-[25rem] mb-6">
+                        <div className='flex flex-row justify-between items-ceter mt-4'>
+                            <h2 className="text-2xl pt-0.5 mr-4">{currCol?.name}</h2>
+                            <Dropdown
+                                options={[{ value: "false", label: "False" },
+                                { value: "true", label: "True" }]}
+                                placeholder={"Select Option"}
+                                defaultValue={initCellVal}
+                                onSelect={(e) => setBoolVal(e.value == "true")}
                             />
-                            <div className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${boolVal ? 'bg-figma-black' : 'bg-figma-gray'
-                                }`}>
-                                <div className={`absolute top-1 left-1 w-4 h-4 bg-figma-white rounded-full transition-transform duration-200 ${boolVal ? 'translate-x-6' : 'translate-x-0'
-                                    }`} />
-                            </div>
-                            <span className="ml-3 text-figma-black">
-                                {boolVal ? 'True' : 'False'}
-                            </span>
-                        </label>
+                        </div>
                     </div>
                 )}
 
