@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useApp, IdName } from './AppContext';
 
-export interface NewNameProps {
+export interface NewItemProps {
     assignNewName: (name: string) => void;
     currNames: IdName[];
     defaultIdName?: IdName;
     deleteItem?: () => void;
 }
 
-const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames, defaultIdName, deleteItem }) => {
+const NewItemModal: React.FC<NewItemProps> = ({ assignNewName, currNames, defaultIdName, deleteItem }) => {
     const {
-        setNewNameModal,
+        setNewItemModal,
     } = useApp();
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +35,7 @@ const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames, defaul
     }
 
     const saveAndExit = () => {
-        setNewNameModal(null);
+        setNewItemModal(null);
 
         if (validName && name.length > 0) {
             assignNewName(name);
@@ -86,7 +86,7 @@ const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames, defaul
                             <button className='bg-red-600 w-24 rounded-lg p-2 px-4 text-figma-white font-bold mt-4'
                                 onClick={() => {
                                     deleteItem()
-                                    setNewNameModal(null)
+                                    setNewItemModal(null)
                                 }}
                             >
                                 <span>Delete</span>
@@ -99,4 +99,4 @@ const NewNameModal: React.FC<NewNameProps> = ({ assignNewName, currNames, defaul
     );
 };
 
-export default NewNameModal;
+export default NewItemModal;

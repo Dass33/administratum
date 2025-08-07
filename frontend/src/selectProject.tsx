@@ -1,6 +1,6 @@
 import { Sheet, TableData, useApp } from "./AppContext";
 import Dropdown, { DropdownOption } from "./dropdown";
-import { NewNameProps } from "./NewNameModal";
+import { NewItemProps } from "./NewItemModal.tsx";
 
 type ProjectData = {
     Table: TableData,
@@ -13,7 +13,7 @@ function SelectProject() {
         currTable, setCurrTable,
         currSheet, setCurrSheet,
         setColumns,
-        setNewNameModal,
+        setNewItemModal,
         setSheetDeleted,
         tableNames, setTableNames,
     } = useApp();
@@ -59,13 +59,13 @@ function SelectProject() {
     }
 
     const updateValue = (option: DropdownOption, setSelected: Function) => {
-        const props: NewNameProps = {
+        const props: NewItemProps = {
             currNames: tableNames,
             defaultIdName: { name: option.label, id: option.value },
             assignNewName(name: string) { assignNewName(name, option, setSelected) },
             deleteItem() { deleteItem(option) },
         }
-        setNewNameModal(props)
+        setNewItemModal(props)
     }
 
     return (
@@ -74,14 +74,14 @@ function SelectProject() {
             placeholder={placeholderProjectas}
             onSelect={(e) => getCurrTable(e.value, accessToken ?? "", setData)}
             addNewValue={(setSelected: Function) => {
-                const props: NewNameProps = {
+                const props: NewItemProps = {
                     currNames: currSheet?.sheets_id_names ?? [],
                     assignNewName: (name) => postTable(name, accessToken ?? "", (data: ProjectData) => {
                         setData(data);
                         setSelected({ name: data.Table.name, value: data.Table.id })
                     }),
                 }
-                setNewNameModal(props)
+                setNewItemModal(props)
             }}
             updateValue={updateValue}
         />

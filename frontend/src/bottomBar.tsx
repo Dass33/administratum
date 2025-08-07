@@ -1,14 +1,14 @@
 import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
 import { useApp, Sheet } from "./AppContext";
-import { NewNameProps } from "./NewNameModal";
+import { NewItemProps } from "./NewItemModal.tsx";
 import { useEffect } from "react";
 
 const BottomBar = () => {
     const {
         currSheet, setCurrSheet,
         setColumns,
-        setNewNameModal,
+        setNewItemModal,
         setSettingsModal,
         accessToken,
         setSheetDeleted,
@@ -32,7 +32,7 @@ const BottomBar = () => {
     }
 
     const addNewValue = (setSelected: Function) => {
-        const props: NewNameProps = {
+        const props: NewItemProps = {
             currNames: currSheet?.sheets_id_names ?? [],
             assignNewName: (name: string) => {
                 if (!currSheet) return
@@ -42,7 +42,7 @@ const BottomBar = () => {
                 });
             },
         }
-        setNewNameModal(props)
+        setNewItemModal(props)
     }
 
     const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
@@ -83,13 +83,13 @@ const BottomBar = () => {
 
     const updateValue = (option: DropdownOption, setSelected: Function) => {
         const idName = { name: option.label, id: option.value }
-        const props: NewNameProps = {
+        const props: NewItemProps = {
             currNames: currSheet?.sheets_id_names ?? [],
             defaultIdName: idName,
             assignNewName(name: string) { assignNewName(name, option, setSelected) },
             deleteItem() { delteItem(option) },
         }
-        setNewNameModal(props)
+        setNewItemModal(props)
     }
 
     const everyRender = (setSelected: Function) => {

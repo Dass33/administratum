@@ -9,7 +9,7 @@ import Table from "./table";
 import { useApp } from "./AppContext";
 import CellModal from "./cellModal";
 import ColModal from "./colModal";
-import NewNameModal from "./NewNameModal";
+import NewItemModal from "./NewItemModal.tsx";
 import SettingsModal from "./settingsModal";
 import ShareModal from "./shareModal";
 import Auth from "./auth";
@@ -18,7 +18,7 @@ function App() {
     const {
         cellModal,
         colModal,
-        newNameModal,
+        newItemModal,
         settingsModal,
         shareModal,
         authenticated,
@@ -80,11 +80,11 @@ function App() {
         <div className='bg-figma-white h-screen px-2 md:px-9 flex flex-row' ref={containerRef}>
             {cellModal && <CellModal />}
             {colModal > -1 && <ColModal />}
-            {newNameModal && <NewNameModal
-                currNames={newNameModal.currNames}
-                assignNewName={newNameModal.assignNewName}
-                defaultIdName={newNameModal.defaultIdName}
-                deleteItem={newNameModal.deleteItem}
+            {newItemModal && <NewItemModal
+                currNames={newItemModal.currNames}
+                assignNewName={newItemModal.assignNewName}
+                defaultIdName={newItemModal.defaultIdName}
+                deleteItem={newItemModal.deleteItem}
             />}
             {settingsModal && <SettingsModal />}
             {shareModal && <ShareModal />}

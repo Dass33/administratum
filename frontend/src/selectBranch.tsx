@@ -1,12 +1,12 @@
 import { useApp } from "./AppContext";
 import Dropdown, { DropdownOption } from "./dropdown";
-import { NewNameProps } from "./NewNameModal";
+import { NewItemProps } from "./NewItemModal.tsx";
 
 function SelectBranch() {
     const {
         setCurrBranch,
         currSheet,
-        setNewNameModal,
+        setNewItemModal,
         currTable,
     } = useApp();
     const optionsBranches = (currTable?.branches_names ?? []).map(item => ({
@@ -33,11 +33,11 @@ function SelectBranch() {
 
             onSelect={selectBranch}
             addNewValue={() => {
-                const props: NewNameProps = {
+                const props: NewItemProps = {
                     currNames: currSheet?.sheets_id_names ?? [],
                     assignNewName: createBranch,
                 }
-                setNewNameModal(props)
+                setNewItemModal(props)
             }}
         />
     );

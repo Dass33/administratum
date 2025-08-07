@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext, useEffect } from "react";
-import { NewNameProps } from "./NewNameModal";
+import { NewItemProps } from "./NewItemModal.tsx";
 
 interface AppState {
     cellModal: [number, Column] | null
@@ -16,8 +16,8 @@ interface AppState {
     setSheets: Function,
     currSheet: Sheet | undefined,
     setCurrSheet: Function,
-    newNameModal: NewNameProps | null,
-    setNewNameModal: Function,
+    newItemModal: NewItemProps | null,
+    setNewItemModal: Function,
     settingsModal: boolean,
     setSettingsModal: Function,
     shareModal: boolean,
@@ -139,7 +139,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const [addColumn, setAddColumn] = useState(false);
     const [sheets, setSheets] = useState([]);
-    const [newNameModal, setNewNameModal] = useState(null);
+    const [newItemModal, setNewItemModal] = useState(null);
     const [settingsModal, setSettingsModal] = useState(false);
     const [shareModal, setShareModal] = useState(false);
     const [gameUrl, setGameUrl] = useState({ Valid: false, String: "" });
@@ -191,7 +191,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             addColumn, setAddColumn,
             sheets, setSheets,
             currSheet, setCurrSheet,
-            newNameModal, setNewNameModal,
+            newItemModal, setNewItemModal,
             settingsModal, setSettingsModal,
             shareModal, setShareModal,
             gameUrl, setGameUrl,
