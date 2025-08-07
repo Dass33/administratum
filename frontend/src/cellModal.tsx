@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID, Sheet, NullString } from './AppContext';
+import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID, Sheet, NullString, EnumSheetTypes, ColTypes } from './AppContext';
 import Dropdown from "./dropdown";
 import { DropdownOption } from "./dropdown";
 import cross from "./assets/cross.svg";
@@ -36,14 +36,20 @@ const CellModal = () => {
         ? initCell.value.String
         : ""
 
+    const isConfig = currSheet?.sheet_type == EnumSheetTypes.MAP;
+
     const [cellVal, setCellVal] = useState(initCellVal);
     const [boolVal, setBoolVal] = useState(initCellVal == 'true');
     const [arrayItems, setArrayItems] = useState<ArrayItem[]>([]);
     const [arrayType, setArrayType] = useState<EnumColTypes.TEXT | EnumColTypes.NUMBER>(EnumColTypes.TEXT);
 
-    const colType = cellModal
-        ? cellModal[1].type
-        : EnumColTypes.TEXT;
+    const [colType, setColType] = useState<string>(() => {
+        if (isConfig && initCell?.type.Valid) {
+            return initCell.type.String
+        }
+        if (cellModal) return cellModal[1].type
+        return EnumColTypes.TEXT;
+    })
 
     const optionsBranches: DropdownOption[] = [
         { value: EnumColTypes.TEXT, label: EnumColTypes.TEXT },
@@ -116,6 +122,7 @@ const CellModal = () => {
                     id: item_id,
                     idx: rowIndex,
                     value: newVal,
+                    type: { String: colType, Valid: isConfig },
                 };
             }
             return item;
@@ -126,6 +133,7 @@ const CellModal = () => {
                 id: item_id,
                 idx: rowIndex,
                 value: newVal,
+                type: { String: colType, Valid: isConfig },
             };
             putAdjustedColumnData(updatedData, accessToken ?? "");
         } else {
@@ -133,6 +141,7 @@ const CellModal = () => {
                 id: item_id,
                 idx: rowIndex,
                 value: newVal,
+                type: { String: colType, Valid: isConfig },
             };
             newCol.data.push(newColData);
             postNewColumnData(col, newColData, currSheet, accessToken ?? "");
@@ -211,15 +220,14 @@ const CellModal = () => {
     }, [setCellModal]);
 
     return (
-        <div
-            className="fixed inset-0 bg-black bg-opacity-15 flex justify-center items-center z-50"
+        <div className="fixed inset-0 bg-black bg-opacity-15 flex justify-center items-center z-50"
             onClick={saveAndExit}
         >
-            <div onClick={stopPropagation}>
+            <div onClick={stopPropagation} className='bg-figma-white p-6 rounded-lg'>
                 {colType === EnumColTypes.TEXT && (
                     <textarea
                         ref={textareaRef}
-                        className="text-figma-black mb-6 bg-figma-white p-6 rounded-lg w-[35rem] h-72 resize-none overflow-y-auto focus:outline-none"
+                        className="text-figma-black mb-6 bg-figma-white border-figma-black rounded-lg w-[35rem] h-72 resize-none overflow-y-auto focus:outline-none"
                         defaultValue={cellVal}
                         onChange={(e) => setCellVal(e.target.value)}
                     />
@@ -229,7 +237,7 @@ const CellModal = () => {
                     <input
                         ref={numberInputRef}
                         type="number"
-                        className="text-figma-black mb-6 bg-figma-white p-6 rounded-lg w-[35rem] focus:outline-none"
+                        className="text-figma-black mb-6 bg-figma-white rounded-lg w-[35rem] focus:outline-none"
                         defaultValue={cellVal}
                         onChange={(e) => setCellVal(e.target.value)}
                         placeholder="Enter a number"
@@ -237,7 +245,7 @@ const CellModal = () => {
                 )}
 
                 {colType === EnumColTypes.BOOL && (
-                    <div className="bg-figma-white p-6 rounded-lg w-[25rem] mb-6">
+                    <div className="bg-figma-white rounded-lg w-[25rem] mb-6">
                         <div className='flex flex-row justify-between items-ceter mt-4'>
                             <h2 className="text-2xl pt-0.5 mr-4">{currCol?.name}</h2>
                             <Dropdown
@@ -252,18 +260,18 @@ const CellModal = () => {
                 )}
 
                 {colType === EnumColTypes.ARRAY && (
-                    <div className={`bg-figma-white p-7 ${arrayItems.length == 0 && "pt-[70px]"} rounded-lg w-[35rem] max-h-96 overflow-y-auto mb-6`}>
+                    <div className={`bg-figma-white ${arrayItems.length == 0 && "pt-[70px]"} rounded-lg w-[35rem] max-h-96 overflow-y-auto mb-6`}>
                         <div className="">
                             {arrayItems.map((item, index) => (
-                                <div key={index} className="flex items-center gap-3 mb-3">
+                                <div key={index} className={`flex items-center gap-3 mb-3 border rounded-lg bg-figma-white p-2 ${item.isValid
+                                    ? 'border-figma-gray focus:border-figma-black text-figma-black'
+                                    : 'border-red-500 text-red-500'
+                                    }`}>
                                     <input
                                         type="text"
                                         value={item.value}
                                         onChange={(e) => updateArrayItem(index, 'value', e.target.value)}
-                                        className={`flex-1 p-2 rounded-lg border focus:outline-none ${item.isValid
-                                            ? 'bg-figma-white border-figma-gray focus:border-figma-black text-figma-black'
-                                            : 'bg-figma-white border-red-500 text-red-500'
-                                            }`}
+                                        className="grow focus:outline-none bg-figma-white"
                                         placeholder={arrayType === EnumColTypes.NUMBER ? "Enter a number" : "Enter text"}
                                     />
                                     <button
@@ -275,10 +283,10 @@ const CellModal = () => {
                                 </div>
                             ))}
 
-                            <div className="flex items-center gap-3 mt-6">
+                            <div className="flex items-center justify-between gap-3 mt-6">
                                 <button
                                     onClick={addArrayItem}
-                                    className="flex-1 p-2 border border-figma-gray hover:border-figma-black rounded-lg text-figma-black bg-figma-white transition-colors"
+                                    className="grow p-2 border border-figma-gray hover:border-figma-black rounded-lg text-figma-black bg-figma-white transition-colors"
                                 >
                                     Add Item
                                 </button>
@@ -295,11 +303,26 @@ const CellModal = () => {
                                     placeholder={EnumColTypes.TEXT}
                                     isDown={false}
                                 />
-                                <div className="size-7"></div>
                             </div>
                         </div>
                     </div>
                 )}
+
+                {isConfig &&
+                    <div className='flex flex-row justify-between items-ceter mt-8'>
+                        <h2 className="text-2xl pt-0.5 mr-4 text-figma-black">Cell type</h2>
+                        <Dropdown
+                            options={ColTypes.map(item => ({ label: item.val, value: item.val }))}
+                            defaultValue={initCell?.type.String}
+                            onSelect={(val) => {
+                                setCellVal("")
+                                setBoolVal(false)
+                                setArrayItems([])
+                                setColType(val.value)
+                            }}
+                        />
+                    </div>
+                }
             </div>
         </div>
     );

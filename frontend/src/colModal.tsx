@@ -131,7 +131,7 @@ const ColModal = () => {
                     />
 
                     <div className='flex flex-row justify-between items-ceter'>
-                        <h2 className="text-2xl pt-0.5 mr-4">Collumn type</h2>
+                        <h2 className="text-2xl pt-0.5 mr-4 text-figma-black">Collumn type</h2>
                         <Dropdown
                             options={optionsColTypes}
                             defaultValue={columnType}

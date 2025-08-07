@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData } from "./AppContext";
+import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes } from "./AppContext";
 import plus from "./assets/plus.svg";
 import cross from "./assets/cross.svg";
 
@@ -20,6 +20,8 @@ const Table = () => {
     const [hideTimeout, setHideTimeout] = useState<number | null>(null);
     const [showTimeout, setShowTimeout] = useState<number | null>(null);
     const [deleteButtonPosition, setDeleteButtonPosition] = useState<{ top: number } | null>(null);
+
+    const isConfig = currSheet?.sheet_type == EnumSheetTypes.MAP
 
     useEffect(() => {
         if (!columns) return
@@ -144,8 +146,11 @@ const Table = () => {
                                 >
                                     <button
                                         type="button"
+                                        disabled={isConfig}
                                         className="w-full text-left focus:outline-none"
-                                        onClick={() => setColModal(idx)}
+                                        onClick={() => {
+                                            if (!isConfig) setColModal(idx)
+                                        }}
                                     >
                                         {col.name}
                                     </button>
@@ -183,13 +188,15 @@ const Table = () => {
             </div>
             <div className="ml-4 flex flex-col items-center justify-start relative">
 
-                <button className="w-12 h-12 flex items-center justify-center text-[3rem] font-light hover:scale-125 transition-transform duration-100 flex-shrink-0"
-                    onClick={() => {
-                        setColModal(true)
-                        setAddColumn(true)
-                    }}>
-                    <img src={plus} className="w-7 h-7" />
-                </button>
+                {!isConfig &&
+                    <button className="w-12 h-12 flex items-center justify-center text-[3rem] font-light hover:scale-125 transition-transform duration-100 flex-shrink-0"
+                        onClick={() => {
+                            setColModal(true)
+                            setAddColumn(true)
+                        }}>
+                        <img src={plus} className="w-7 h-7" />
+                    </button>
+                }
 
                 {hoveredRow !== null && deleteButtonPosition && (
                     <div

@@ -1,8 +1,12 @@
 import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
-import { useApp, Sheet } from "./AppContext";
+import { useApp, Sheet, EnumSheetTypes } from "./AppContext";
 import { NewItemProps } from "./NewItemModal.tsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+
+const SheetTypesOptions = [{ value: EnumSheetTypes.LIST, label: "Questions" },
+{ value: EnumSheetTypes.MAP, label: "Config" }]
 
 const BottomBar = () => {
     const {
@@ -31,16 +35,21 @@ const BottomBar = () => {
         setSheetDeleted(false);
     }
 
+    const [sheetType, setSheetType] = useState(SheetTypesOptions[0].value);
+
     const addNewValue = (setSelected: Function) => {
         const props: NewItemProps = {
             currNames: currSheet?.sheets_id_names ?? [],
             assignNewName: (name: string) => {
                 if (!currSheet) return
-                createSheet(name, currSheet.branch_id_name.id, accessToken, (sheet: Sheet) => {
+                createSheet(name, sheetType, currSheet.branch_id_name.id, accessToken, (sheet: Sheet) => {
                     setData(sheet);
                     setSelected({ value: sheet.id, label: sheet.name });
                 });
             },
+            ExpandingComponent: () => (
+                <SetSheetType setData={setSheetType} />
+            )
         }
         setNewItemModal(props)
     }
@@ -51,7 +60,6 @@ const BottomBar = () => {
 
         const newSheetNames = currSheet.sheets_id_names.map(idName => {
             if (idName.id === option.value) {
-                console.log(setSelected, name);
                 setSelected({ value: idName.id, label: name });
                 return { id: idName.id, name: name };
             }
@@ -144,10 +152,11 @@ const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
         });
 };
 
-const createSheet = (name: string, branchId: string, token: string | undefined, setData: Function) => {
-    const createSheetParams: { Name: string, BranchID: string } = {
+const createSheet = (name: string, sheetType: string, branchId: string, token: string | undefined, setData: Function) => {
+    const createSheetParams: { Name: string, SheetType: string, BranchID: string } = {
         Name: name,
         BranchID: branchId,
+        SheetType: sheetType,
     }
 
     fetch("/create_sheet", {
@@ -219,5 +228,18 @@ const deleteSheet = (sheetId: string, token: string | undefined) => {
             console.error(err);
         });
 }
+
+
+const SetSheetType: React.FC<{ setData: Function }> = ({ setData }) => (
+    <div className='flex justify-between items-ceter my-4'>
+        <h2 className="text-xl mr-4 font-medium my-auto text-figma-black">Sheet Type</h2>
+        <Dropdown
+            options={SheetTypesOptions}
+            placeholder={"Select Type"}
+            defaultValue={SheetTypesOptions[0].value}
+            onSelect={(e) => setData(e.value)}
+        />
+    </div>
+);
 
 export default BottomBar;

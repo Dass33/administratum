@@ -80,12 +80,7 @@ function App() {
         <div className='bg-figma-white h-screen px-2 md:px-9 flex flex-row' ref={containerRef}>
             {cellModal && <CellModal />}
             {colModal > -1 && <ColModal />}
-            {newItemModal && <NewItemModal
-                currNames={newItemModal.currNames}
-                assignNewName={newItemModal.assignNewName}
-                defaultIdName={newItemModal.defaultIdName}
-                deleteItem={newItemModal.deleteItem}
-            />}
+            {newItemModal && <NewItemModal {...newItemModal} />}
             {settingsModal && <SettingsModal />}
             {shareModal && <ShareModal />}
 

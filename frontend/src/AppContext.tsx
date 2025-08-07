@@ -48,6 +48,11 @@ export enum EnumColTypes {
     ARRAY = 'array',
 }
 
+export enum EnumSheetTypes {
+    MAP = 'map',
+    LIST = 'list',
+}
+
 export enum PermissionsEnum {
     OWNER = 'owner',
     CONTRIBUTOR = 'contributor',
@@ -88,6 +93,7 @@ export type ColumnData = {
     id: string
     idx: number
     value: NullString
+    type: NullString
 }
 
 export type Column = {
@@ -107,6 +113,7 @@ export type Branch = {
 export type Sheet = {
     name: string
     id: string
+    sheet_type: string
     row_count: number
     columns: Column[]
     branch_id_name: IdName
