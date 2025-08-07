@@ -36,7 +36,7 @@ const CellModal = () => {
         ? initCell.value.String
         : ""
 
-    const isConfig = currSheet?.sheet_type == EnumSheetTypes.MAP;
+    const isConfig = currSheet?.type == EnumSheetTypes.MAP;
 
     const [cellVal, setCellVal] = useState(initCellVal);
     const [boolVal, setBoolVal] = useState(initCellVal == 'true');
@@ -44,8 +44,9 @@ const CellModal = () => {
     const [arrayType, setArrayType] = useState<EnumColTypes.TEXT | EnumColTypes.NUMBER>(EnumColTypes.TEXT);
 
     const [colType, setColType] = useState<string>(() => {
-        if (isConfig && initCell?.type.Valid) {
-            return initCell.type.String
+        if (isConfig) {
+            if (initCell?.type.Valid) return initCell.type.String;
+            return EnumColTypes.TEXT;
         }
         if (cellModal) return cellModal[1].type
         return EnumColTypes.TEXT;

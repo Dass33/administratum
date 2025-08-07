@@ -12,6 +12,7 @@ type ColumnData struct {
 	ID    uuid.UUID      `json:"id"`
 	Idx   int64          `json:"idx"`
 	Value sql.NullString `json:"value"`
+	Type  sql.NullString `json:"type"`
 }
 
 type Column struct {
@@ -42,6 +43,7 @@ func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Col
 				ID:    v.ID,
 				Idx:   v.Idx,
 				Value: v.Value,
+				Type:  v.Type,
 			}
 			vals = append(vals, item)
 		}

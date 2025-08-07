@@ -21,7 +21,7 @@ const Table = () => {
     const [showTimeout, setShowTimeout] = useState<number | null>(null);
     const [deleteButtonPosition, setDeleteButtonPosition] = useState<{ top: number } | null>(null);
 
-    const isConfig = currSheet?.sheet_type == EnumSheetTypes.MAP
+    const isConfig = currSheet?.type == EnumSheetTypes.MAP
 
     useEffect(() => {
         if (!columns) return

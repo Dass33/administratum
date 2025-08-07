@@ -29,13 +29,13 @@ const BottomBar = () => {
     const setData = (sheet: Sheet) => {
         setCurrSheet(sheet);
         setColumns(sheet.columns);
+        setSheetDeleted(false);
     }
     const selectSheets = (item: DropdownOption) => {
         getCurrSheet(item.value, accessToken ?? "", setData)
-        setSheetDeleted(false);
     }
 
-    const [sheetType, setSheetType] = useState(SheetTypesOptions[0].value);
+    const [sheetType, setSheetType] = useState(EnumSheetTypes.LIST);
 
     const addNewValue = (setSelected: Function) => {
         const props: NewItemProps = {
@@ -52,6 +52,7 @@ const BottomBar = () => {
             )
         }
         setNewItemModal(props)
+        setSheetType(EnumSheetTypes.LIST)
     }
 
     const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
@@ -153,10 +154,10 @@ const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
 };
 
 const createSheet = (name: string, sheetType: string, branchId: string, token: string | undefined, setData: Function) => {
-    const createSheetParams: { Name: string, SheetType: string, BranchID: string } = {
+    const createSheetParams: { Name: string, Type: string, BranchID: string } = {
         Name: name,
         BranchID: branchId,
-        SheetType: sheetType,
+        Type: sheetType,
     }
 
     fetch("/create_sheet", {
@@ -174,6 +175,7 @@ const createSheet = (name: string, sheetType: string, branchId: string, token: s
             return response.json();
         })
         .then((result: Sheet) => {
+            console.log("recieved", result.type)
             setData(result);
         })
         .catch(err => {

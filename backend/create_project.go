@@ -85,17 +85,12 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 			branchIdName := IdName{ID: branch.ID, Name: branch.Name}
 			table.BranchesNames = append(table.BranchesNames, branchIdName)
 		}
-		createSheetParams := database.CreateSheetParams{
-			Name:     "config",
-			BranchID: table.BranchesNames[0].ID,
-		}
-		dbSheet, err := cfg.db.CreateSheet(r.Context(), createSheetParams)
+		sheetId, err = cfg.createMapSheet(r.Context(), "config", table.BranchesNames[0].ID)
 		if err != nil {
-			msg := fmt.Sprintf("Could not create a config sheet: %s", err)
-			respondWithError(w, 500, msg)
+			msg := fmt.Sprintf("Could not create map sheet: %s", err)
+			respondWithError(w, http.StatusInternalServerError, msg)
 			return
 		}
-		sheetId = dbSheet.ID
 	} else {
 		sheetId = sheets[0].ID
 	}

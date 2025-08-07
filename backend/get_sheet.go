@@ -15,6 +15,7 @@ type Sheet struct {
 	ID            uuid.UUID `json:"id"`
 	Name          string    `json:"name"`
 	RowCount      int64     `json:"row_count"`
+	Type          string    `json:"type"`
 	Columns       []Column  `json:"columns"`
 	BranchIdName  IdName    `json:"branch_id_name"`
 	SheetsIdNames []IdName  `json:"sheets_id_names"`
@@ -104,6 +105,7 @@ func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Cont
 		ID:            sheet_id,
 		Name:          sheet.Name,
 		RowCount:      int64(rowCount),
+		Type:          sheet.Type,
 		BranchIdName:  branchIdName,
 		SheetsIdNames: sheetsIdNames,
 		Columns:       columns,

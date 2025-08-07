@@ -37,6 +37,7 @@ type ColumnDatum struct {
 	ColumnID  uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Type      sql.NullString
 }
 
 type RefreshToken struct {
@@ -54,6 +55,7 @@ type Sheet struct {
 	BranchID  uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Type      string
 }
 
 type Table struct {

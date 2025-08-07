@@ -12,7 +12,7 @@ import (
 )
 
 const getSheet = `-- name: GetSheet :one
-select id, name, branch_id, created_at, updated_at from sheets
+select id, name, branch_id, created_at, updated_at, type from sheets
 where id = ?
 `
 
@@ -25,6 +25,7 @@ func (q *Queries) GetSheet(ctx context.Context, id uuid.UUID) (Sheet, error) {
 		&i.BranchID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Type,
 	)
 	return i, err
 }

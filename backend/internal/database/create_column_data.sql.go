@@ -13,26 +13,33 @@ import (
 )
 
 const createColumnData = `-- name: CreateColumnData :one
-INSERT INTO column_data (id, idx, value, column_id, created_at, updated_at)
+INSERT INTO column_data (id, idx, value, type, column_id, created_at, updated_at)
 VALUES (
     gen_random_uuid(),
+    ?,
     ?,
     ?,
     ?,
     datetime('now'),
     datetime('now')
 )
-RETURNING id, idx, value, column_id, created_at, updated_at
+RETURNING id, idx, value, column_id, created_at, updated_at, type
 `
 
 type CreateColumnDataParams struct {
 	Idx      int64
 	Value    sql.NullString
+	Type     sql.NullString
 	ColumnID uuid.UUID
 }
 
 func (q *Queries) CreateColumnData(ctx context.Context, arg CreateColumnDataParams) (ColumnDatum, error) {
-	row := q.db.QueryRowContext(ctx, createColumnData, arg.Idx, arg.Value, arg.ColumnID)
+	row := q.db.QueryRowContext(ctx, createColumnData,
+		arg.Idx,
+		arg.Value,
+		arg.Type,
+		arg.ColumnID,
+	)
 	var i ColumnDatum
 	err := row.Scan(
 		&i.ID,
@@ -41,6 +48,7 @@ func (q *Queries) CreateColumnData(ctx context.Context, arg CreateColumnDataPara
 		&i.ColumnID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Type,
 	)
 	return i, err
 }

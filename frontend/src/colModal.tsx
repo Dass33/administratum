@@ -221,7 +221,7 @@ const deleteColumn = (sheet: Sheet, col: Column, token: string) => {
     })
         .then(response => {
             if (response.status < 200 || response.status > 299) {
-                console.log(response.status)
+                console.error(response.status)
                 throw "Could not delete column"
             }
         })

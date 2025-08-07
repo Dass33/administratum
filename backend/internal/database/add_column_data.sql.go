@@ -13,21 +13,23 @@ import (
 )
 
 const addColumnData = `-- name: AddColumnData :one
-INSERT INTO column_data (id, idx, value, column_id, created_at, updated_at)
+INSERT INTO column_data (id, idx, value, type, column_id, created_at, updated_at)
 VALUES (
     gen_random_uuid(),
+    ?,
     ?,
     ?,
     (SELECT id FROM columns WHERE name = ? AND sheet_id = ?),
     datetime('now'),
     datetime('now')
 )
-RETURNING id, idx, value, column_id, created_at, updated_at
+RETURNING id, idx, value, column_id, created_at, updated_at, type
 `
 
 type AddColumnDataParams struct {
 	Idx     int64
 	Value   sql.NullString
+	Type    sql.NullString
 	Name    string
 	SheetID uuid.UUID
 }
@@ -36,6 +38,7 @@ func (q *Queries) AddColumnData(ctx context.Context, arg AddColumnDataParams) (C
 	row := q.db.QueryRowContext(ctx, addColumnData,
 		arg.Idx,
 		arg.Value,
+		arg.Type,
 		arg.Name,
 		arg.SheetID,
 	)
@@ -47,6 +50,7 @@ func (q *Queries) AddColumnData(ctx context.Context, arg AddColumnDataParams) (C
 		&i.ColumnID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Type,
 	)
 	return i, err
 }

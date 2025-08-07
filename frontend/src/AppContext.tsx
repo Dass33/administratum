@@ -113,7 +113,7 @@ export type Branch = {
 export type Sheet = {
     name: string
     id: string
-    sheet_type: string
+    type: string
     row_count: number
     columns: Column[]
     branch_id_name: IdName

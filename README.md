@@ -19,3 +19,4 @@ Makes config to web apps more accessible.
 - different sheet type
 - permissions
 - implement branches
+- backend validate permissions + sheet type
