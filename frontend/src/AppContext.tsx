@@ -38,6 +38,8 @@ interface AppState {
     setSheetDeleted: Function,
     tableNames: IdName[],
     setTableNames: Function,
+    setRefresh: Function,
+    refresh: boolean,
 }
 
 export enum EnumColTypes {
@@ -157,6 +159,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [loading, setLoading] = useState(true);
     const [sheetDeleted, setSheetDeleted] = useState<boolean>(false);
     const [tableNames, setTableNames] = useState<IdName[]>([]);
+    const [refresh, setRefresh] = useState(false);
 
     useEffect(() => {
         fetch('/refresh', {
@@ -209,6 +212,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             loading, setLoading,
             sheetDeleted, setSheetDeleted,
             tableNames, setTableNames,
+            refresh, setRefresh,
         }}>
             {children}
         </AppContext.Provider>

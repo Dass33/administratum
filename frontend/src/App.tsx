@@ -13,6 +13,7 @@ import NewItemModal from "./NewItemModal.tsx";
 import SettingsModal from "./settingsModal";
 import ShareModal from "./shareModal";
 import Auth from "./auth";
+import RefershButton from './RefreshButton.tsx';
 
 function App() {
     const {
@@ -95,6 +96,7 @@ function App() {
                         <SelectBranch />
                     </div>
                     <Permissions />
+                    <RefershButton />
                 </div>
                 <div className="mt-10 grow overflow-hidden">
                     <Table />

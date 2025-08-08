@@ -1,15 +1,18 @@
 import { useApp } from "./AppContext"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 
 function GameView() {
-    const { gameUrl } = useApp();
+    const {
+        gameUrl,
+        setRefresh, refresh,
+    } = useApp();
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
-    const handleRefresh = () => {
-        if (iframeRef.current) {
-            iframeRef.current.src = iframeRef.current.src;
-        }
-    };
+    useEffect(() => {
+        if (!iframeRef.current || !refresh) return
+        iframeRef.current.src = iframeRef.current.src;
+        setRefresh(false)
+    }, [refresh])
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-center py-10 pl-1">
@@ -22,17 +25,11 @@ function GameView() {
                             src={gameUrl.String}
                             title="Embedded Website"
                         />
-                        <button
-                            onClick={handleRefresh}
-                            className="absolute top-2 right-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                        >
-                            Refresh
-                        </button>
                     </div>
                 ) : (
                     <div className="embedded-container w-full h-full">
                         <div className="rounded-lg w-full h-full bg-figma-stone flex items-center justify-center">
-                            <span className="text-figma-white text-3xl font-medium">
+                            <span className="text-figma-white text-2xl font-medium">
                                 Valid URL not provided
                             </span>
                         </div>
