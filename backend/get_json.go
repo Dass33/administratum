@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -95,12 +94,11 @@ func (cfg *apiConfig) getMapSheetJson(sheet database.Sheet, ctx context.Context)
 			continue
 		}
 
-		val, err := ParseValue(valCell.Value.String, valCell.ID.String())
+		val, err := ParseValue(valCell.Value.String, valCell.Type.String)
 		if err != nil {
 			return nil, err
 		}
 		row[nameCell.Value.String] = val
-		continue
 	}
 	return row, nil
 }

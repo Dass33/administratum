@@ -29,6 +29,7 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 	addColumnDataParams := database.AddColumnDataParams{
 		Idx:     params.Data.Idx,
 		Value:   params.Data.Value,
+		Type:    params.Data.Type,
 		Name:    params.Col.Name,
 		SheetID: params.Sheet_id,
 	}
