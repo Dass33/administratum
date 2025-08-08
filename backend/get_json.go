@@ -73,7 +73,7 @@ func (cfg *apiConfig) getColumnsWitRowCount(sheetId uuid.UUID, ctx context.Conte
 	return columns, rowCount, nil
 }
 
-func (cfg *apiConfig) getMapSheetJson(sheet database.Sheet, ctx context.Context) (map[string]string, error) {
+func (cfg *apiConfig) getMapSheetJson(sheet database.Sheet, ctx context.Context) (map[string]any, error) {
 	columns, rowCount, err := cfg.getColumnsWitRowCount(sheet.ID, ctx)
 	if err != nil {
 		return nil, err
@@ -83,18 +83,23 @@ func (cfg *apiConfig) getMapSheetJson(sheet database.Sheet, ctx context.Context)
 		return nil, errors.New("There are not enough columns")
 	}
 
-	row := make(map[string]string)
+	row := make(map[string]any)
 
 	for i := range rowCount {
-		name, ok := getDataAtColIdx(columns[0].Data, i)
-		if !ok || !name.Valid {
+		nameCell, ok := getDataAtColIdx(columns[0].Data, i)
+		if !ok || !nameCell.Value.Valid {
 			continue
 		}
-		val, ok := getDataAtColIdx(columns[1].Data, i)
-		if !ok || !val.Valid {
+		valCell, ok := getDataAtColIdx(columns[1].Data, i)
+		if !ok || !valCell.Value.Valid || !valCell.Type.Valid {
 			continue
 		}
-		row[name.String] = val.String
+
+		val, err := ParseValue(valCell.Value.String, valCell.ID.String())
+		if err != nil {
+			return nil, err
+		}
+		row[nameCell.Value.String] = val
 		continue
 	}
 	return row, nil
@@ -113,8 +118,8 @@ func (cfg *apiConfig) getListSheetJson(sheet database.Sheet, ctx context.Context
 
 		for e := range columns {
 			col := &columns[e]
-			if valStr, ok := getDataAtColIdx(col.Data, i); ok {
-				val, err := ParseValue(valStr.String, col.Type)
+			if cell, ok := getDataAtColIdx(col.Data, i); ok {
+				val, err := ParseValue(cell.Value.String, col.Type)
 				if err != nil {
 					return nil, err
 				}
@@ -127,16 +132,16 @@ func (cfg *apiConfig) getListSheetJson(sheet database.Sheet, ctx context.Context
 }
 
 // the column data has to be sorted ascending by their index
-func getDataAtColIdx(data []ColumnData, idx int64) (sql.NullString, bool) {
+func getDataAtColIdx(data []ColumnData, idx int64) (ColumnData, bool) {
 	i := sort.Search(len(data), func(i int) bool {
 		return data[i].Idx >= idx
 	})
 
 	if i >= len(data) || data[i].Idx != idx {
-		return sql.NullString{}, false
+		return ColumnData{}, false
 	}
 
-	return data[i].Value, true
+	return data[i], true
 }
 
 func ParseValue(input string, valueType string) (any, error) {
