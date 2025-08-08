@@ -3,6 +3,7 @@ import Dropdown, { DropdownOption } from "./dropdown";
 import { useApp, Sheet, EnumSheetTypes } from "./AppContext";
 import { NewItemProps } from "./NewItemModal.tsx";
 import { useEffect, useState } from "react";
+import Status from "./Status.tsx"
 
 
 const SheetTypesOptions = [{ value: EnumSheetTypes.LIST, label: "Questions" },
@@ -124,6 +125,7 @@ const BottomBar = () => {
                 updateValue={updateValue}
                 everyRender={everyRender}
             />
+            <Status />
         </div>
     );
 }
