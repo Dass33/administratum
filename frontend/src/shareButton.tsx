@@ -38,7 +38,7 @@ const SaveDropdown = () => {
 
     const handleSelect = (option: string): void => {
         if (!currSheet || !currTable) return;
-        const jsonLink = `http://${Domain}/json/${currSheet?.branch_id_name.id}`
+        const jsonLink = `${Domain}/json/${currSheet?.branch_id_name.id}`
         switch (option) {
             case SaveOptoins.EXPORT:
                 downloadFromLink(jsonLink, currTable.name, currSheet.branch_id_name.name)

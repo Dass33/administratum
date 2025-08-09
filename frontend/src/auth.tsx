@@ -10,8 +10,8 @@ type LoginCredentials = {
 };
 
 enum AuthAction {
-    Login = "login",
-    Register = "register"
+    Login = "/login",
+    Register = "/register"
 }
 
 const Auth = () => {

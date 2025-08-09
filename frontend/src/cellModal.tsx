@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID, Sheet, NullString, EnumSheetTypes, ColTypes } from './AppContext';
+import { useApp, EnumColTypes, Column, ColumnData, DEFAULT_UUID, Sheet, NullString, EnumSheetTypes, ColTypes, Domain } from './AppContext';
 import Dropdown from "./dropdown";
 import { DropdownOption } from "./dropdown";
 import cross from "./assets/cross.svg";
@@ -336,7 +336,7 @@ const postNewColumnData = async (col: Column, data: ColumnData, sheet: Sheet, to
         sheet_id: sheet.id,
     };
 
-    fetch('/add_column_data', {
+    fetch(Domain + '/add_column_data', {
         method: "POST",
         headers: {
             'Authorization': `Bearer ${token}`
@@ -355,7 +355,7 @@ const postNewColumnData = async (col: Column, data: ColumnData, sheet: Sheet, to
 }
 
 const putAdjustedColumnData = (data: ColumnData, token: string) => {
-    fetch('/update_column_data', {
+    fetch(Domain + '/update_column_data', {
         method: "put",
         headers: {
             'Authorization': `Bearer ${token}`
