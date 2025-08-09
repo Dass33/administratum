@@ -26,11 +26,16 @@ function App() {
         loading,
     } = useApp()
 
-    const [leftWidth, setLeftWidth] = useState(70);
+    const [leftWidth, setLeftWidth] = useState(77);
     const [isDragging, setIsDragging] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        setIsDragging(true);
+        e.preventDefault();
+    }, []);
+
+    const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
         setIsDragging(true);
         e.preventDefault();
     }, []);
@@ -45,7 +50,23 @@ function App() {
         setLeftWidth(clampedWidth);
     }, [isDragging]);
 
+    const handleTouchMove = useCallback((e: TouchEvent) => {
+        if (!isDragging || !containerRef.current) return;
+
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const touch = e.touches[0];
+        const newLeftWidth = ((touch.clientX - containerRect.left) / containerRect.width) * 100;
+
+        const clampedWidth = Math.min(Math.max(newLeftWidth, 20), 90);
+        setLeftWidth(clampedWidth);
+        e.preventDefault();
+    }, [isDragging]);
+
     const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+    }, []);
+
+    const handleTouchEnd = useCallback(() => {
         setIsDragging(false);
     }, []);
 
@@ -53,17 +74,22 @@ function App() {
         if (isDragging) {
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp);
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
 
             return () => {
                 document.removeEventListener('mousemove', handleMouseMove);
                 document.removeEventListener('mouseup', handleMouseUp);
+                document.removeEventListener('touchmove', handleTouchMove);
+                document.removeEventListener('touchend', handleTouchEnd);
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
             };
         }
-    }, [isDragging, handleMouseMove, handleMouseUp]);
+    }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
     if (loading) return (
         <div className='bg-figma-white h-screen pl-10 xl:pr-5 flex items-center'>
@@ -85,7 +111,7 @@ function App() {
             {settingsModal && <SettingsModal />}
             {shareModal && <ShareModal />}
 
-            <div className="flex flex-col my-10 overflow-hidden !w-full !md:w-auto"
+            <div className="flex flex-col my-10 overflow-hidden"
                 style={{ width: `${leftWidth}%` }}
             >
                 <div className="flex flex-row gap-4 min-w-[30rem]">
@@ -106,16 +132,17 @@ function App() {
                 </div>
             </div>
 
-            <div className="w-4 md:flex items-center justify-center self-center cursor-col-resize group hidden"
+            <div className="w-4 md:flex items-center justify-center self-center cursor-col-resize group touch-none hidden"
                 style={{ height: '256px' }}
                 onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
             >
                 <div className={`
-            w-1.5 h-24 bg-gray-300 rounded-full transition-colors duration-200
-            group-hover:bg-gray-400
-            ${isDragging ? 'bg-gray-400' : ''}
-        `}
-                ></div>
+                    w-1.5 h-24 bg-gray-300 rounded-full transition-colors duration-200
+                    group-hover:bg-gray-400 group-active:bg-gray-400
+                    ${isDragging ? 'bg-gray-400' : ''}
+                `}>
+                </div>
             </div>
 
             <div className="overflow-hidden hidden md:block"
