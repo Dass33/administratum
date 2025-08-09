@@ -59,9 +59,11 @@ func main() {
 
 	router := chi.NewRouter()
 
-	// todo change origin in prod
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins: []string{
+			"https://dass33.github.io",
+			"http://localhost:5173",
+		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		ExposedHeaders:   []string{"Link"},

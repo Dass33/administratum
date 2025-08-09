@@ -1,4 +1,4 @@
-import { Sheet, TableData, useApp } from "./AppContext";
+import { Domain, Sheet, TableData, useApp } from "./AppContext";
 import Dropdown, { DropdownOption } from "./dropdown";
 import { NewItemProps } from "./NewItemModal.tsx";
 
@@ -89,7 +89,7 @@ function SelectProject() {
 }
 
 const getCurrTable = (table_id: string, token: string, setData: Function) => {
-    const url = `/get_project/${table_id}`;
+    const url = Domain + `/get_project/${table_id}`;
 
     fetch(url, {
         method: "GET",
@@ -113,7 +113,7 @@ const getCurrTable = (table_id: string, token: string, setData: Function) => {
 };
 
 const postTable = (name: string, token: string, setData: Function) => {
-    const url = `/create_project`;
+    const url = Domain + `/create_project`;
     const nameParam: { Name: string } = { Name: name }
     fetch(url, {
         method: "POST",
@@ -143,7 +143,7 @@ const renameProject = (name: string, projectId: string, token: string | undefine
         ProjectId: projectId,
     }
 
-    fetch("/rename_project", {
+    fetch(Domain + "/rename_project", {
         method: "PUT",
         headers: {
             'Authorization': `Bearer ${token}`
@@ -166,7 +166,7 @@ const deleteProject = (projectId: string, token: string | undefined) => {
         ProjectId: projectId,
     };
 
-    fetch('/delete_project', {
+    fetch(Domain + '/delete_project', {
         method: "DELETE",
         headers: {
             'Authorization': `Bearer ${token}`

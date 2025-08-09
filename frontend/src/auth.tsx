@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApp, LoginData, isValidEmail } from './AppContext';
+import { useApp, LoginData, isValidEmail, Domain } from './AppContext';
 import logo from "./assets/logo.svg";
 import reload_black from "./assets/reload_black.svg";
 import reload from "./assets/reload.svg";
@@ -41,7 +41,7 @@ const Auth = () => {
 
         setLoading(type);
         try {
-            const response = await fetch("/" + type, {
+            const response = await fetch(Domain + type, {
                 method: 'POST',
                 credentials: "include",
                 headers: {

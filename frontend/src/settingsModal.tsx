@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NullString, TableData, useApp } from './AppContext';
+import { Domain, NullString, TableData, useApp } from './AppContext';
 import danger from "./assets/danger.svg";
 
 const SettingsModal = () => {
@@ -40,7 +40,7 @@ const SettingsModal = () => {
     }, [setSettingsModal]);
 
     const handleLogout = async () => {
-        await fetch("/logout", {
+        await fetch(Domain + "/logout", {
             method: "POST",
             credentials: "include"
         })
@@ -105,7 +105,7 @@ const changeGameUrl = (gameUrl: NullString, table: TableData | undefined, token:
         table_id: table.id,
     }
 
-    fetch("/change_game_url", {
+    fetch(Domain + "/change_game_url", {
         method: "PUT",
         headers: {
             'Authorization': `Bearer ${token}`

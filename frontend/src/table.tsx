@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes } from "./AppContext";
+import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes, Domain } from "./AppContext";
 import plus from "./assets/plus.svg";
 import cross from "./assets/cross.svg";
 
@@ -287,7 +287,7 @@ const deleteRow = (sheet: Sheet, rowIdx: number, token: string | undefined) => {
         row_idx: rowIdx,
     };
 
-    fetch('/delete_row', {
+    fetch(Domain + '/delete_row', {
         method: "DELETE",
         headers: {
             'Authorization': `Bearer ${token}`

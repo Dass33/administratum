@@ -72,7 +72,9 @@ export const ColTypes = [
 
 export const CurrSheet = 'currSheet'
 export const Sheets = 'sheets'
-export const Domain = "localhost:8080"
+export const Domain = import.meta.env.MODE === 'development'
+    ? 'http://localhost:8080'
+    : 'https://backend-511340934565.europe-west1.run.app';
 export const DEFAULT_UUID = "00000000-0000-0000-0000-000000000000"
 
 export type IdName = {
@@ -165,7 +167,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [notSaved, setNotSaved] = useState(false);
 
     useEffect(() => {
-        fetch('/refresh', {
+        fetch(Domain + '/refresh', {
             method: "POST",
             credentials: "include"
         })

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, ColTypes, Column, Sheet, DEFAULT_UUID } from './AppContext';
+import { useApp, ColTypes, Column, Sheet, DEFAULT_UUID, Domain } from './AppContext';
 import Dropdown from './dropdown';
 
 type ColParams = {
@@ -168,7 +168,7 @@ const postNewColumn = (sheet: Sheet, col: Column, token: string) => {
         col: col,
     };
 
-    fetch('/add_column', {
+    fetch(Domain + '/add_column', {
         method: "POST",
         headers: {
             'Authorization': `Bearer ${token}`
@@ -187,7 +187,7 @@ const postNewColumn = (sheet: Sheet, col: Column, token: string) => {
 }
 
 const putAdjustedColumn = (col: Column, token: string) => {
-    fetch('/update_column', {
+    fetch(Domain + '/update_column', {
         method: "put",
         headers: {
             'Authorization': `Bearer ${token}`
@@ -211,7 +211,7 @@ const deleteColumn = (sheet: Sheet, col: Column, token: string) => {
         col: col,
     };
 
-    fetch('/delete_column', {
+    fetch(Domain + '/delete_column', {
         method: "DELETE",
         headers: {
             'Authorization': `Bearer ${token}`

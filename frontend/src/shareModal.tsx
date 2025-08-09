@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useApp, PermissionsEnum, isValidEmail } from './AppContext';
+import { useApp, PermissionsEnum, isValidEmail, Domain } from './AppContext';
 import Dropdown from './dropdown';
 
 const ShareModal = () => {
@@ -85,7 +85,7 @@ const postNewShare = (email: string, perm: string, tableId: string, token: strin
         table_id: tableId,
     };
 
-    fetch('/add_share', {
+    fetch(Domain + '/add_share', {
         method: "POST",
         headers: {
             'Authorization': `Bearer ${token}`

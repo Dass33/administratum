@@ -4,7 +4,7 @@ import { NewItemProps } from "./NewItemModal.tsx";
 
 function SelectBranch() {
     const {
-        setCurrBranch,
+        // setCurrBranch,
         currSheet,
         setNewItemModal,
         currTable,
@@ -19,6 +19,7 @@ function SelectBranch() {
 
     const selectBranch = (option: DropdownOption) => {
         // TODO: 
+        console.log(option);
         //  setCurrBranch(e.label)
     }
 

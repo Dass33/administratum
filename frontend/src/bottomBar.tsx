@@ -1,6 +1,6 @@
 import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
-import { useApp, Sheet, EnumSheetTypes } from "./AppContext";
+import { useApp, Sheet, EnumSheetTypes, Domain } from "./AppContext";
 import { NewItemProps } from "./NewItemModal.tsx";
 import { useEffect, useState } from "react";
 import Status from "./Status.tsx"
@@ -132,7 +132,7 @@ const BottomBar = () => {
 
 
 const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
-    const url = `/get_sheet/${sheet_id}`;
+    const url = Domain + `/get_sheet/${sheet_id}`;
 
     fetch(url, {
         method: "GET",
@@ -162,7 +162,7 @@ const createSheet = (name: string, sheetType: string, branchId: string, token: s
         Type: sheetType,
     }
 
-    fetch("/create_sheet", {
+    fetch(Domain + "/create_sheet", {
         method: "POST",
         headers: {
             'Authorization': `Bearer ${token}`
@@ -191,7 +191,7 @@ const renameSheet = (name: string, sheetId: string, token: string | undefined) =
         SheetId: sheetId,
     }
 
-    fetch("/rename_sheet", {
+    fetch(Domain + "/rename_sheet", {
         method: "PUT",
         headers: {
             'Authorization': `Bearer ${token}`
@@ -214,7 +214,7 @@ const deleteSheet = (sheetId: string, token: string | undefined) => {
         SheetId: sheetId,
     };
 
-    fetch('/delete_sheet', {
+    fetch(Domain + '/delete_sheet', {
         method: "DELETE",
         headers: {
             'Authorization': `Bearer ${token}`
