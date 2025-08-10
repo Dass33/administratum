@@ -92,6 +92,10 @@ func main() {
 	router.Post("/add_share", apiCfg.middlewareAuth(apiCfg.addShareHandler))
 	router.Delete("/delete_row", apiCfg.middlewareAuth(apiCfg.deleteRowHandler))
 	router.Put("/change_game_url", apiCfg.middlewareAuth(apiCfg.changeGameUrlHandler))
+	router.Post("/create_branch", apiCfg.middlewareAuth(apiCfg.createBranchHandler))
+	router.Get("/get_branch/{branch_id}", apiCfg.middlewareAuth(apiCfg.getBranchHandler))
+	router.Delete("/delete_branch", apiCfg.middlewareAuth(apiCfg.deleteBranchHandler))
+	router.Put("/update_branch", apiCfg.middlewareAuth(apiCfg.updateBranchHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

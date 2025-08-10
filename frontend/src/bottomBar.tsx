@@ -21,6 +21,7 @@ const BottomBar = () => {
         accessToken,
         setSheetDeleted,
         currTable,
+        currBranch,
     } = useApp();
 
     const optionsSheets = (currSheet?.sheets_id_names ?? []).map(item => ({
@@ -109,7 +110,7 @@ const BottomBar = () => {
         useEffect(() => {
             if (!currSheet) return
             setSelected({ name: currSheet.name, value: currSheet.id })
-        }, [currTable])
+        }, [currTable, currBranch])
     }
 
     return (

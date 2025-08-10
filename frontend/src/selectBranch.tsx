@@ -1,7 +1,12 @@
-import { useState } from "react";
-import { Branch, Domain, useApp } from "./AppContext";
+import { useEffect, useState } from "react";
+import { Branch, Domain, useApp, Sheet, DEFAULT_UUID } from "./AppContext";
 import Dropdown, { DropdownOption } from "./dropdown";
 import { NewItemProps } from "./NewItemModal.tsx";
+
+type BranchData = {
+    Branch: Branch,
+    Sheet: Sheet,
+}
 
 function SelectBranch() {
     const {
@@ -10,7 +15,10 @@ function SelectBranch() {
         setNewItemModal,
         currTable, setCurrTable,
         accessToken,
-        setSheetDeleted
+        setSheetDeleted,
+        setCurrSheet,
+        setLoading,
+        setColumns,
     } = useApp();
 
     const optionsBranches = (currTable?.branches_id_names ?? []).map(item => ({
@@ -23,8 +31,12 @@ function SelectBranch() {
 
     const [isProtected, setIsProtected] = useState(false)
 
-    const setData = (res: Branch) => {
-        setCurrBranch(res)
+    const setData = (res: BranchData) => {
+        setCurrBranch(res.Branch);
+        setCurrSheet(res.Sheet);
+        setLoading(false);
+        setColumns(res.Sheet.columns);
+        setSheetDeleted(false);
     }
 
     const addNewValue = () => {
@@ -42,16 +54,21 @@ function SelectBranch() {
     }
 
     const createBranch = (name: string) => {
-        if (!currBranch) return
-        postBranch(name, isProtected, accessToken ?? "", setData)
+        postBranch(name, isProtected, currTable?.id, currSheet?.branch_id_name.id, accessToken ?? "", (res: BranchData) => {
+            setData(res);
+            if (!currTable) return;
+            const newBranch = { name: res.Branch.name, id: res.Branch.id }
+            setCurrTable({ ...currTable, branches_id_names: [...currTable.branches_id_names, newBranch] })
+        })
     }
 
     const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
+        // TODO: fix isProtected
         adjustBranch(name, isProtected, option.value, accessToken);
 
         const newBranchIdNames = currTable?.branches_id_names.map(idName => {
             if (idName.id === option.value) {
-                setSelected({ value: idName.id, name: name })
+                setSelected({ value: idName.id, label: name })
                 return { id: idName.id, name: name }
             }
             return idName;
@@ -133,11 +150,26 @@ const getCurrBranch = (branch_id: string, token: string, setData: Function) => {
         });
 };
 
-const postBranch = (name: string, isProtected: boolean, token: string, setData: Function) => {
+const postBranch = (
+    name: string,
+    isProtected: boolean,
+    tableId: string | undefined,
+    branchId: string | undefined,
+    token: string,
+    setData: Function
+) => {
+    if (!tableId || !branchId) return;
     const url = Domain + `/create_branch`;
-    const postParam: { Name: string, IsProtected: boolean } = {
-        Name: name,
-        IsProtected: isProtected
+    const postParam: {
+        name: string,
+        is_protected: boolean,
+        table_id: string,
+        curr_branch_id: string
+    } = {
+        name: name,
+        is_protected: isProtected,
+        table_id: tableId,
+        curr_branch_id: branchId
     }
     fetch(url, {
         method: "POST",
@@ -162,19 +194,19 @@ const postBranch = (name: string, isProtected: boolean, token: string, setData: 
 };
 
 const adjustBranch = (name: string, isProtected: boolean, branchId: string, token: string | undefined) => {
-    const adjustProjectParams: { Name: string, BranchId: string, IsProtected: boolean } = {
-        Name: name,
-        BranchId: branchId,
-        IsProtected: isProtected,
+    const adjustParams: { name: string, branch_id: string, is_protected: boolean } = {
+        name: name,
+        branch_id: branchId,
+        is_protected: isProtected,
     }
 
-    fetch(Domain + "/adjust_branch", {
+    fetch(Domain + "/update_branch", {
         method: "PUT",
         headers: {
             'Authorization': `Bearer ${token}`
         },
         credentials: "include",
-        body: JSON.stringify(adjustProjectParams)
+        body: JSON.stringify(adjustParams)
     })
         .then(response => {
             if (response.status < 200 || response.status > 299) {
@@ -187,8 +219,8 @@ const adjustBranch = (name: string, isProtected: boolean, branchId: string, toke
 }
 
 const deleteBranch = (branchId: string, token: string | undefined) => {
-    const deleteBranchParams: { BranchId: string } = {
-        BranchId: branchId,
+    const deleteBranchParams: { branch_id: string } = {
+        branch_id: branchId,
     };
 
     fetch(Domain + '/delete_branch', {
