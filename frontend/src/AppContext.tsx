@@ -55,6 +55,7 @@ export enum EnumColTypes {
 export enum EnumSheetTypes {
     MAP = 'map',
     LIST = 'list',
+    ENUMS = 'enums',
 }
 
 export enum PermissionsEnum {
@@ -114,6 +115,7 @@ export type Branch = {
     name: string
     id: string
     is_protected: boolean
+    enums: Enum[]
 }
 
 export type Sheet = {
@@ -131,7 +133,13 @@ export type TableData = {
     id: string
     game_url: NullString
     permision: string
-    branches_names: IdName[]
+    branches_id_names: IdName[]
+}
+
+export type Enum = {
+    name: string
+    sheet_id: string
+    vals: string[]
 }
 
 export const isValidEmail = (email: string | undefined): boolean => {

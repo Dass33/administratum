@@ -228,7 +228,7 @@ const CellModal = () => {
                 {colType === EnumColTypes.TEXT && (
                     <textarea
                         ref={textareaRef}
-                        className="text-figma-black mb-6 bg-figma-white border-figma-black rounded-lg w-[35rem] h-72 resize-none overflow-y-auto focus:outline-none"
+                        className="text-figma-black mb-6 bg-figma-white border-figma-black rounded-lg w-[35rem] h-52 resize-none overflow-y-auto focus:outline-none"
                         defaultValue={cellVal}
                         onChange={(e) => setCellVal(e.target.value)}
                     />

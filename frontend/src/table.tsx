@@ -191,7 +191,7 @@ const Table = () => {
                 <button className="w-12 h-12 flex items-center justify-center text-[3rem] font-light hover:scale-125 transition-transform duration-100 flex-shrink-0"
                     disabled={isConfig}
                     onClick={() => {
-                        setColModal(true)
+                        setColModal(columns.length)
                         setAddColumn(true)
                     }}>
                     <img src={plus} className={`${isConfig && "hidden"} w-7 h-7`} />
@@ -296,7 +296,6 @@ const deleteRow = (sheet: Sheet, rowIdx: number, token: string | undefined) => {
     })
         .then(response => {
             if (response.status < 200 || response.status > 299) {
-                console.log(response.status)
                 throw "Could not delete row"
             }
         })

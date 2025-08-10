@@ -86,7 +86,7 @@ const NewItemModal: React.FC<NewItemProps> = ({ assignNewName, currNames, defaul
 
                     {deleteItem &&
                         <div className='w-full flex justify-end mt-2 '>
-                            <button className='bg-red-600 w-24 rounded-lg p-2 px-4 text-figma-white font-bold mt-4'
+                            <button className='bg-red-600 w-28 rounded-lg p-2 px-4 text-figma-white font-bold mt-4'
                                 onClick={() => {
                                     deleteItem()
                                     setNewItemModal(null)

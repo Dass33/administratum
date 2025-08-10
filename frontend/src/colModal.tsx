@@ -124,7 +124,7 @@ const ColModal = () => {
                 <div className='h-64'>
 
                     <input className={`text-figma-black text-2xl bg-figma-white mb-2 font-medium h-12 overflow-y-auto focus:outline-none
-                                    ${(!validName && name && name != columns[colModal].name) && "text-red-600"}`}
+                                    ${(!validName && name && (addColumn || name != columns[colModal].name)) && "text-red-600"}`}
                         placeholder='Name'
                         defaultValue={name}
                         onChange={handleNameChange}

@@ -3,11 +3,14 @@ import Dropdown, { DropdownOption } from "./dropdown";
 import { useApp, Sheet, EnumSheetTypes, Domain } from "./AppContext";
 import { NewItemProps } from "./NewItemModal.tsx";
 import { useEffect, useState } from "react";
-import Status from "./Status.tsx"
+// import Status from "./Status.tsx"
 
 
-const SheetTypesOptions = [{ value: EnumSheetTypes.LIST, label: "Questions" },
-{ value: EnumSheetTypes.MAP, label: "Config" }]
+const SheetTypesOptions = [
+    { value: EnumSheetTypes.LIST, label: "Questions" },
+    { value: EnumSheetTypes.MAP, label: "Config" },
+    { value: EnumSheetTypes.ENUMS, label: "Editions" },
+]
 
 const BottomBar = () => {
     const {
@@ -125,7 +128,7 @@ const BottomBar = () => {
                 updateValue={updateValue}
                 everyRender={everyRender}
             />
-            <Status />
+            {/*<Status />*/}
         </div>
     );
 }
@@ -161,6 +164,7 @@ const createSheet = (name: string, sheetType: string, branchId: string, token: s
         BranchID: branchId,
         Type: sheetType,
     }
+    console.log("sending:", sheetType)
 
     fetch(Domain + "/create_sheet", {
         method: "POST",
@@ -177,7 +181,7 @@ const createSheet = (name: string, sheetType: string, branchId: string, token: s
             return response.json();
         })
         .then((result: Sheet) => {
-            console.log("recieved", result.type)
+            console.log("recieved:", result.type)
             setData(result);
         })
         .catch(err => {
