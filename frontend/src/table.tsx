@@ -188,15 +188,14 @@ const Table = () => {
             </div>
             <div className="ml-4 flex flex-col items-center justify-start relative">
 
-                {!isConfig &&
-                    <button className="w-12 h-12 flex items-center justify-center text-[3rem] font-light hover:scale-125 transition-transform duration-100 flex-shrink-0"
-                        onClick={() => {
-                            setColModal(true)
-                            setAddColumn(true)
-                        }}>
-                        <img src={plus} className="w-7 h-7" />
-                    </button>
-                }
+                <button className="w-12 h-12 flex items-center justify-center text-[3rem] font-light hover:scale-125 transition-transform duration-100 flex-shrink-0"
+                    disabled={isConfig}
+                    onClick={() => {
+                        setColModal(true)
+                        setAddColumn(true)
+                    }}>
+                    <img src={plus} className={`${isConfig && "hidden"} w-7 h-7`} />
+                </button>
 
                 {hoveredRow !== null && deleteButtonPosition && (
                     <div

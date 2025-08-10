@@ -16,7 +16,7 @@ Makes config to web apps more accessible.
 
 ## 🎒 TODO
 - enum support
-- different sheet type
 - permissions
 - implement branches
 - backend validate permissions + sheet type
+- fix visual bugs
