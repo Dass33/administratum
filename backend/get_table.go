@@ -9,12 +9,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type Enum struct {
+	Name    string    `json:"name"`
+	SheetId uuid.UUID `json:"sheet_id"`
+	Vals    []string  `json:"vals"`
+}
+
 type TableData struct {
-	ID            uuid.UUID      `json:"id"`
-	Name          string         `json:"name"`
-	GameUrl       sql.NullString `json:"game_url"`
-	Permision     string         `json:"permision"`
-	BranchesNames []IdName       `json:"branches_names"`
+	ID              uuid.UUID      `json:"id"`
+	Name            string         `json:"name"`
+	GameUrl         sql.NullString `json:"game_url"`
+	Permision       string         `json:"permision"`
+	BranchesIdNames []IdName       `json:"branches_id_names"`
 }
 
 func (cfg *apiConfig) GetTable(user_id uuid.UUID, optional_table_id uuid.NullUUID, ctx context.Context) (TableData, error) {
@@ -52,11 +58,11 @@ func (cfg *apiConfig) GetTable(user_id uuid.UUID, optional_table_id uuid.NullUUI
 	}
 
 	data := TableData{
-		ID:            table_id,
-		Name:          table.Name,
-		GameUrl:       table.GameUrl,
-		Permision:     userTables.Permission,
-		BranchesNames: branchNames,
+		ID:              table_id,
+		Name:            table.Name,
+		GameUrl:         table.GameUrl,
+		Permision:       userTables.Permission,
+		BranchesIdNames: branchNames,
 	}
 
 	return data, nil

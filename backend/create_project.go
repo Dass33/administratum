@@ -70,7 +70,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 
 	sheetId := uuid.UUID{}
 	if len(sheets) == 0 {
-		if len(table.BranchesNames) == 0 {
+		if len(table.BranchesIdNames) == 0 {
 			createBranchParams := database.CreateBranchParams{
 				Name:        "main",
 				IsProtected: true,
@@ -83,9 +83,9 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 				return
 			}
 			branchIdName := IdName{ID: branch.ID, Name: branch.Name}
-			table.BranchesNames = append(table.BranchesNames, branchIdName)
+			table.BranchesIdNames = append(table.BranchesIdNames, branchIdName)
 		}
-		sheetId, err = cfg.createMapSheet(r.Context(), "config", table.BranchesNames[0].ID)
+		sheetId, err = cfg.createMapSheet(r.Context(), "config", table.BranchesIdNames[0].ID)
 		if err != nil {
 			msg := fmt.Sprintf("Could not create map sheet: %s", err)
 			respondWithError(w, http.StatusInternalServerError, msg)
