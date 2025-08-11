@@ -41,7 +41,7 @@ function SelectBranch() {
 
     const addNewValue = () => {
         const props: NewItemProps = {
-            currNames: currSheet?.sheets_id_names ?? [],
+            currNames: currTable?.branches_id_names ?? [],
             assignNewName: createBranch,
             ExpandingComponent: () => (
                 <SetBranchProtection setData={(option: DropdownOption) => {
