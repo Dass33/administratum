@@ -69,7 +69,6 @@ func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Cont
 	if err != nil {
 		return Sheet{}, errors.New("Could not get branch with given id")
 	}
-	// Get enum data for the branch
 	enums, err := cfg.getEnumsForBranch(sheet.BranchID, ctx)
 	if err != nil {
 		return Sheet{}, errors.New("Could not get enums for branch")

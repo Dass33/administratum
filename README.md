@@ -19,6 +19,5 @@ Makes config to web apps more accessible.
 - Github Pages
 
 ## 🎒 TODO
-- enum support
 - backend validate permissions + sheet type
 - fix visual bugs

@@ -45,7 +45,6 @@ func (cfg *apiConfig) GetBranch(user_id uuid.UUID, optional_branch_id uuid.NullU
 		return Branch{}, errors.New("Could not get table with given id")
 	}
 
-	// Get enum data
 	enums, err := cfg.getEnumsForBranch(branch_id, ctx)
 	if err != nil {
 		return Branch{}, errors.New("Could not get enums for branch")
@@ -61,7 +60,6 @@ func (cfg *apiConfig) GetBranch(user_id uuid.UUID, optional_branch_id uuid.NullU
 }
 
 func (cfg *apiConfig) getEnumsForBranch(branchID uuid.UUID, ctx context.Context) ([]Enum, error) {
-	// Get all sheets in this branch
 	sheets, err := cfg.db.GetSheetsFromBranch(ctx, branchID)
 	if err != nil {
 		return nil, err
@@ -69,27 +67,23 @@ func (cfg *apiConfig) getEnumsForBranch(branchID uuid.UUID, ctx context.Context)
 
 	var enums []Enum
 
-	// Filter for enum sheets and get their data
 	for _, sheet := range sheets {
 		if sheet.Type == "enums" {
-			// Get columns for this sheet
 			columns, err := cfg.db.GetColumnsFromSheet(ctx, sheet.ID)
 			if err != nil {
-				continue // Skip this enum sheet if we can't get columns
+				continue
 			}
 
 			if len(columns) == 0 {
-				continue // Skip if no columns
+				continue
 			}
 
-			// Get data for the first column
 			firstColumn := columns[0]
 			columnData, err := cfg.db.GetColumnsData(ctx, firstColumn.ID)
 			if err != nil {
-				continue // Skip if we can't get column data
+				continue
 			}
 
-			// Extract values from column data
 			var vals []string
 			for _, data := range columnData {
 				if data.Value.Valid && data.Value.String != "" {
