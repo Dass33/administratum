@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes, Domain } from "./AppContext";
+import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes, Domain, PermissionsEnum } from "./AppContext";
 import plus from "./assets/plus.svg";
 import cross from "./assets/cross.svg";
 
@@ -13,6 +13,8 @@ const Table = () => {
         sheetDeleted,
         accessToken,
         tableNames,
+        currTable,
+        currBranch
     } = useApp()
 
     const [borderColors, setBorderColors] = useState<string[]>([]);
@@ -22,6 +24,7 @@ const Table = () => {
     const [deleteButtonPosition, setDeleteButtonPosition] = useState<{ top: number } | null>(null);
 
     const isConfig = currSheet?.type == EnumSheetTypes.MAP
+    const hasPerms = !currBranch?.is_protected || currTable?.permision === PermissionsEnum.OWNER
 
     useEffect(() => {
         if (!columns) return
@@ -146,10 +149,10 @@ const Table = () => {
                                 >
                                     <button
                                         type="button"
-                                        disabled={isConfig}
+                                        disabled={isConfig || !hasPerms}
                                         className="w-full text-left focus:outline-none"
                                         onClick={() => {
-                                            if (!isConfig) setColModal(idx)
+                                            if (!isConfig && hasPerms) setColModal(idx)
                                         }}
                                     >
                                         {col.name}
@@ -160,7 +163,7 @@ const Table = () => {
                         <tr></tr>
                     </thead>
                     <tbody>
-                        {Array.from({ length: (currSheet?.row_count ?? 0) + 1 }, (_, rowIdx) => (
+                        {Array.from({ length: (currSheet?.row_count ?? 0) + Number(hasPerms) }, (_, rowIdx) => (
                             <tr key={rowIdx}
                                 onMouseEnter={(e) => handleRowMouseEnter(rowIdx, e)}
                                 onMouseLeave={handleRowMouseLeave}
@@ -175,6 +178,7 @@ const Table = () => {
                                         <button
                                             type="button"
                                             className="w-full text-left focus:outline-none"
+                                            disabled={!hasPerms}
                                             onClick={() => setCellModal([rowIdx, col])}
                                         >
                                             {renderCellValue(col.data, rowIdx)}
@@ -186,7 +190,8 @@ const Table = () => {
                     </tbody>
                 </table>
             </div>
-            <div className="ml-4 flex flex-col items-center justify-start relative">
+            <div className={`ml-4 flex flex-col items-center justify-start relative
+                            ${!hasPerms && "hidden"}`}>
 
                 <button className="w-12 h-12 flex items-center justify-center text-[3rem] font-light hover:scale-125 transition-transform duration-100 flex-shrink-0"
                     disabled={isConfig}

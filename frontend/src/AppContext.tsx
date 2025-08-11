@@ -124,7 +124,7 @@ export type Sheet = {
     type: string
     row_count: number
     columns: Column[]
-    branch_id_name: IdName
+    curr_branch: Branch
     sheets_id_names: IdName[]
 }
 
@@ -165,7 +165,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [shareModal, setShareModal] = useState(false);
     const [gameUrl, setGameUrl] = useState({ Valid: false, String: "" });
     const [projectName, setProjectName] = useState();
-    const [currBranch, setCurrBranch] = useState();
+    const [currBranch, setCurrBranch] = useState<Branch | undefined>();
     const [authenticated, setAuthenticated] = useState(false);
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [loading, setLoading] = useState(true);
@@ -195,6 +195,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     setColumns(data.opened_sheet.columns);
                     setTableNames(data.table_names)
                     setGameUrl(data.opened_table.game_url)
+                    setCurrBranch(data.opened_sheet.curr_branch);
                     console.log(data)
                 }
             })
@@ -204,6 +205,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 console.error(err);
             });
     }, []);
+
 
     return (
         <AppContext.Provider value={{

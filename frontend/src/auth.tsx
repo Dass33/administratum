@@ -23,6 +23,7 @@ const Auth = () => {
         setCurrTable,
         setTableNames,
         setGameUrl,
+        setCurrBranch,
     } = useApp();
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -65,6 +66,7 @@ const Auth = () => {
             setAccessToken(result.token)
             setAuthenticated(true);
             setGameUrl(result.opened_table.game_url)
+            setCurrBranch(result.opened_sheet.curr_branch);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
             setLoading(null);

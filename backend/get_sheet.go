@@ -17,7 +17,7 @@ type Sheet struct {
 	RowCount      int64     `json:"row_count"`
 	Type          string    `json:"type"`
 	Columns       []Column  `json:"columns"`
-	BranchIdName  IdName    `json:"branch_id_name"`
+	CurrBranch    Branch    `json:"curr_branch"`
 	SheetsIdNames []IdName  `json:"sheets_id_names"`
 }
 
@@ -69,9 +69,10 @@ func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Cont
 	if err != nil {
 		return Sheet{}, errors.New("Could not get branch with given id")
 	}
-	branchIdName := IdName{
-		ID:   branch.ID,
-		Name: branch.Name,
+	currBranch := Branch{
+		ID:          branch.ID,
+		Name:        branch.Name,
+		IsProtected: branch.IsProtected,
 	}
 
 	sheets, err := cfg.db.GetSheetsFromBranch(ctx, sheet.BranchID)
@@ -106,7 +107,7 @@ func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Cont
 		Name:          sheet.Name,
 		RowCount:      int64(rowCount),
 		Type:          sheet.Type,
-		BranchIdName:  branchIdName,
+		CurrBranch:    currBranch,
 		SheetsIdNames: sheetsIdNames,
 		Columns:       columns,
 	}

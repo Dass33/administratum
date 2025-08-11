@@ -47,7 +47,7 @@ const BottomBar = () => {
             currNames: currSheet?.sheets_id_names ?? [],
             assignNewName: (name: string) => {
                 if (!currSheet) return
-                createSheet(name, sheetType, currSheet.branch_id_name.id, accessToken, (sheet: Sheet) => {
+                createSheet(name, sheetType, currSheet.curr_branch.id, accessToken, (sheet: Sheet) => {
                     setData(sheet);
                     setSelected({ value: sheet.id, label: sheet.name });
                 });
@@ -62,7 +62,7 @@ const BottomBar = () => {
 
     const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
         if (!currSheet) return
-        renameSheet(name, currSheet.branch_id_name.id, accessToken);
+        renameSheet(name, currSheet.curr_branch.id, accessToken);
 
         const newSheetNames = currSheet.sheets_id_names.map(idName => {
             if (idName.id === option.value) {

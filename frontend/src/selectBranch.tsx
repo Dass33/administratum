@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Branch, Domain, useApp, Sheet, DEFAULT_UUID } from "./AppContext";
+import { useState } from "react";
+import { Branch, Domain, useApp, Sheet } from "./AppContext";
 import Dropdown, { DropdownOption } from "./dropdown";
 import { NewItemProps } from "./NewItemModal.tsx";
 
@@ -25,8 +25,8 @@ function SelectBranch() {
         value: item.id,
         label: item.name
     }))
-    const placeholderBranch = currSheet?.branch_id_name.name != ""
-        ? currSheet?.branch_id_name.name
+    const placeholderBranch = currSheet?.curr_branch.name != ""
+        ? currSheet?.curr_branch.name
         : "Branch"
 
     const [isProtected, setIsProtected] = useState(false)
@@ -54,7 +54,7 @@ function SelectBranch() {
     }
 
     const createBranch = (name: string) => {
-        postBranch(name, isProtected, currTable?.id, currSheet?.branch_id_name.id, accessToken ?? "", (res: BranchData) => {
+        postBranch(name, isProtected, currTable?.id, currSheet?.curr_branch.id, accessToken ?? "", (res: BranchData) => {
             setData(res);
             if (!currTable) return;
             const newBranch = { name: res.Branch.name, id: res.Branch.id }
