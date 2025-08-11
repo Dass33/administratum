@@ -22,6 +22,8 @@ interface AppState {
     setSettingsModal: Function,
     shareModal: boolean,
     setShareModal: Function,
+    mergeModal: boolean,
+    setMergeModal: Function,
     gameUrl: NullString,
     setGameUrl: Function,
     projectName: string | undefined,
@@ -161,6 +163,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [newItemModal, setNewItemModal] = useState(null);
     const [settingsModal, setSettingsModal] = useState(false);
     const [shareModal, setShareModal] = useState(false);
+    const [mergeModal, setMergeModal] = useState(false);
     const [gameUrl, setGameUrl] = useState({ Valid: false, String: "" });
     const [projectName, setProjectName] = useState();
     const [currBranch, setCurrBranch] = useState<Branch | undefined>();
@@ -216,6 +219,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             newItemModal, setNewItemModal,
             settingsModal, setSettingsModal,
             shareModal, setShareModal,
+            mergeModal, setMergeModal,
             gameUrl, setGameUrl,
             projectName, setProjectName,
             currBranch, setCurrBranch,

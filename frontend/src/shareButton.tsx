@@ -26,15 +26,17 @@ export default SaveButton;
 enum SaveOptoins {
     EXPORT = "Export",
     COPY_LINK = "Copy Link",
+    MERGE = "Merge",
 }
 
 const SaveDropdown = () => {
     const {
         currSheet,
         currTable,
+        setMergeModal,
     } = useApp();
     const [isOpen, setIsOpen] = useState(false);
-    const options = [SaveOptoins.EXPORT, SaveOptoins.COPY_LINK]
+    const options = [SaveOptoins.EXPORT, SaveOptoins.COPY_LINK, SaveOptoins.MERGE]
 
     const handleSelect = (option: string): void => {
         if (!currSheet || !currTable) return;
@@ -45,6 +47,10 @@ const SaveDropdown = () => {
                 break;
             case SaveOptoins.COPY_LINK:
                 navigator.clipboard.writeText(jsonLink);
+                break;
+            case SaveOptoins.MERGE:
+                setMergeModal(true);
+                break;
         }
         setIsOpen(false);
     };

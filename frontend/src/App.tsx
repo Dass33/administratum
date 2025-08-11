@@ -12,6 +12,7 @@ import ColModal from "./colModal";
 import NewItemModal from "./NewItemModal.tsx";
 import SettingsModal from "./settingsModal";
 import ShareModal from "./shareModal";
+import MergeModal from "./mergeModal";
 import Auth from "./auth";
 import RefershButton from './RefreshButton.tsx';
 
@@ -22,6 +23,7 @@ function App() {
         newItemModal,
         settingsModal,
         shareModal,
+        mergeModal,
         authenticated,
         loading,
     } = useApp()
@@ -110,6 +112,7 @@ function App() {
             {newItemModal && <NewItemModal {...newItemModal} />}
             {settingsModal && <SettingsModal />}
             {shareModal && <ShareModal />}
+            {mergeModal && <MergeModal />}
 
             <div className="flex flex-col my-10 overflow-hidden"
                 style={{ width: `${leftWidth}%` }}

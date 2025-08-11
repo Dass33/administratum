@@ -27,6 +27,7 @@ const Table = () => {
     const hasPerms = !currBranch?.is_protected || currTable?.permision === PermissionsEnum.OWNER
 
     useEffect(() => {
+        console.log(currSheet)
         if (!columns) return
         setBorderColors(columns.map(col => {
             const colType = ColTypes.find(item => col.type === item.val)
@@ -256,7 +257,7 @@ const validateCellType = (idx: number, col: Column, currBranch: any): boolean =>
     // Check if it's an enum type
     const baseTypes = [EnumColTypes.TEXT, EnumColTypes.NUMBER, EnumColTypes.BOOL, EnumColTypes.ARRAY];
     const isEnum = !baseTypes.includes(col.type as EnumColTypes);
-    
+
     if (isEnum) {
         const enumItem = currBranch?.enums?.find((e: any) => e.name === col.type);
         if (!enumItem) {
