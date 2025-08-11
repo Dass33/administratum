@@ -24,7 +24,6 @@ func (cfg *apiConfig) createSheetHandler(w http.ResponseWriter, r *http.Request,
 	}
 
 	sheetId := uuid.UUID{}
-	fmt.Println(params.Type)
 	if params.Type == SheetTypeMap {
 		sheetId, err = cfg.createMapSheet(r.Context(), params.Name, params.BranchID)
 		if err != nil {
