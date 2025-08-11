@@ -21,13 +21,14 @@ type Branch struct {
 }
 
 type Column struct {
-	ID        uuid.UUID
-	Name      string
-	Type      string
-	Required  bool
-	SheetID   uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID             uuid.UUID
+	Name           string
+	Type           string
+	Required       bool
+	SheetID        uuid.UUID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	SourceColumnID sql.NullString
 }
 
 type ColumnDatum struct {
@@ -50,12 +51,13 @@ type RefreshToken struct {
 }
 
 type Sheet struct {
-	ID        uuid.UUID
-	Name      string
-	BranchID  uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Type      string
+	ID            uuid.UUID
+	Name          string
+	BranchID      uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Type          string
+	SourceSheetID sql.NullString
 }
 
 type Table struct {

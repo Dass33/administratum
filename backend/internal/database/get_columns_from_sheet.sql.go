@@ -12,7 +12,7 @@ import (
 )
 
 const getColumnsFromSheet = `-- name: GetColumnsFromSheet :many
-SELECT c.id, c.name, c.type, c.required, c.sheet_id, c.created_at, c.updated_at
+SELECT c.id, c.name, c.type, c.required, c.sheet_id, c.created_at, c.updated_at, c.source_column_id
 FROM columns c
 WHERE EXISTS (
     SELECT 1
@@ -38,6 +38,7 @@ func (q *Queries) GetColumnsFromSheet(ctx context.Context, id uuid.UUID) ([]Colu
 			&i.SheetID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.SourceColumnID,
 		); err != nil {
 			return nil, err
 		}

@@ -7,31 +7,39 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
 
 const createSheet = `-- name: CreateSheet :one
-INSERT INTO sheets (id, name, type, branch_id, created_at, updated_at)
+INSERT INTO sheets (id, name, type, branch_id, created_at, updated_at, source_sheet_id)
 VALUES (
     gen_random_uuid(),
     ?,
     ?,
     ?,
     datetime('now'),
-    datetime('now')
+    datetime('now'),
+    ?
 )
-RETURNING id, name, branch_id, created_at, updated_at, type
+RETURNING id, name, branch_id, created_at, updated_at, type, source_sheet_id
 `
 
 type CreateSheetParams struct {
-	Name     string
-	Type     string
-	BranchID uuid.UUID
+	Name          string
+	Type          string
+	BranchID      uuid.UUID
+	SourceSheetID sql.NullString
 }
 
 func (q *Queries) CreateSheet(ctx context.Context, arg CreateSheetParams) (Sheet, error) {
-	row := q.db.QueryRowContext(ctx, createSheet, arg.Name, arg.Type, arg.BranchID)
+	row := q.db.QueryRowContext(ctx, createSheet,
+		arg.Name,
+		arg.Type,
+		arg.BranchID,
+		arg.SourceSheetID,
+	)
 	var i Sheet
 	err := row.Scan(
 		&i.ID,
@@ -40,6 +48,7 @@ func (q *Queries) CreateSheet(ctx context.Context, arg CreateSheetParams) (Sheet
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Type,
+		&i.SourceSheetID,
 	)
 	return i, err
 }

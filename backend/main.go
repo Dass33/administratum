@@ -96,6 +96,8 @@ func main() {
 	router.Get("/get_branch/{branch_id}", apiCfg.middlewareAuth(apiCfg.getBranchHandler))
 	router.Delete("/delete_branch", apiCfg.middlewareAuth(apiCfg.deleteBranchHandler))
 	router.Put("/update_branch", apiCfg.middlewareAuth(apiCfg.updateBranchHandler))
+	router.Post("/merge_preview", apiCfg.middlewareAuth(apiCfg.mergePreviewHandler))
+	router.Post("/merge_execute", apiCfg.middlewareAuth(apiCfg.mergeExecuteHandler))
 
 	srv := &http.Server{
 		Addr:              ":" + port,

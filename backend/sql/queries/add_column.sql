@@ -1,5 +1,5 @@
 -- name: AddColumn :one
-INSERT INTO columns (id, name, type, required, sheet_id, created_at, updated_at)
+INSERT INTO columns (id, name, type, required, sheet_id, created_at, updated_at, source_column_id)
 VALUES (
     gen_random_uuid(),
     ?,
@@ -7,6 +7,7 @@ VALUES (
     ?,
     ?,
     datetime('now'),
-    datetime('now')
+    datetime('now'),
+    ?
 )
 RETURNING *;

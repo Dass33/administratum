@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -69,9 +70,10 @@ func (cfg *apiConfig) copyBranchSheets(ctx context.Context, sourceBranchId, targ
 
 	for i := range dbSheets {
 		createSheetParams := database.CreateSheetParams{
-			BranchID: targetBranchId,
-			Name:     dbSheets[i].Name,
-			Type:     dbSheets[i].Type,
+			BranchID:      targetBranchId,
+			Name:          dbSheets[i].Name,
+			Type:          dbSheets[i].Type,
+			SourceSheetID: sql.NullString{String: dbSheets[i].ID.String(), Valid: true},
 		}
 		sheet, err := cfg.db.CreateSheet(ctx, createSheetParams)
 		if err != nil {
@@ -94,10 +96,11 @@ func (cfg *apiConfig) copySheetColumns(ctx context.Context, sourceSheetId, targe
 
 	for e := range columns {
 		addColumnParams := database.AddColumnParams{
-			Name:     columns[e].Name,
-			Type:     columns[e].Type,
-			Required: columns[e].Required,
-			SheetID:  targetSheetId,
+			Name:           columns[e].Name,
+			Type:           columns[e].Type,
+			Required:       columns[e].Required,
+			SheetID:        targetSheetId,
+			SourceColumnID: sql.NullString{String: columns[e].ID.String(), Valid: true},
 		}
 		_, err := cfg.db.AddColumn(ctx, addColumnParams)
 		if err != nil {

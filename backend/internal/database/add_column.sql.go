@@ -7,12 +7,13 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
 
 const addColumn = `-- name: AddColumn :one
-INSERT INTO columns (id, name, type, required, sheet_id, created_at, updated_at)
+INSERT INTO columns (id, name, type, required, sheet_id, created_at, updated_at, source_column_id)
 VALUES (
     gen_random_uuid(),
     ?,
@@ -20,16 +21,18 @@ VALUES (
     ?,
     ?,
     datetime('now'),
-    datetime('now')
+    datetime('now'),
+    ?
 )
-RETURNING id, name, type, required, sheet_id, created_at, updated_at
+RETURNING id, name, type, required, sheet_id, created_at, updated_at, source_column_id
 `
 
 type AddColumnParams struct {
-	Name     string
-	Type     string
-	Required bool
-	SheetID  uuid.UUID
+	Name           string
+	Type           string
+	Required       bool
+	SheetID        uuid.UUID
+	SourceColumnID sql.NullString
 }
 
 func (q *Queries) AddColumn(ctx context.Context, arg AddColumnParams) (Column, error) {
@@ -38,6 +41,7 @@ func (q *Queries) AddColumn(ctx context.Context, arg AddColumnParams) (Column, e
 		arg.Type,
 		arg.Required,
 		arg.SheetID,
+		arg.SourceColumnID,
 	)
 	var i Column
 	err := row.Scan(
@@ -48,6 +52,7 @@ func (q *Queries) AddColumn(ctx context.Context, arg AddColumnParams) (Column, e
 		&i.SheetID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SourceColumnID,
 	)
 	return i, err
 }

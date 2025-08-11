@@ -22,7 +22,7 @@ VALUES (
     datetime('now'),
     datetime('now')
 )
-RETURNING id, name, type, required, sheet_id, created_at, updated_at
+RETURNING id, name, type, required, sheet_id, created_at, updated_at, source_column_id
 `
 
 type CreateColumnParams struct {
@@ -48,6 +48,7 @@ func (q *Queries) CreateColumn(ctx context.Context, arg CreateColumnParams) (Col
 		&i.SheetID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SourceColumnID,
 	)
 	return i, err
 }
