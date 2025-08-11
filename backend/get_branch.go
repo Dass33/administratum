@@ -10,10 +10,17 @@ import (
 	"github.com/google/uuid"
 )
 
+type Enum struct {
+	Name    string   `json:"name"`
+	SheetID string   `json:"sheet_id"`
+	Vals    []string `json:"vals"`
+}
+
 type Branch struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	IsProtected bool      `json:"is_protected"`
+	Enums       []Enum    `json:"enums"`
 }
 
 func (cfg *apiConfig) getBranchHandler(w http.ResponseWriter, r *http.Request, userId uuid.UUID) {
@@ -38,10 +45,66 @@ func (cfg *apiConfig) GetBranch(user_id uuid.UUID, optional_branch_id uuid.NullU
 		return Branch{}, errors.New("Could not get table with given id")
 	}
 
+	// Get enum data
+	enums, err := cfg.getEnumsForBranch(branch_id, ctx)
+	if err != nil {
+		return Branch{}, errors.New("Could not get enums for branch")
+	}
+
 	data := Branch{
 		ID:          branch_id,
 		Name:        branch.Name,
 		IsProtected: branch.IsProtected,
+		Enums:       enums,
 	}
 	return data, nil
+}
+
+func (cfg *apiConfig) getEnumsForBranch(branchID uuid.UUID, ctx context.Context) ([]Enum, error) {
+	// Get all sheets in this branch
+	sheets, err := cfg.db.GetSheetsFromBranch(ctx, branchID)
+	if err != nil {
+		return nil, err
+	}
+
+	var enums []Enum
+
+	// Filter for enum sheets and get their data
+	for _, sheet := range sheets {
+		if sheet.Type == "enums" {
+			// Get columns for this sheet
+			columns, err := cfg.db.GetColumnsFromSheet(ctx, sheet.ID)
+			if err != nil {
+				continue // Skip this enum sheet if we can't get columns
+			}
+
+			if len(columns) == 0 {
+				continue // Skip if no columns
+			}
+
+			// Get data for the first column
+			firstColumn := columns[0]
+			columnData, err := cfg.db.GetColumnsData(ctx, firstColumn.ID)
+			if err != nil {
+				continue // Skip if we can't get column data
+			}
+
+			// Extract values from column data
+			var vals []string
+			for _, data := range columnData {
+				if data.Value.Valid && data.Value.String != "" {
+					vals = append(vals, data.Value.String)
+				}
+			}
+
+			enum := Enum{
+				Name:    sheet.Name,
+				SheetID: sheet.ID.String(),
+				Vals:    vals,
+			}
+			enums = append(enums, enum)
+		}
+	}
+
+	return enums, nil
 }

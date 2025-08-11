@@ -48,7 +48,6 @@ export enum EnumColTypes {
     TEXT = 'text',
     NUMBER = 'number',
     BOOL = 'bool',
-    EDITION = 'edition',
     ARRAY = 'array',
 }
 
@@ -67,7 +66,6 @@ export const ColTypes = [
     { val: EnumColTypes.TEXT, color: "border-figma-stone" },
     { val: EnumColTypes.NUMBER, color: "border-figma-pool" },
     { val: EnumColTypes.BOOL, color: "border-figma-honey" },
-    { val: EnumColTypes.EDITION, color: "border-figma-winter" },
     { val: EnumColTypes.ARRAY, color: "border-figma-forest" },
 ]
 
@@ -196,7 +194,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     setTableNames(data.table_names)
                     setGameUrl(data.opened_table.game_url)
                     setCurrBranch(data.opened_sheet.curr_branch);
-                    console.log(data)
                 }
             })
             .catch(err => {

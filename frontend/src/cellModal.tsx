@@ -15,6 +15,7 @@ const CellModal = () => {
         columns, setColumns,
         accessToken,
         currSheet, setCurrSheet,
+        currBranch,
     } = useApp();
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const numberInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +43,7 @@ const CellModal = () => {
     const [boolVal, setBoolVal] = useState(initCellVal == 'true');
     const [arrayItems, setArrayItems] = useState<ArrayItem[]>([]);
     const [arrayType, setArrayType] = useState<EnumColTypes.TEXT | EnumColTypes.NUMBER>(EnumColTypes.TEXT);
+    const [enumVal, setEnumVal] = useState(initCellVal);
 
     const [colType, setColType] = useState<string>(() => {
         if (isConfig) {
@@ -56,6 +58,22 @@ const CellModal = () => {
         { value: EnumColTypes.TEXT, label: EnumColTypes.TEXT },
         { value: EnumColTypes.NUMBER, label: EnumColTypes.NUMBER }
     ];
+
+    const isEnumType = (type: string): boolean => {
+        const baseTypes = [EnumColTypes.TEXT, EnumColTypes.NUMBER, EnumColTypes.BOOL, EnumColTypes.ARRAY];
+        return !baseTypes.includes(type as EnumColTypes);
+    };
+
+    const getEnumValues = (enumName: string): string[] => {
+        const enumItem = currBranch?.enums?.find(e => e.name === enumName);
+        return enumItem?.vals || [];
+    };
+
+    const enumOptions = isEnumType(colType) ? getEnumValues(colType).map(val => ({ 
+        value: val, 
+        label: val 
+    })) : [];
+    
 
     useEffect(() => {
         if (colType === EnumColTypes.ARRAY && initCellVal) {
@@ -167,30 +185,34 @@ const CellModal = () => {
         const rowIndex = cellModal[0];
         const col = cellModal[1];
 
-        switch (colType) {
-            case EnumColTypes.BOOL:
-                updatedValue = { String: String(boolVal), Valid: cellVal !== null }
-                break;
-            case EnumColTypes.ARRAY:
-                const hasInvalidItems = arrayItems.some(item => !item.isValid);
-                if (hasInvalidItems) {
-                    return;
-                }
-                if (arrayItems.length === 0) {
-                    updatedValue = { String: "", Valid: false }
-                } else {
-                    const arrayValues = arrayItems.map(item =>
-                        arrayType === EnumColTypes.NUMBER ? Number(item.value) : item.value
-                    );
-                    const arrayString = JSON.stringify(arrayValues);
-                    updatedValue = { String: arrayString, Valid: true }
-                }
-                break;
-            default:
-                updatedValue = {
-                    String: cellVal,
-                    Valid: cellVal != null && cellVal !== "" && !Number.isNaN(cellVal)
-                }
+        if (isEnumType(colType)) {
+            updatedValue = { String: enumVal, Valid: enumVal !== null && enumVal !== "" };
+        } else {
+            switch (colType) {
+                case EnumColTypes.BOOL:
+                    updatedValue = { String: String(boolVal), Valid: cellVal !== null }
+                    break;
+                case EnumColTypes.ARRAY:
+                    const hasInvalidItems = arrayItems.some(item => !item.isValid);
+                    if (hasInvalidItems) {
+                        return;
+                    }
+                    if (arrayItems.length === 0) {
+                        updatedValue = { String: "", Valid: false }
+                    } else {
+                        const arrayValues = arrayItems.map(item =>
+                            arrayType === EnumColTypes.NUMBER ? Number(item.value) : item.value
+                        );
+                        const arrayString = JSON.stringify(arrayValues);
+                        updatedValue = { String: arrayString, Valid: true }
+                    }
+                    break;
+                default:
+                    updatedValue = {
+                        String: cellVal,
+                        Valid: cellVal != null && cellVal !== "" && !Number.isNaN(cellVal)
+                    }
+            }
         }
 
         if (updatedValue.Valid) {
@@ -309,16 +331,34 @@ const CellModal = () => {
                     </div>
                 )}
 
+                {isEnumType(colType) && (
+                    <div className="bg-figma-white rounded-lg w-[25rem] mb-6">
+                        <div className='flex flex-row justify-between items-ceter mt-4'>
+                            <h2 className="text-2xl pt-0.5 mr-4">{colType}</h2>
+                            <Dropdown
+                                options={enumOptions}
+                                placeholder="Select value"
+                                defaultValue={enumVal}
+                                onSelect={(option) => setEnumVal(option.value)}
+                            />
+                        </div>
+                    </div>
+                )}
+
                 {isConfig &&
                     <div className='flex flex-row justify-between items-ceter mt-8'>
                         <h2 className="text-2xl pt-0.5 mr-4 text-figma-black">Cell type</h2>
                         <Dropdown
-                            options={ColTypes.map(item => ({ label: item.val, value: item.val }))}
+                            options={[...ColTypes.map(item => ({ label: item.val, value: item.val })), 
+                                     ...(currBranch?.enums || [])
+                                        .filter(enumItem => enumItem.vals && enumItem.vals.length > 0)
+                                        .map(enumItem => ({ label: enumItem.name, value: enumItem.name }))]}
                             defaultValue={initCell?.type.String}
                             onSelect={(val) => {
                                 setCellVal("")
                                 setBoolVal(false)
                                 setArrayItems([])
+                                setEnumVal("")
                                 setColType(val.value)
                             }}
                         />

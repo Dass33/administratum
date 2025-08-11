@@ -9,11 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type Enum struct {
-	Name    string    `json:"name"`
-	SheetId uuid.UUID `json:"sheet_id"`
-	Vals    []string  `json:"vals"`
-}
 
 type TableData struct {
 	ID              uuid.UUID      `json:"id"`

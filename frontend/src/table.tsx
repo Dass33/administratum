@@ -31,7 +31,7 @@ const Table = () => {
         setBorderColors(columns.map(col => {
             const colType = ColTypes.find(item => col.type === item.val)
             if (colType) return colType.color
-            return ColTypes[0].color
+            return "border-figma-winter"
         }))
     }, [columns]);
 
@@ -171,7 +171,7 @@ const Table = () => {
                                 {columns.map((col, colIdx) => (
                                     <td key={colIdx}
                                         className={`border px-3 py-2 text-sm truncate
-                                        ${rowIdx == currSheet.row_count || validateCellType(rowIdx, col)
+                                        ${rowIdx == currSheet.row_count || validateCellType(rowIdx, col, currBranch)
                                                 ? "border-gray-300"
                                                 : "border-red-600"}`}
                                     >
@@ -245,13 +245,25 @@ const renderCellValue = (data: ColumnData[], idx: number): JSX.Element => {
     return <span>{String(value)}</span>;
 }
 
-const validateCellType = (idx: number, col: Column): boolean => {
+const validateCellType = (idx: number, col: Column, currBranch: any): boolean => {
     const item = col.data.find(item => item.idx == idx)
     if (!item || !item.value.Valid) {
         return !col.required;
     }
 
     const val = item.value.String
+
+    // Check if it's an enum type
+    const baseTypes = [EnumColTypes.TEXT, EnumColTypes.NUMBER, EnumColTypes.BOOL, EnumColTypes.ARRAY];
+    const isEnum = !baseTypes.includes(col.type as EnumColTypes);
+    
+    if (isEnum) {
+        const enumItem = currBranch?.enums?.find((e: any) => e.name === col.type);
+        if (!enumItem) {
+            return true;
+        }
+        return enumItem.vals.includes(val);
+    }
 
     switch (col.type) {
         case EnumColTypes.TEXT:

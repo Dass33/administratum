@@ -14,9 +14,15 @@ const ColModal = () => {
         addColumn, setAddColumn,
         currSheet,
         accessToken,
+        currBranch,
     } = useApp();
 
-    const optionsColTypes = ColTypes.map(item => ({ label: item.val, value: item.val }));
+    const baseColTypes = ColTypes.map(item => ({ label: item.val, value: item.val }));
+    const enumSheetOptions = (currBranch?.enums || [])
+        .filter(enumItem => enumItem.vals && enumItem.vals.length > 0)
+        .map(enumItem => ({ label: enumItem.name, value: enumItem.name }));
+    const optionsColTypes = [...baseColTypes, ...enumSheetOptions];
+    
     const [name, setName] = useState(() => {
         if (!addColumn) return columns[colModal].name
         return ''
