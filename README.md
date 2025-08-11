@@ -3,21 +3,23 @@ Makes config to web apps more accessible.
 
 ## 🛠️ Technologies
 
-🖥️ **frontend**:
+🖥️ **Frontend**:
 - TypeScript
 - React
 - TailWind
 
-⚙️ **backend**:
+⚙️ **Backend**:
 - Golang
-- goose
-- sqlc
-- turso
+- Goose
+- Sqlc
+- Turso
+
+☁️ **Cloud**
+- Google Cloud Run
+- Github Pages
 
 ## 🎒 TODO
 - enum support
-- permissions
-- implement branches
 - backend validate permissions + sheet type
 - fix visual bugs
 - make branch, sheets names unique
