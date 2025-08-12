@@ -32,6 +32,11 @@ func (cfg *apiConfig) renemeProjectHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if !cfg.checkTablePermission(userId, projectId, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	renameTableParams := database.RenameTableParams{
 		Name: params.Name,
 		ID:   projectId,

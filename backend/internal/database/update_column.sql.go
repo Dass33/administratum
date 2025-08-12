@@ -36,3 +36,41 @@ func (q *Queries) UpdateColumn(ctx context.Context, arg UpdateColumnParams) erro
 	)
 	return err
 }
+
+const updateColumnWithPermissionCheck = `-- name: UpdateColumnWithPermissionCheck :execrows
+UPDATE columns
+SET name = ?,
+    type = ?,
+    required = ?,
+    updated_at = datetime('now')
+WHERE columns.id = ? 
+  AND columns.sheet_id IN (
+    SELECT sheets.id FROM sheets
+    JOIN branches ON sheets.branch_id = branches.id
+    JOIN user_tables ON branches.table_id = user_tables.table_id
+    WHERE user_tables.user_id = ? 
+      AND user_tables.permission IN ('owner', 'contributor')
+  )
+`
+
+type UpdateColumnWithPermissionCheckParams struct {
+	Name     string
+	Type     string
+	Required bool
+	ID       uuid.UUID
+	UserID   uuid.UUID
+}
+
+func (q *Queries) UpdateColumnWithPermissionCheck(ctx context.Context, arg UpdateColumnWithPermissionCheckParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateColumnWithPermissionCheck,
+		arg.Name,
+		arg.Type,
+		arg.Required,
+		arg.ID,
+		arg.UserID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

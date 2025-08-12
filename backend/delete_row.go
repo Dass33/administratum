@@ -32,6 +32,11 @@ func (cfg *apiConfig) deleteRowHandler(w http.ResponseWriter, r *http.Request, i
 		return
 	}
 
+	if !cfg.checkSheetPermission(id, sheet_id, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	deleteRowParams := database.DeleteRowParams{
 		SheetID: sheet_id,
 		Idx:     params.RowIdx,

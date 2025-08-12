@@ -29,6 +29,11 @@ func (cfg *apiConfig) getMergeTargetsHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	if !cfg.checkTablePermission(userId, tableID, "read", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient read permissions")
+		return
+	}
+
 	ctx := r.Context()
 
 	allBranches, err := cfg.db.GetBranchesFromTable(ctx, tableID)

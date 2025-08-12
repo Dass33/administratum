@@ -20,3 +20,26 @@ func (q *Queries) DeleteTable(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteTable, id)
 	return err
 }
+
+const deleteTableWithPermissionCheck = `-- name: DeleteTableWithPermissionCheck :execrows
+DELETE FROM tables 
+WHERE id = ? 
+  AND id IN (
+    SELECT table_id FROM user_tables 
+    WHERE user_id = ? 
+      AND permission IN ('owner', 'contributor')
+  )
+`
+
+type DeleteTableWithPermissionCheckParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteTableWithPermissionCheck(ctx context.Context, arg DeleteTableWithPermissionCheckParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteTableWithPermissionCheck, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

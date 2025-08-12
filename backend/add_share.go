@@ -40,6 +40,11 @@ func (cfg *apiConfig) addShareHandler(w http.ResponseWriter, r *http.Request, us
 		return
 	}
 
+	if !cfg.checkTablePermission(userId, tableId, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	sharedTo, err := cfg.db.GetUserByMail(r.Context(), params.Email)
 	if err != nil {
 		msg := fmt.Sprintf("User with email %s not found: %s", params.Email, err)

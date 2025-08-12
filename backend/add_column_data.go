@@ -26,6 +26,11 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if !cfg.checkSheetPermission(id, params.Sheet_id, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	addColumnDataParams := database.AddColumnDataParams{
 		Idx:     params.Data.Idx,
 		Value:   params.Data.Value,

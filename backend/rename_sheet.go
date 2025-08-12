@@ -32,6 +32,11 @@ func (cfg *apiConfig) renameSheetHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	if !cfg.checkSheetPermission(userId, sheetId, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	renameSheetParams := database.RenameSheetParams{
 		Name: params.Name,
 		ID:   sheetId,

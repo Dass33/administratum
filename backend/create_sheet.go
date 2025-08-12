@@ -23,6 +23,11 @@ func (cfg *apiConfig) createSheetHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	if !cfg.checkBranchPermission(userId, params.BranchID, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	sheetId := uuid.UUID{}
 	if params.Type == SheetTypeMap {
 		sheetId, err = cfg.createMapSheet(r.Context(), params.Name, params.BranchID)

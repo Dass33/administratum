@@ -19,16 +19,22 @@ func (cfg *apiConfig) updateColumnHandler(w http.ResponseWriter, r *http.Request
 		respondWithError(w, 400, msg)
 		return
 	}
-	updateColumnParams := database.UpdateColumnParams{
+
+	rowsAffected, err := cfg.db.UpdateColumnWithPermissionCheck(r.Context(), database.UpdateColumnWithPermissionCheckParams{
 		Name:     col.Name,
 		Type:     col.Type,
 		Required: col.Required,
 		ID:       col.ID,
-	}
-	err = cfg.db.UpdateColumn(r.Context(), updateColumnParams)
+		UserID:   id,
+	})
 	if err != nil {
 		msg := fmt.Sprintf("column could not be updated: %s", err)
 		respondWithError(w, 500, msg)
+		return
+	}
+	
+	if rowsAffected == 0 {
+		respondWithError(w, http.StatusForbidden, "Column not found or insufficient permissions")
 		return
 	}
 	respondWithJSON(w, 200, "")

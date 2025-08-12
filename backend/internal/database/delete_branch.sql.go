@@ -20,3 +20,26 @@ func (q *Queries) DeleteBranch(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteBranch, id)
 	return err
 }
+
+const deleteBranchWithPermissionCheck = `-- name: DeleteBranchWithPermissionCheck :execrows
+DELETE FROM branches 
+WHERE id = ? 
+  AND table_id IN (
+    SELECT table_id FROM user_tables 
+    WHERE user_id = ? 
+      AND permission IN ('owner', 'contributor')
+  )
+`
+
+type DeleteBranchWithPermissionCheckParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteBranchWithPermissionCheck(ctx context.Context, arg DeleteBranchWithPermissionCheckParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteBranchWithPermissionCheck, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

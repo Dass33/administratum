@@ -34,6 +34,11 @@ func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if !cfg.checkTablePermission(userId, tableId, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	createBranchParams := database.CreateBranchParams{
 		Name:        params.Name,
 		IsProtected: params.IsProtected,

@@ -22,5 +22,10 @@ func (cfg *apiConfig) getProjectHandler(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
+	if !cfg.checkTablePermission(userId, tableId, "read", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient read permissions")
+		return
+	}
+
 	cfg.switchProject(w, r, tableId, userId, 200)
 }

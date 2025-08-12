@@ -33,6 +33,11 @@ func (cfg *apiConfig) updateBranchHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if !cfg.checkBranchPermission(id, branchId, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	updateBranchParams := database.UpdateBranchParams{
 		Name:        params.Name,
 		IsProtected: params.IsProtected,

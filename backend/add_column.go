@@ -32,6 +32,11 @@ func (cfg *apiConfig) addColumnHandler(w http.ResponseWriter, r *http.Request, i
 		return
 	}
 
+	if !cfg.checkSheetPermission(id, sheet_id, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	addColumnParams := database.AddColumnParams{
 		Name:     params.Col.Name,
 		Type:     params.Col.Type,

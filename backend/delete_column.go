@@ -27,6 +27,11 @@ func (cfg *apiConfig) deleteColumnHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if !cfg.checkSheetPermission(id, sheet_id, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	deleteColumnParams := database.DeleteColumnParams{
 		Name:    params.Col.Name,
 		SheetID: sheet_id,

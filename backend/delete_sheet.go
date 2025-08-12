@@ -30,6 +30,11 @@ func (cfg *apiConfig) deleteSheetHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	if !cfg.checkSheetPermission(userId, sheetId, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	err = cfg.db.DeleteSheet(r.Context(), sheetId)
 	if err != nil {
 		msg := fmt.Sprintf("Sheet could not be deleted: %s", err)

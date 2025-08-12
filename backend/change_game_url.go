@@ -40,6 +40,11 @@ func (cfg *apiConfig) changeGameUrlHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if !cfg.checkTablePermission(userId, projectId, "write", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient write permissions")
+		return
+	}
+
 	changeGameUrlParams := database.ChangeGameUrlParams{
 		GameUrl: params.GameUrl,
 		ID:      projectId,

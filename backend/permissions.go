@@ -42,3 +42,32 @@ func (cfg *apiConfig) canAssignPermision(userId, tableId uuid.UUID, perm string,
 
 	return true
 }
+
+func (cfg *apiConfig) checkTablePermission(userId, tableId uuid.UUID, permType string, ctx context.Context) bool {
+	userTable, err := cfg.db.GetUserTables(ctx, database.GetUserTablesParams{
+		UserID:  userId,
+		TableID: tableId,
+	})
+	if err != nil {
+		return false
+	}
+
+	if userTable.Permission == OwnerPermission {
+		return true
+	}
+
+	if userTable.Permission == ContributorPermission && (permType == "read" || permType == "write") {
+		return true
+	}
+
+	return false
+}
+
+func (cfg *apiConfig) checkSheetPermission(userId, sheetId uuid.UUID, permType string, ctx context.Context) bool {
+	sheet, err := cfg.db.GetSheet(ctx, sheetId)
+	if err != nil {
+		return false
+	}
+	return cfg.checkBranchPermission(userId, sheet.BranchID, permType, ctx)
+}
+

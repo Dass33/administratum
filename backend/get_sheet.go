@@ -29,17 +29,30 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, us
 		respondWithError(w, 400, msg)
 		return
 	}
-	optionalSheetId := uuid.NullUUID{
-		UUID:  sheetId,
-		Valid: true,
+
+	// Get sheet and check permissions in one go
+	dbSheet, err := cfg.db.GetSheet(r.Context(), sheetId)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "Sheet not found")
+		return
 	}
-	sheet, err := cfg.GetSheet(optionalSheetId, r.Context())
+
+	if !cfg.checkBranchPermission(userId, dbSheet.BranchID, "read", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient read permissions")
+		return
+	}
+
+	sheet, err := cfg.buildSheetResponse(dbSheet, r.Context())
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheet: %s", err)
 		respondWithError(w, 500, msg)
 		return
 	}
 
+	optionalSheetId := uuid.NullUUID{
+		UUID:  sheetId,
+		Valid: true,
+	}
 	setOpenedSheetParams := database.SetOpenedSheetParams{
 		ID:          userId,
 		OpenedSheet: optionalSheetId,
@@ -110,6 +123,63 @@ func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Cont
 
 	data := Sheet{
 		ID:            sheet_id,
+		Name:          sheet.Name,
+		RowCount:      int64(rowCount),
+		Type:          sheet.Type,
+		CurrBranch:    currBranch,
+		SheetsIdNames: sheetsIdNames,
+		Columns:       columns,
+	}
+
+	return data, nil
+}
+
+func (cfg *apiConfig) buildSheetResponse(sheet database.Sheet, ctx context.Context) (Sheet, error) {
+	branch, err := cfg.db.GetBranch(ctx, sheet.BranchID)
+	if err != nil {
+		return Sheet{}, errors.New("Could not get branch with given id")
+	}
+	enums, err := cfg.getEnumsForBranch(sheet.BranchID, ctx)
+	if err != nil {
+		return Sheet{}, errors.New("Could not get enums for branch")
+	}
+
+	currBranch := Branch{
+		ID:          branch.ID,
+		Name:        branch.Name,
+		IsProtected: branch.IsProtected,
+		Enums:       enums,
+	}
+
+	sheets, err := cfg.db.GetSheetsFromBranch(ctx, sheet.BranchID)
+	if err != nil {
+		return Sheet{}, errors.New("Could not get sheets with given branch id")
+	}
+	sheetsIdNames := make([]IdName, 0, len(sheets))
+
+	for i := range sheets {
+		item := IdName{
+			ID:   sheets[i].ID,
+			Name: sheets[i].Name,
+		}
+		sheetsIdNames = append(sheetsIdNames, item)
+	}
+
+	columns, err := cfg.GetColumns(sheet.ID, ctx)
+	if err != nil {
+		return Sheet{}, errors.New("Could not get columns with given sheet id")
+	}
+
+	rowCount := 0
+	for i := range columns {
+		currLen := len(columns[i].Data)
+		if currLen > rowCount {
+			rowCount = currLen
+		}
+	}
+
+	data := Sheet{
+		ID:            sheet.ID,
 		Name:          sheet.Name,
 		RowCount:      int64(rowCount),
 		Type:          sheet.Type,

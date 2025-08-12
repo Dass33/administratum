@@ -31,6 +31,12 @@ func (cfg *apiConfig) getBranchHandler(w http.ResponseWriter, r *http.Request, u
 		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
+
+	if !cfg.checkBranchPermission(userId, branchId, "read", r.Context()) {
+		respondWithError(w, http.StatusForbidden, "Insufficient read permissions")
+		return
+	}
+
 	cfg.switchBranch(w, r, branchId, userId, http.StatusOK)
 }
 

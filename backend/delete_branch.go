@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Dass33/administratum/backend/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -30,10 +31,18 @@ func (cfg *apiConfig) deleteBranchHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = cfg.db.DeleteBranch(r.Context(), branchId)
+	rowsAffected, err := cfg.db.DeleteBranchWithPermissionCheck(r.Context(), database.DeleteBranchWithPermissionCheckParams{
+		ID:     branchId,
+		UserID: userId,
+	})
 	if err != nil {
-		msg := fmt.Sprintf("branch branch not be deleted: %s", err)
+		msg := fmt.Sprintf("branch could not be deleted: %s", err)
 		respondWithError(w, http.StatusInternalServerError, msg)
+		return
+	}
+	
+	if rowsAffected == 0 {
+		respondWithError(w, http.StatusForbidden, "Branch not found or insufficient permissions")
 		return
 	}
 	respondWithJSON(w, http.StatusNoContent, "")
