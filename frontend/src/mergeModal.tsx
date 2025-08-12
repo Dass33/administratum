@@ -240,11 +240,11 @@ export default function MergeModal() {
                 setCurrTable({ ...currTable, branches_id_names: newBranchIdNames });
                 console.log('Updated branch list after deletion');
             }
-            
+
             // Switch to the target branch (usually main)
             console.log('Switching to target branch:', responseData.target_branch_id);
             getCurrBranch(responseData.target_branch_id, accessToken ?? "", setData);
-            
+
             console.log('Switched to target branch, closing modal');
             setMergeModal(false);
         } catch (error) {
@@ -314,7 +314,7 @@ export default function MergeModal() {
                             <div className="flex justify-between mt-8">
                                 <Dropdown
                                     options={validTargets.map(target => ({ label: target.name, value: target.id }))}
-                                    placeholder={loadingTargets ? "Loading..." : validTargets.length === 0 ? "No valid source branches" : "Select a source branch..."}
+                                    placeholder={loadingTargets ? "Loading..." : validTargets.length === 0 ? "No valid branch" : "Select branch"}
                                     onSelect={(option: DropdownOption) => setSelectedBranch(option.value)}
                                     usePortal={true}
                                 />
@@ -327,12 +327,6 @@ export default function MergeModal() {
                                     {loading ? 'Checking...' : 'Preview Merge'}
                                 </button>
                             </div>
-
-                            {!loadingTargets && validTargets.length === 0 && (
-                                <p className="mt-2 text-sm text-gray-600">
-                                    No source branches available for merging. All branches except the oldest (main) can be merged.
-                                </p>
-                            )}
                         </div>
                     )}
 
