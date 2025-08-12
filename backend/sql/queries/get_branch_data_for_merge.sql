@@ -2,6 +2,7 @@
 SELECT 
     s.id as sheet_id,
     s.name as sheet_name,
+    s.type as sheet_type,
     s.created_at as sheet_created_at,
     s.updated_at as sheet_updated_at,
     s.source_sheet_id,

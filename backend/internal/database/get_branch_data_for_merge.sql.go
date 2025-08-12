@@ -17,6 +17,7 @@ const getBranchDataForMerge = `-- name: GetBranchDataForMerge :many
 SELECT 
     s.id as sheet_id,
     s.name as sheet_name,
+    s.type as sheet_type,
     s.created_at as sheet_created_at,
     s.updated_at as sheet_updated_at,
     s.source_sheet_id,
@@ -42,6 +43,7 @@ ORDER BY s.id, c.id, cd.idx
 type GetBranchDataForMergeRow struct {
 	SheetID             uuid.UUID
 	SheetName           string
+	SheetType           string
 	SheetCreatedAt      time.Time
 	SheetUpdatedAt      time.Time
 	SourceSheetID       sql.NullString
@@ -71,6 +73,7 @@ func (q *Queries) GetBranchDataForMerge(ctx context.Context, branchID uuid.UUID)
 		if err := rows.Scan(
 			&i.SheetID,
 			&i.SheetName,
+			&i.SheetType,
 			&i.SheetCreatedAt,
 			&i.SheetUpdatedAt,
 			&i.SourceSheetID,

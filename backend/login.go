@@ -102,7 +102,7 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 	if err == nil {
 		DbTable, err := cfg.db.GetTableFromSheet(ctx, sheet.ID)
 		if err != nil {
-			msg := fmt.Sprintf("Problem with getting table from sheet id", err)
+			msg := fmt.Sprintf("Problem with getting table from sheet id: %v", err)
 			respondWithError(w, 500, msg)
 			return
 		}

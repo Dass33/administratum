@@ -13,7 +13,6 @@ import (
 
 type MergePreviewRequest struct {
 	SourceBranchID uuid.UUID `json:"source_branch_id"`
-	TargetBranchID uuid.UUID `json:"target_branch_id"`
 }
 
 type MergeConflict struct {
@@ -50,9 +49,10 @@ func (cfg *apiConfig) mergePreviewHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_, err = cfg.db.GetBranch(ctx, req.TargetBranchID)
+	// Get the oldest branch from the same table as target
+	targetBranch, err := cfg.db.GetOldestBranchFromTable(ctx, sourceBranch.TableID)
 	if err != nil {
-		respondWithError(w, http.StatusNotFound, "Target branch not found")
+		respondWithError(w, http.StatusInternalServerError, "Could not find target branch (oldest branch in table)")
 		return
 	}
 
@@ -61,10 +61,12 @@ func (cfg *apiConfig) mergePreviewHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if !cfg.checkBranchPermission(userId, req.TargetBranchID, "write", ctx) {
+	if !cfg.checkBranchPermission(userId, targetBranch.ID, "write", ctx) {
 		respondWithError(w, http.StatusForbidden, "No write permission on target branch")
 		return
 	}
+
+	// No hierarchical validation needed - we always merge to oldest branch (main)
 
 	sourceData, err := cfg.db.GetBranchDataForMerge(ctx, req.SourceBranchID)
 	if err != nil {
@@ -72,7 +74,7 @@ func (cfg *apiConfig) mergePreviewHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	targetData, err := cfg.db.GetBranchDataForMerge(ctx, req.TargetBranchID)
+	targetData, err := cfg.db.GetBranchDataForMerge(ctx, targetBranch.ID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Could not get target branch data")
 		return
