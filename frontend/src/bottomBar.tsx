@@ -246,7 +246,7 @@ const SetSheetType: React.FC<{ setData: Function }> = ({ setData }) => (
             options={SheetTypesOptions}
             placeholder={"Select Type"}
             defaultValue={SheetTypesOptions[0].value}
-            onSelect={(e) => setData(e.value)}
+            onSelect={(e) => setData(e)}
         />
     </div>
 );

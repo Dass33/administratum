@@ -19,6 +19,5 @@ Makes config to web apps more accessible.
 - Github Pages
 
 ## 🎒 TODO
-- backend validate permissions + sheet type
 - fix visual bugs
-- fix mergin logic
+- change columns positions

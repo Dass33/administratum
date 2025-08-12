@@ -30,7 +30,6 @@ function SelectBranch() {
         : "Branch"
 
     const [isProtected, setIsProtected] = useState(false)
-
     const setData = (res: BranchData) => {
         setCurrBranch(res.Branch);
         setCurrSheet(res.Sheet);
@@ -38,6 +37,7 @@ function SelectBranch() {
         setColumns(res.Sheet.columns);
         setSheetDeleted(false);
     }
+    console.log(isProtected)
 
     const addNewValue = () => {
         const props: NewItemProps = {
@@ -105,9 +105,9 @@ function SelectBranch() {
     const everyRender = (setSelected: Function, currentSelected?: DropdownOption) => {
         useEffect(() => {
             if (!currBranch) return
-            
+
             const targetSelection = { name: currBranch.name, value: currBranch.id }
-            
+
             // Only update if the current selection is different
             if (currentSelected?.value !== targetSelection.value) {
                 setSelected(targetSelection)
@@ -134,7 +134,7 @@ const SetBranchProtection: React.FC<{ setData: Function }> = ({ setData }) => (
             options={[{ value: "false", label: "False" },
             { value: "true", label: "True" }]}
             defaultValue={"false"}
-            onSelect={(e) => setData(e.value)}
+            onSelect={(e) => setData(e)}
         />
     </div >
 );

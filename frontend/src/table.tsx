@@ -27,7 +27,6 @@ const Table = () => {
     const hasPerms = !currBranch?.is_protected || currTable?.permision === PermissionsEnum.OWNER
 
     useEffect(() => {
-        console.log(currSheet)
         if (!columns) return
         setBorderColors(columns.map(col => {
             const colType = ColTypes.find(item => col.type === item.val)
