@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Branch, Domain, useApp, Sheet } from "./AppContext";
 import Dropdown, { DropdownOption } from "./dropdown";
 import { NewItemProps } from "./NewItemModal.tsx";
@@ -54,7 +54,7 @@ function SelectBranch() {
     }
 
     const createBranch = (name: string) => {
-        postBranch(name, isProtected, currTable?.id, currSheet?.curr_branch.id, accessToken ?? "", (res: BranchData) => {
+        postBranch(name, isProtected, currTable?.id, accessToken ?? "", (res: BranchData) => {
             setData(res);
             if (!currTable) return;
             const newBranch = { name: res.Branch.name, id: res.Branch.id }
@@ -100,16 +100,29 @@ function SelectBranch() {
             deleteItem() { deleteItem(option) },
         }
         setNewItemModal(props)
+
+    }
+    const everyRender = (setSelected: Function, currentSelected?: DropdownOption) => {
+        useEffect(() => {
+            if (!currBranch) return
+            
+            const targetSelection = { name: currBranch.name, value: currBranch.id }
+            
+            // Only update if the current selection is different
+            if (currentSelected?.value !== targetSelection.value) {
+                setSelected(targetSelection)
+            }
+        }, [currBranch?.id, currentSelected?.value])
     }
 
     return (
         <Dropdown
             options={optionsBranches}
             placeholder={placeholderBranch}
-
             onSelect={(option) => getCurrBranch(option.value, accessToken ?? "", setData)}
             addNewValue={addNewValue}
             updateValue={updateValue}
+            everyRender={everyRender}
         />
     );
 }
@@ -126,7 +139,7 @@ const SetBranchProtection: React.FC<{ setData: Function }> = ({ setData }) => (
     </div >
 );
 
-const getCurrBranch = (branch_id: string, token: string, setData: Function) => {
+export const getCurrBranch = (branch_id: string, token: string, setData: Function) => {
     const url = Domain + `/get_branch/${branch_id}`;
 
     fetch(url, {
@@ -154,22 +167,19 @@ const postBranch = (
     name: string,
     isProtected: boolean,
     tableId: string | undefined,
-    branchId: string | undefined,
     token: string,
     setData: Function
 ) => {
-    if (!tableId || !branchId) return;
+    if (!tableId) return;
     const url = Domain + `/create_branch`;
     const postParam: {
         name: string,
         is_protected: boolean,
-        table_id: string,
-        curr_branch_id: string
+        table_id: string
     } = {
         name: name,
         is_protected: isProtected,
-        table_id: tableId,
-        curr_branch_id: branchId
+        table_id: tableId
     }
     fetch(url, {
         method: "POST",

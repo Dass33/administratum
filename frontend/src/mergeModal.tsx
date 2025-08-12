@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useApp, Domain, Sheet } from "./AppContext";
+import { useApp, Domain, Sheet, Branch } from "./AppContext";
 import Dropdown, { DropdownOption } from './dropdown';
+import { getCurrBranch } from './selectBranch';
 
 type MergeConflict = {
     id: string;
@@ -26,32 +27,67 @@ type MergeResolution = {
     chosen_source: string;
 };
 
+type MergeTarget = {
+    id: string;
+    name: string;
+};
+
+type GetMergeTargetsResponse = {
+    valid_targets: MergeTarget[];
+    target_branch: MergeTarget;
+};
+
+type MergeExecuteResponse = {
+    success: boolean;
+    message: string;
+    target_branch_id: string;
+};
+
+type BranchData = {
+    Branch: Branch,
+    Sheet: Sheet,
+};
+
 export default function MergeModal() {
     const {
         currTable,
+        setCurrTable,
         currSheet,
         accessToken,
         setMergeModal,
         setCurrSheet,
-        setColumns
+        setColumns,
+        setCurrBranch,
+        setSheetDeleted
     } = useApp();
 
     const [selectedBranch, setSelectedBranch] = useState<string>("");
     const [conflicts, setConflicts] = useState<MergeConflict[]>([]);
     const [resolutions, setResolutions] = useState<Record<string, string>>({});
-    const [loading, setLoading] = useState(false);
+    const [loading, setModalLoading] = useState(false);
     const [step, setStep] = useState<'select' | 'conflicts' | 'no-conflicts' | 'merging'>('select');
     const [error, setError] = useState<string>("");
+    const [validTargets, setValidTargets] = useState<MergeTarget[]>([]);
+    const [loadingTargets, setLoadingTargets] = useState(false);
+    const [targetBranchName, setTargetBranchName] = useState<string>("");
 
     const availableBranches = currTable?.branches_id_names?.filter(
         branch => branch.id !== currSheet?.curr_branch.id
     ) || [];
 
-    const reloadCurrentSheet = async () => {
-        if (!currSheet || !accessToken) return;
+    const setData = (res: BranchData) => {
+        setCurrBranch(res.Branch);
+        setCurrSheet(res.Sheet);
+        setColumns(res.Sheet.columns);
+        setSheetDeleted(false);
+    };
 
+    const fetchValidMergeTargets = async () => {
+        if (!currTable || !accessToken) return;
+
+        setLoadingTargets(true);
         try {
-            const response = await fetch(`${Domain}/get_sheet/${currSheet.id}`, {
+            const response = await fetch(`${Domain}/merge_targets?table_id=${currTable.id}`, {
                 method: "GET",
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -60,33 +96,41 @@ export default function MergeModal() {
             });
 
             if (!response.ok) {
-                throw new Error("Could not reload sheet data");
+                console.error("Failed to fetch merge sources:", response.status);
+                // Fallback to all branches except current if endpoint fails
+                setValidTargets(availableBranches.map(branch => ({ id: branch.id, name: branch.name })));
+                setTargetBranchName("main"); // Fallback target name
+                return;
             }
 
-            const result: Sheet = await response.json();
-            console.log(result);
-            setCurrSheet(result);
-            setColumns(result.columns);
+            const data: GetMergeTargetsResponse = await response.json();
+            setValidTargets(data.valid_targets);
+            setTargetBranchName(data.target_branch.name);
         } catch (error) {
-            console.error("Failed to reload sheet:", error);
+            console.error("Failed to fetch merge sources:", error);
+            // Fallback to all branches except current if request fails
+            setValidTargets(availableBranches.map(branch => ({ id: branch.id, name: branch.name })));
+            setTargetBranchName("main"); // Fallback target name
+        } finally {
+            setLoadingTargets(false);
         }
     };
+
 
     const handlePreview = async () => {
         if (!selectedBranch || !currSheet) return;
 
         console.log('=== MERGE PREVIEW START ===');
         console.log('Source branch ID:', selectedBranch);
-        console.log('Target branch ID:', currSheet.curr_branch.id);
+        console.log('Target branch (auto-selected oldest):', targetBranchName);
         console.log('Current sheet:', currSheet);
 
-        setLoading(true);
+        setModalLoading(true);
         setError("");
 
         try {
             const requestBody = {
-                source_branch_id: selectedBranch,
-                target_branch_id: currSheet.curr_branch.id
+                source_branch_id: selectedBranch
             };
             console.log('Request body:', requestBody);
 
@@ -105,6 +149,12 @@ export default function MergeModal() {
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Error response:', errorText);
+
+                // Handle hierarchical merge validation errors with user-friendly messages
+                if (response.status === 400 && errorText.includes('direct child')) {
+                    throw new Error('This branch cannot be merged here. You can only merge a branch into its direct parent branch.');
+                }
+
                 throw new Error(`Failed to preview merge: ${response.status}`);
             }
 
@@ -124,7 +174,7 @@ export default function MergeModal() {
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Unknown error occurred');
         } finally {
-            setLoading(false);
+            setModalLoading(false);
         }
     };
 
@@ -133,12 +183,12 @@ export default function MergeModal() {
 
         console.log('=== MERGE EXECUTE START ===');
         console.log('Source branch ID:', selectedBranch);
-        console.log('Target branch ID:', currSheet.curr_branch.id);
+        console.log('Target branch (auto-selected oldest):', targetBranchName);
         console.log('Conflicts to resolve:', conflicts.length);
         console.log('Current resolutions:', resolutions);
 
         setStep('merging');
-        setLoading(true);
+        setModalLoading(true);
         setError("");
 
         const mergeResolutions: MergeResolution[] = conflicts.map(conflict => ({
@@ -151,7 +201,6 @@ export default function MergeModal() {
         try {
             const requestBody = {
                 source_branch_id: selectedBranch,
-                target_branch_id: currSheet.curr_branch.id,
                 resolutions: mergeResolutions
             };
             console.log('Merge request body:', requestBody);
@@ -171,21 +220,38 @@ export default function MergeModal() {
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Merge error response:', errorText);
+
+                // Handle hierarchical merge validation errors with user-friendly messages
+                if (response.status === 400 && errorText.includes('direct child')) {
+                    throw new Error('This branch cannot be merged here. You can only merge a branch into its direct parent branch.');
+                }
+
                 throw new Error(`Failed to execute merge: ${response.status}`);
             }
 
-            const responseData = await response.json();
+            const responseData: MergeExecuteResponse = await response.json();
             console.log('Merge response data:', responseData);
 
-            console.log('Reloading current sheet...');
-            await reloadCurrentSheet();
-            console.log('Sheet reloaded, closing modal');
+            // Remove the merged branch from the branch list (it was deleted by backend)
+            if (currTable) {
+                const newBranchIdNames = currTable.branches_id_names.filter(
+                    idName => idName.id !== selectedBranch
+                );
+                setCurrTable({ ...currTable, branches_id_names: newBranchIdNames });
+                console.log('Updated branch list after deletion');
+            }
+            
+            // Switch to the target branch (usually main)
+            console.log('Switching to target branch:', responseData.target_branch_id);
+            getCurrBranch(responseData.target_branch_id, accessToken ?? "", setData);
+            
+            console.log('Switched to target branch, closing modal');
             setMergeModal(false);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Failed to merge branches');
             setStep('conflicts');
         } finally {
-            setLoading(false);
+            setModalLoading(false);
         }
     };
 
@@ -219,6 +285,11 @@ export default function MergeModal() {
         };
     }, [setMergeModal]);
 
+    useEffect(() => {
+        // Fetch valid merge targets when modal opens
+        fetchValidMergeTargets();
+    }, [currSheet, accessToken]);
+
     return (
         <div
             className="fixed inset-0 bg-black bg-opacity-15 flex justify-center items-center z-50"
@@ -236,26 +307,32 @@ export default function MergeModal() {
 
                     {step === 'select' && (
                         <div>
-                            <p className="mb-4">
-                                Select a branch to merge into <strong>{currSheet?.curr_branch.name}</strong>:
+                            <p className="mb-2">
+                                Select a source branch to merge into <strong>{targetBranchName || "main"}</strong>:
                             </p>
 
                             <div className="flex justify-between mt-8">
                                 <Dropdown
-                                    options={availableBranches.map(branch => ({ label: branch.name, value: branch.id }))}
-                                    placeholder="Select a branch..."
+                                    options={validTargets.map(target => ({ label: target.name, value: target.id }))}
+                                    placeholder={loadingTargets ? "Loading..." : validTargets.length === 0 ? "No valid source branches" : "Select a source branch..."}
                                     onSelect={(option: DropdownOption) => setSelectedBranch(option.value)}
                                     usePortal={true}
                                 />
 
                                 <button
                                     onClick={handlePreview}
-                                    disabled={!selectedBranch || loading}
+                                    disabled={!selectedBranch || loading || loadingTargets || validTargets.length === 0}
                                     className="px-4 py-2 bg-green-600 text-figma-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50"
                                 >
                                     {loading ? 'Checking...' : 'Preview Merge'}
                                 </button>
                             </div>
+
+                            {!loadingTargets && validTargets.length === 0 && (
+                                <p className="mt-2 text-sm text-gray-600">
+                                    No source branches available for merging. All branches except the oldest (main) can be merged.
+                                </p>
+                            )}
                         </div>
                     )}
 
@@ -341,7 +418,7 @@ export default function MergeModal() {
                                     <div>
                                         <h3 className="font-medium text-green-800">No conflicts found!</h3>
                                         <p className="text-sm text-green-700 mt-1">
-                                            The selected branch can be merged cleanly into <strong>{currSheet?.curr_branch.name}</strong> without any conflicts.
+                                            The selected branch can be merged cleanly into <strong>{targetBranchName || "main"}</strong> without any conflicts.
                                         </p>
                                     </div>
                                 </div>
