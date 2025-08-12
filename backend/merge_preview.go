@@ -49,7 +49,6 @@ func (cfg *apiConfig) mergePreviewHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Get the oldest branch from the same table as target
 	targetBranch, err := cfg.db.GetOldestBranchFromTable(ctx, sourceBranch.TableID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Could not find target branch (oldest branch in table)")
@@ -66,8 +65,6 @@ func (cfg *apiConfig) mergePreviewHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// No hierarchical validation needed - we always merge to oldest branch (main)
-
 	sourceData, err := cfg.db.GetBranchDataForMerge(ctx, req.SourceBranchID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Could not get source branch data")
@@ -81,11 +78,6 @@ func (cfg *apiConfig) mergePreviewHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	conflicts := cfg.detectMergeConflicts(sourceData, targetData, sourceBranch.CreatedAt)
-
-	fmt.Printf("DEBUG merge_preview: Branch created at %v\n", sourceBranch.CreatedAt)
-	fmt.Printf("DEBUG merge_preview: Source data rows: %d\n", len(sourceData))
-	fmt.Printf("DEBUG merge_preview: Target data rows: %d\n", len(targetData))
-	fmt.Printf("DEBUG merge_preview: Detected %d conflicts\n", len(conflicts))
 
 	if conflicts == nil {
 		conflicts = []MergeConflict{}
@@ -113,7 +105,6 @@ func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.Get
 		if row.ColumnID.Valid {
 			sourceColumns[row.ColumnID.UUID] = row
 			if row.ColumnDataID.Valid {
-				// Use source IDs for matching if available, otherwise fall back to names
 				var sheetKey, columnKey string
 				if row.SourceSheetID.Valid {
 					sheetKey = row.SourceSheetID.String
@@ -136,19 +127,15 @@ func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.Get
 		if row.ColumnID.Valid {
 			targetColumns[row.ColumnID.UUID] = row
 			if row.ColumnDataID.Valid {
-				// For target branch: if it has source references, use them (it's a copy)
-				// If not, use its own IDs since it's the original
 				var sheetKey, columnKey string
 				if row.SourceSheetID.Valid {
 					sheetKey = row.SourceSheetID.String
 				} else {
-					// This is the original target data - use its own ID as the reference
 					sheetKey = row.SheetID.String()
 				}
 				if row.SourceColumnID.Valid {
 					columnKey = row.SourceColumnID.String
 				} else {
-					// This is the original target data - use its own ID as the reference
 					columnKey = row.ColumnID.UUID.String()
 				}
 				key := fmt.Sprintf("%s-%s-%d", sheetKey, columnKey, row.ColumnDataIdx.Int64)
@@ -159,10 +146,10 @@ func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.Get
 
 	for sheetId, sourceSheet := range sourceSheets {
 		if targetSheet, exists := targetSheets[sheetId]; exists {
-			// Check if both sheets were updated after branch creation
+
 			if sourceSheet.SheetUpdatedAt.After(branchCreatedAt) &&
 				targetSheet.SheetUpdatedAt.After(branchCreatedAt) {
-
+				// Currently for any sheet upadte we say, the name changed
 				conflicts = append(conflicts, MergeConflict{
 					ID:              fmt.Sprintf("sheet-%s", sheetId.String()),
 					Type:            "sheet_property",
@@ -180,7 +167,7 @@ func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.Get
 
 	for columnId, sourceColumn := range sourceColumns {
 		if targetColumn, exists := targetColumns[columnId]; exists {
-			// Check if both columns were updated after branch creation
+
 			if sourceColumn.ColumnUpdatedAt.Valid && targetColumn.ColumnUpdatedAt.Valid &&
 				sourceColumn.ColumnUpdatedAt.Time.After(branchCreatedAt) &&
 				targetColumn.ColumnUpdatedAt.Time.After(branchCreatedAt) {
@@ -222,16 +209,6 @@ func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.Get
 
 	for key, sourceCell := range sourceCellData {
 		if targetCell, exists := targetCellData[key]; exists {
-			fmt.Printf("DEBUG: Checking cell %s: source_created=%v, target_created=%v, branch_created=%v\n",
-				key, sourceCell.ColumnDataCreatedAt.Time, targetCell.ColumnDataCreatedAt.Time, branchCreatedAt)
-			fmt.Printf("DEBUG: source_updated=%v, target_updated=%v\n",
-				sourceCell.ColumnDataUpdatedAt.Time, targetCell.ColumnDataUpdatedAt.Time)
-			fmt.Printf("DEBUG: source has refs: sheet=%v, column=%v\n", 
-				sourceCell.SourceSheetID.Valid, sourceCell.SourceColumnID.Valid)
-			fmt.Printf("DEBUG: target has refs: sheet=%v, column=%v\n", 
-				targetCell.SourceSheetID.Valid, targetCell.SourceColumnID.Valid)
-
-			// Check for conflicts: both cells modified after branch creation
 			if sourceCell.ColumnDataUpdatedAt.Valid && targetCell.ColumnDataUpdatedAt.Valid &&
 				sourceCell.ColumnDataUpdatedAt.Time.After(branchCreatedAt) &&
 				targetCell.ColumnDataUpdatedAt.Time.After(branchCreatedAt) {

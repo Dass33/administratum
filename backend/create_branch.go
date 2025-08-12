@@ -45,12 +45,9 @@ func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Find the oldest branch in the table to copy from
 	oldestBranch, err := cfg.db.GetOldestBranchFromTable(r.Context(), tableId)
 	if err != nil {
-		// If no branches exist yet (sql.ErrNoRows), that's fine - create empty branch
 		if err == sql.ErrNoRows {
-			// No existing branches, create empty branch - skip copying
 		} else {
 			msg := fmt.Sprintf("Could not get oldest branch: %s", err)
 			respondWithError(w, http.StatusInternalServerError, msg)
