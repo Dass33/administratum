@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Dass33/administratum/backend/internal/database"
 	"github.com/google/uuid"
@@ -38,6 +39,7 @@ func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request
 		IsProtected: params.IsProtected,
 		TableID:     tableId,
 	}
+
 	branch, err := cfg.db.CreateBranch(r.Context(), createBranchParams)
 	if err != nil {
 		msg := fmt.Sprintf("Could not create branch: %s", err)
@@ -47,16 +49,14 @@ func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request
 
 	oldestBranch, err := cfg.db.GetOldestBranchFromTable(r.Context(), tableId)
 	if err != nil {
-		if err == sql.ErrNoRows {
-		} else {
+		if err != sql.ErrNoRows {
 			msg := fmt.Sprintf("Could not get oldest branch: %s", err)
 			respondWithError(w, http.StatusInternalServerError, msg)
 			return
 		}
 	} else {
-		// Oldest branch exists, copy from it (unless it's the branch we just created)
 		if oldestBranch.ID != branch.ID {
-			err = cfg.copyBranchSheets(r.Context(), oldestBranch.ID, branch.ID)
+			err = cfg.copyBranchSheetsWithTransaction(r.Context(), oldestBranch.ID, branch.ID)
 			if err != nil {
 				msg := fmt.Sprintf("Could not copy sheets to new branch: %s", err)
 				respondWithError(w, http.StatusInternalServerError, msg)
@@ -68,8 +68,34 @@ func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request
 	cfg.switchBranch(w, r, branch.ID, userId, http.StatusCreated)
 }
 
-func (cfg *apiConfig) copyBranchSheets(ctx context.Context, sourceBranchId, targetBranchId uuid.UUID) error {
-	dbSheets, err := cfg.db.GetSheetsFromBranch(ctx, sourceBranchId)
+func (cfg *apiConfig) copyBranchSheetsWithTransaction(ctx context.Context, sourceBranchId, targetBranchId uuid.UUID) error {
+	tx, err := cfg.rawDB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("could not begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	txQueries := cfg.db.WithTx(tx)
+
+	err = cfg.copyBranchSheetsInTx(ctx, tx, txQueries, sourceBranchId, targetBranchId)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("could not commit transaction: %w", err)
+	}
+
+	return nil
+}
+
+func (cfg *apiConfig) copyBranchSheetsInTx(ctx context.Context, tx *sql.Tx, txQueries *database.Queries, sourceBranchId, targetBranchId uuid.UUID) error {
+	dbSheets, err := txQueries.GetSheetsFromBranch(ctx, sourceBranchId)
 	if err != nil {
 		return fmt.Errorf("could not get source branch sheets: %w", err)
 	}
@@ -81,12 +107,12 @@ func (cfg *apiConfig) copyBranchSheets(ctx context.Context, sourceBranchId, targ
 			Type:          dbSheets[i].Type,
 			SourceSheetID: sql.NullString{String: dbSheets[i].ID.String(), Valid: true},
 		}
-		sheet, err := cfg.db.CreateSheet(ctx, createSheetParams)
+		sheet, err := txQueries.CreateSheet(ctx, createSheetParams)
 		if err != nil {
 			return fmt.Errorf("could not create sheet: %w", err)
 		}
 
-		err = cfg.copySheetColumns(ctx, dbSheets[i].ID, sheet.ID)
+		err = cfg.copySheetColumnsInTx(ctx, tx, txQueries, dbSheets[i].ID, sheet.ID)
 		if err != nil {
 			return fmt.Errorf("could not copy columns for sheet %s: %w", sheet.Name, err)
 		}
@@ -94,8 +120,8 @@ func (cfg *apiConfig) copyBranchSheets(ctx context.Context, sourceBranchId, targ
 	return nil
 }
 
-func (cfg *apiConfig) copySheetColumns(ctx context.Context, sourceSheetId, targetSheetId uuid.UUID) error {
-	columns, err := cfg.GetColumns(sourceSheetId, ctx)
+func (cfg *apiConfig) copySheetColumnsInTx(ctx context.Context, tx *sql.Tx, txQueries *database.Queries, sourceSheetId, targetSheetId uuid.UUID) error {
+	columns, err := cfg.GetColumnsWithTx(txQueries, sourceSheetId, ctx)
 	if err != nil {
 		return fmt.Errorf("could not get columns: %w", err)
 	}
@@ -108,34 +134,47 @@ func (cfg *apiConfig) copySheetColumns(ctx context.Context, sourceSheetId, targe
 			SheetID:        targetSheetId,
 			SourceColumnID: sql.NullString{String: columns[e].ID.String(), Valid: true},
 		}
-		_, err := cfg.db.AddColumn(ctx, addColumnParams)
+		newColumn, err := txQueries.AddColumn(ctx, addColumnParams)
 		if err != nil {
 			return fmt.Errorf("could not add column: %w", err)
 		}
 
-		err = cfg.copyColumnData(ctx, columns[e], targetSheetId)
-		if err != nil {
-			return fmt.Errorf("could not copy data for column %s: %w", columns[e].Name, err)
+		if len(columns[e].Data) > 0 {
+			err = cfg.copyColumnDataBulk(ctx, tx, columns[e].Data, newColumn.ID)
+			if err != nil {
+				return fmt.Errorf("could not copy data for column %s: %w", columns[e].Name, err)
+			}
 		}
 	}
 	return nil
 }
 
-func (cfg *apiConfig) copyColumnData(ctx context.Context, column Column, targetSheetId uuid.UUID) error {
-	for j := range column.Data {
-		cell := &column.Data[j]
-		addColumnDataParams := database.AddColumnDataParams{
-			Idx:     cell.Idx,
-			Value:   cell.Value,
-			Type:    cell.Type,
-			Name:    column.Name,
-			SheetID: targetSheetId,
-		}
-		_, err := cfg.db.AddColumnData(ctx, addColumnDataParams)
-		if err != nil {
-			return fmt.Errorf("could not add column data: %w", err)
-		}
+// copyColumnDataBulk performs a bulk insert of column data using raw SQL for performance.
+// This uses a single multi-row INSERT statement instead of individual SQLC calls
+// to significantly improve performance when copying large datasets.
+func (cfg *apiConfig) copyColumnDataBulk(ctx context.Context, tx *sql.Tx, data []ColumnData, columnId uuid.UUID) error {
+	if len(data) == 0 {
+		return nil
 	}
+
+	valueStrings := make([]string, 0, len(data))
+	valueArgs := make([]interface{}, 0, len(data)*4)
+
+	for _, cell := range data {
+		valueStrings = append(valueStrings, "(gen_random_uuid(), ?, ?, ?, ?, datetime('now'), datetime('now'))")
+		valueArgs = append(valueArgs, cell.Idx, cell.Value, cell.Type, columnId)
+	}
+
+	stmt := fmt.Sprintf(`
+		INSERT INTO column_data (id, idx, value, type, column_id, created_at, updated_at)
+		VALUES %s
+	`, strings.Join(valueStrings, ", "))
+
+	_, err := tx.ExecContext(ctx, stmt, valueArgs...)
+	if err != nil {
+		return fmt.Errorf("could not bulk insert %d column data rows: %w", len(data), err)
+	}
+
 	return nil
 }
 
@@ -196,6 +235,7 @@ func (cfg *apiConfig) switchBranch(w http.ResponseWriter, r *http.Request, branc
 		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
+
 	data := BranchData{
 		Branch: branch,
 		Sheet:  sheet,

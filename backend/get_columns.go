@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/Dass33/administratum/backend/internal/database"
 	"github.com/google/uuid"
 )
 
@@ -23,38 +24,95 @@ type Column struct {
 	Data     []ColumnData `json:"data"`
 }
 
-func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Column, error) {
-
-	columns, err := cfg.db.GetColumnsFromSheet(ctx, sheet_id)
+func (cfg *apiConfig) GetColumnsWithTx(txQueries *database.Queries, sheet_id uuid.UUID, ctx context.Context) ([]Column, error) {
+	// Get all columns and their data in one query to avoid N+1 problem
+	rows, err := txQueries.GetColumnsWithDataBySheet(ctx, sheet_id)
 	if err != nil {
-		return nil, errors.New("Could not get columns with given sheet id")
+		return nil, errors.New("Could not get columns with data for given sheet id")
 	}
 
-	data := make([]Column, 0, len(columns))
+	// Group data by column
+	columnMap := make(map[uuid.UUID]*Column)
+	var columnOrder []uuid.UUID
 
-	for i := range columns {
-		columns_data, err := cfg.db.GetColumnsData(ctx, columns[i].ID)
-		if err != nil {
-			return nil, errors.New("Could not get columns data with given column id")
-		}
-		vals := make([]ColumnData, 0)
-		for _, v := range columns_data {
-			item := ColumnData{
-				ID:    v.ID,
-				Idx:   v.Idx,
-				Value: v.Value,
-				Type:  v.Type,
+	for _, row := range rows {
+		columnID := row.ColumnID
+		
+		// Create column if not exists
+		if _, exists := columnMap[columnID]; !exists {
+			columnMap[columnID] = &Column{
+				ID:       columnID,
+				Name:     row.ColumnName,
+				Type:     row.ColumnType,
+				Required: row.ColumnRequired,
+				Data:     make([]ColumnData, 0),
 			}
-			vals = append(vals, item)
+			columnOrder = append(columnOrder, columnID)
 		}
-		col := Column{
-			ID:       columns[i].ID,
-			Name:     columns[i].Name,
-			Type:     columns[i].Type,
-			Required: columns[i].Required,
-			Data:     vals,
+
+		// Add data if it exists (LEFT JOIN can return null data)
+		if row.DataID.Valid {
+			columnData := ColumnData{
+				ID:    row.DataID.UUID,
+				Idx:   row.DataIdx.Int64,
+				Value: row.DataValue,
+				Type:  row.DataType,
+			}
+			columnMap[columnID].Data = append(columnMap[columnID].Data, columnData)
 		}
-		data = append(data, col)
+	}
+
+	// Convert map back to slice maintaining order
+	data := make([]Column, 0, len(columnOrder))
+	for _, columnID := range columnOrder {
+		data = append(data, *columnMap[columnID])
+	}
+
+	return data, nil
+}
+
+func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Column, error) {
+	// Get all columns and their data in one query to avoid N+1 problem
+	rows, err := cfg.db.GetColumnsWithDataBySheet(ctx, sheet_id)
+	if err != nil {
+		return nil, errors.New("Could not get columns with data for given sheet id")
+	}
+
+	// Group data by column
+	columnMap := make(map[uuid.UUID]*Column)
+	var columnOrder []uuid.UUID
+
+	for _, row := range rows {
+		columnID := row.ColumnID
+		
+		// Create column if not exists
+		if _, exists := columnMap[columnID]; !exists {
+			columnMap[columnID] = &Column{
+				ID:       columnID,
+				Name:     row.ColumnName,
+				Type:     row.ColumnType,
+				Required: row.ColumnRequired,
+				Data:     make([]ColumnData, 0),
+			}
+			columnOrder = append(columnOrder, columnID)
+		}
+
+		// Add data if it exists (LEFT JOIN can return null data)
+		if row.DataID.Valid {
+			columnData := ColumnData{
+				ID:    row.DataID.UUID,
+				Idx:   row.DataIdx.Int64,
+				Value: row.DataValue,
+				Type:  row.DataType,
+			}
+			columnMap[columnID].Data = append(columnMap[columnID].Data, columnData)
+		}
+	}
+
+	// Convert map back to slice maintaining order
+	data := make([]Column, 0, len(columnOrder))
+	for _, columnID := range columnOrder {
+		data = append(data, *columnMap[columnID])
 	}
 
 	return data, nil
