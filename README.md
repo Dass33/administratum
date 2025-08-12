@@ -21,3 +21,4 @@ Makes config to web apps more accessible.
 ## 🎒 TODO
 - backend validate permissions + sheet type
 - fix visual bugs
+- fix mergin logic
