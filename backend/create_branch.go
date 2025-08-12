@@ -12,10 +12,9 @@ import (
 )
 
 type createBranchParam struct {
-	Name         string `json:"name"`
-	IsProtected  bool   `json:"is_protected"`
-	TableId      string `json:"table_id"`
-	CurrBranchId string `json:"curr_branch_id"`
+	Name        string `json:"name"`
+	IsProtected bool   `json:"is_protected"`
+	TableId     string `json:"table_id"`
 }
 
 func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request, userId uuid.UUID) {
@@ -33,12 +32,6 @@ func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request
 		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
-	currBranchId, err := uuid.Parse(params.CurrBranchId)
-	if err != nil {
-		msg := fmt.Sprintf("Could not parse the curr branch id: %s", err)
-		respondWithError(w, http.StatusBadRequest, msg)
-		return
-	}
 
 	createBranchParams := database.CreateBranchParams{
 		Name:        params.Name,
@@ -52,11 +45,27 @@ func (cfg *apiConfig) createBranchHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = cfg.copyBranchSheets(r.Context(), currBranchId, branch.ID)
+	// Find the oldest branch in the table to copy from
+	oldestBranch, err := cfg.db.GetOldestBranchFromTable(r.Context(), tableId)
 	if err != nil {
-		msg := fmt.Sprintf("Could not copy sheets to new branch: %s", err)
-		respondWithError(w, http.StatusInternalServerError, msg)
-		return
+		// If no branches exist yet (sql.ErrNoRows), that's fine - create empty branch
+		if err == sql.ErrNoRows {
+			// No existing branches, create empty branch - skip copying
+		} else {
+			msg := fmt.Sprintf("Could not get oldest branch: %s", err)
+			respondWithError(w, http.StatusInternalServerError, msg)
+			return
+		}
+	} else {
+		// Oldest branch exists, copy from it (unless it's the branch we just created)
+		if oldestBranch.ID != branch.ID {
+			err = cfg.copyBranchSheets(r.Context(), oldestBranch.ID, branch.ID)
+			if err != nil {
+				msg := fmt.Sprintf("Could not copy sheets to new branch: %s", err)
+				respondWithError(w, http.StatusInternalServerError, msg)
+				return
+			}
+		}
 	}
 
 	cfg.switchBranch(w, r, branch.ID, userId, http.StatusCreated)
