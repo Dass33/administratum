@@ -20,6 +20,7 @@ const PlatformProd = "production"
 
 type apiConfig struct {
 	db       *database.Queries
+	rawDB    *sql.DB
 	platform string
 	jwt_key  string
 }
@@ -51,6 +52,7 @@ func main() {
 	dbQueries := database.New(db)
 	apiCfg := apiConfig{
 		db:       dbQueries,
+		rawDB:    db,
 		platform: os.Getenv("PLATFORM"),
 		jwt_key:  os.Getenv("JWT_KEY"),
 	}
