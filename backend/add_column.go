@@ -14,6 +14,13 @@ type ColParams struct {
 	Col     Column `json:"col"`
 }
 
+type ColumnResponse struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Required bool   `json:"required"`
+}
+
 func (cfg *apiConfig) addColumnHandler(w http.ResponseWriter, r *http.Request, id uuid.UUID) {
 	decoder := json.NewDecoder(r.Body)
 	params := ColParams{}
@@ -49,5 +56,12 @@ func (cfg *apiConfig) addColumnHandler(w http.ResponseWriter, r *http.Request, i
 		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
-	respondWithJSON(w, http.StatusCreated, newCol)
+
+	response := ColumnResponse{
+		ID:       newCol.ID.String(),
+		Name:     newCol.Name,
+		Type:     newCol.Type,
+		Required: newCol.Required,
+	}
+	respondWithJSON(w, http.StatusCreated, response)
 }

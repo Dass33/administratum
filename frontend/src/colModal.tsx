@@ -94,7 +94,14 @@ const ColModal = () => {
             }
             const newCols = [...columns, item]
             setColumns(newCols);
-            postNewColumn(currSheet, item, accessToken ?? "");
+            postNewColumn(currSheet, item, accessToken ?? "", (savedColumn: Column) => {
+                const updatedCols = newCols.map(col => 
+                    col.name === savedColumn.name && col.id === DEFAULT_UUID 
+                        ? savedColumn 
+                        : col
+                );
+                setColumns(updatedCols);
+            });
         } else {
             updateExistingColumn();
         }
@@ -168,7 +175,7 @@ const ColModal = () => {
     );
 };
 
-const postNewColumn = (sheet: Sheet, col: Column, token: string) => {
+const postNewColumn = (sheet: Sheet, col: Column, token: string, setData: Function) => {
     const newColParams: ColParams = {
         sheet_id: sheet.id,
         col: col,
@@ -184,8 +191,16 @@ const postNewColumn = (sheet: Sheet, col: Column, token: string) => {
     })
         .then(response => {
             if (response.status != 201) {
-                throw "Could not update column"
+                throw "Could not create column"
             }
+            return response.json();
+        })
+        .then((result: { id: string, name: string, type: string, required: boolean }) => {
+            const column: Column = {
+                ...result,
+                data: []
+            };
+            setData(column);
         })
         .catch(err => {
             console.error(err);
