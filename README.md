@@ -20,4 +20,4 @@ Makes config to web apps more accessible.
 
 ## 🎒 TODO
 - fix visual bugs
-- change columns positions
+- add json importing
