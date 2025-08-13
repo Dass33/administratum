@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes, Domain, PermissionsEnum } from "./AppContext";
 import plus from "./assets/plus.svg";
 import cross from "./assets/cross.svg";
+import leftArrow from "./assets/left_arrow.svg";
 
 const Table = () => {
     const {
@@ -25,6 +26,38 @@ const Table = () => {
 
     const isConfig = currSheet?.type == EnumSheetTypes.MAP
     const hasPerms = !currBranch?.is_protected || currTable?.permision === PermissionsEnum.OWNER
+
+    const swapColumns = async (currentIndex: number) => {
+        if (!columns || currentIndex === 0) return;
+
+        const previousIndex = currentIndex - 1;
+
+        const newColumns = [...columns];
+        [newColumns[previousIndex], newColumns[currentIndex]] = [newColumns[currentIndex], newColumns[previousIndex]];
+        setColumns(newColumns);
+
+        try {
+            const columnOrders = newColumns.map((col, index) => ({
+                column_id: col.id,
+                order_index: index
+            }));
+
+            const response = await fetch(`${Domain}/reorder_columns`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ column_orders: columnOrders })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update column order');
+            }
+        } catch (error) {
+            console.error('Failed to swap columns:', error);
+        }
+    };
 
     useEffect(() => {
         if (!columns) return
@@ -147,16 +180,24 @@ const Table = () => {
                                 <th key={idx}
                                     className={`border ${borderColors[idx]} px-3 py-2 text-left font-semibold text-gray-700 truncate`}
                                 >
-                                    <button
-                                        type="button"
-                                        disabled={isConfig || !hasPerms}
-                                        className="w-full text-left focus:outline-none"
-                                        onClick={() => {
-                                            if (!isConfig && hasPerms) setColModal(idx)
-                                        }}
-                                    >
-                                        {col.name}
-                                    </button>
+                                    <div className="flex justify-between">
+                                        <button
+                                            type="button"
+                                            disabled={isConfig || !hasPerms}
+                                            className="w-full text-left focus:outline-none"
+                                            onClick={() => {
+                                                if (!isConfig && hasPerms) setColModal(idx)
+                                            }}
+                                        >
+                                            {col.name}
+                                        </button>
+
+                                        <button
+                                            className={`${!isConfig && hasPerms && idx ? "block" : "hidden"}`}
+                                            onClick={() => swapColumns(idx)}>
+                                            <img className="size-7" src={leftArrow} alt="left arrow" />
+                                        </button>
+                                    </div>
                                 </th>
                             ))}
                         </tr>

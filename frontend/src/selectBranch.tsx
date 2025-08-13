@@ -37,7 +37,6 @@ function SelectBranch() {
         setColumns(res.Sheet.columns);
         setSheetDeleted(false);
     }
-    console.log(isProtected)
 
     const addNewValue = () => {
         const props: NewItemProps = {

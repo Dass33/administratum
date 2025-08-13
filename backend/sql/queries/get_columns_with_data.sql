@@ -14,4 +14,4 @@ WHERE EXISTS (
     FROM sheets s
     WHERE s.id = c.sheet_id AND s.id = ?
 )
-ORDER BY c.id, cd.idx; 
+ORDER BY c.order_index, cd.idx; 

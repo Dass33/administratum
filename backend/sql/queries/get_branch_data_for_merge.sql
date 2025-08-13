@@ -13,6 +13,7 @@ SELECT
     c.created_at as column_created_at,
     c.updated_at as column_updated_at,
     c.source_column_id,
+    c.order_index as column_order_index,
     cd.id as column_data_id,
     cd.idx as column_data_idx,
     cd.value as column_data_value,
@@ -22,4 +23,4 @@ FROM sheets s
 LEFT JOIN columns c ON c.sheet_id = s.id
 LEFT JOIN column_data cd ON cd.column_id = c.id
 WHERE s.branch_id = ?
-ORDER BY s.id, c.id, cd.idx;
+ORDER BY s.id, c.order_index, cd.idx;
