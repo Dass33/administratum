@@ -35,28 +35,7 @@ const Table = () => {
         const newColumns = [...columns];
         [newColumns[previousIndex], newColumns[currentIndex]] = [newColumns[currentIndex], newColumns[previousIndex]];
         setColumns(newColumns);
-
-        try {
-            const columnOrders = newColumns.map((col, index) => ({
-                column_id: col.id,
-                order_index: index
-            }));
-
-            const response = await fetch(`${Domain}/reorder_columns`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify({ column_orders: columnOrders })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update column order');
-            }
-        } catch (error) {
-            console.error('Failed to swap columns:', error);
-        }
+        putSwapColumns(columns[currentIndex].id, columns[previousIndex].id, accessToken)
     };
 
     useEffect(() => {
@@ -355,6 +334,31 @@ const deleteRow = (sheet: Sheet, rowIdx: number, token: string | undefined) => {
         .then(response => {
             if (response.status < 200 || response.status > 299) {
                 throw "Could not delete row"
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+}
+
+const putSwapColumns = (columnId1: string, columnId2: string, token: string | undefined) => {
+    const swapColsParams: { column_id1: string, column_id2: string } = {
+        column_id1: columnId1,
+        column_id2: columnId2,
+    };
+
+    fetch(Domain + '/swap_columns', {
+        method: "PUT",
+        headers: {
+            'Authorization': `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify(swapColsParams)
+    })
+        .then(response => {
+            if (response.status < 200 || response.status > 299) {
+                console.log(response.status)
+                throw "Could not swap columns"
             }
         })
         .catch(err => {

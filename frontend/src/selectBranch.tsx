@@ -62,7 +62,6 @@ function SelectBranch() {
     }
 
     const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
-        // TODO: fix isProtected
         adjustBranch(name, isProtected, option.value, accessToken);
 
         const newBranchIdNames = currTable?.branches_id_names.map(idName => {

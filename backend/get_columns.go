@@ -25,20 +25,17 @@ type Column struct {
 }
 
 func (cfg *apiConfig) GetColumnsWithTx(txQueries *database.Queries, sheet_id uuid.UUID, ctx context.Context) ([]Column, error) {
-	// Get all columns and their data in one query to avoid N+1 problem
 	rows, err := txQueries.GetColumnsWithDataBySheet(ctx, sheet_id)
 	if err != nil {
 		return nil, errors.New("Could not get columns with data for given sheet id")
 	}
 
-	// Group data by column
 	columnMap := make(map[uuid.UUID]*Column)
 	var columnOrder []uuid.UUID
 
 	for _, row := range rows {
 		columnID := row.ColumnID
-		
-		// Create column if not exists
+
 		if _, exists := columnMap[columnID]; !exists {
 			columnMap[columnID] = &Column{
 				ID:       columnID,
@@ -50,7 +47,6 @@ func (cfg *apiConfig) GetColumnsWithTx(txQueries *database.Queries, sheet_id uui
 			columnOrder = append(columnOrder, columnID)
 		}
 
-		// Add data if it exists (LEFT JOIN can return null data)
 		if row.DataID.Valid {
 			columnData := ColumnData{
 				ID:    row.DataID.UUID,
@@ -62,54 +58,6 @@ func (cfg *apiConfig) GetColumnsWithTx(txQueries *database.Queries, sheet_id uui
 		}
 	}
 
-	// Convert map back to slice maintaining order
-	data := make([]Column, 0, len(columnOrder))
-	for _, columnID := range columnOrder {
-		data = append(data, *columnMap[columnID])
-	}
-
-	return data, nil
-}
-
-func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Column, error) {
-	// Get all columns and their data in one query to avoid N+1 problem
-	rows, err := cfg.db.GetColumnsWithDataBySheet(ctx, sheet_id)
-	if err != nil {
-		return nil, errors.New("Could not get columns with data for given sheet id")
-	}
-
-	// Group data by column
-	columnMap := make(map[uuid.UUID]*Column)
-	var columnOrder []uuid.UUID
-
-	for _, row := range rows {
-		columnID := row.ColumnID
-		
-		// Create column if not exists
-		if _, exists := columnMap[columnID]; !exists {
-			columnMap[columnID] = &Column{
-				ID:       columnID,
-				Name:     row.ColumnName,
-				Type:     row.ColumnType,
-				Required: row.ColumnRequired,
-				Data:     make([]ColumnData, 0),
-			}
-			columnOrder = append(columnOrder, columnID)
-		}
-
-		// Add data if it exists (LEFT JOIN can return null data)
-		if row.DataID.Valid {
-			columnData := ColumnData{
-				ID:    row.DataID.UUID,
-				Idx:   row.DataIdx.Int64,
-				Value: row.DataValue,
-				Type:  row.DataType,
-			}
-			columnMap[columnID].Data = append(columnMap[columnID].Data, columnData)
-		}
-	}
-
-	// Convert map back to slice maintaining order
 	data := make([]Column, 0, len(columnOrder))
 	for _, columnID := range columnOrder {
 		data = append(data, *columnMap[columnID])
