@@ -35,10 +35,29 @@ func (cfg *apiConfig) swapColumnsHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
+	col1, err := cfg.db.GetColumn(r.Context(), params.ColumnID1)
+	if err != nil {
+		msg := fmt.Sprintf("Could not get column1: %s", err)
+		respondWithError(w, http.StatusInternalServerError, msg)
+		return
+	}
+
+	col2, err := cfg.db.GetColumn(r.Context(), params.ColumnID2)
+	if err != nil {
+		msg := fmt.Sprintf("Could not get column2: %s", err)
+		respondWithError(w, http.StatusInternalServerError, msg)
+		return
+	}
+
+	col1Order := col1.OrderIndex
+	col2Order := col2.OrderIndex
+
 	_, err = cfg.db.SwapColumnsWithPermissionCheck(r.Context(), database.SwapColumnsWithPermissionCheckParams{
-		ID:     params.ColumnID1,
-		ID_2:   params.ColumnID2,
-		UserID: id,
+		ID:           params.ColumnID1,
+		ID_2:         params.ColumnID2,
+		OrderIndex:   col2Order,
+		OrderIndex_2: col1Order,
+		UserID:       id,
 	})
 	if err != nil {
 		msg := fmt.Sprintf("columns could not be swapped: %s", err)

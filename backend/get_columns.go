@@ -65,3 +65,7 @@ func (cfg *apiConfig) GetColumnsWithTx(txQueries *database.Queries, sheet_id uui
 
 	return data, nil
 }
+
+func (cfg *apiConfig) GetColumns(sheet_id uuid.UUID, ctx context.Context) ([]Column, error) {
+	return cfg.GetColumnsWithTx(cfg.db, sheet_id, ctx)
+}
