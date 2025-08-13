@@ -90,125 +90,120 @@ func (cfg *apiConfig) mergePreviewHandler(w http.ResponseWriter, r *http.Request
 	respondWithJSON(w, http.StatusOK, response)
 }
 
-func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.GetBranchDataForMergeRow, branchCreatedAt time.Time) []MergeConflict {
-	conflicts := make([]MergeConflict, 0)
+type mergeData struct {
+	sheets   map[uuid.UUID]database.GetBranchDataForMergeRow
+	columns  map[uuid.UUID]database.GetBranchDataForMergeRow
+	cellData map[string]database.GetBranchDataForMergeRow
+}
 
-	sourceSheets := make(map[uuid.UUID]database.GetBranchDataForMergeRow)
-	sourceColumns := make(map[uuid.UUID]database.GetBranchDataForMergeRow)
-	sourceCellData := make(map[string]database.GetBranchDataForMergeRow)
+func buildMergeData(data []database.GetBranchDataForMergeRow) mergeData {
+	sheets := make(map[uuid.UUID]database.GetBranchDataForMergeRow)
+	columns := make(map[uuid.UUID]database.GetBranchDataForMergeRow)
+	cellData := make(map[string]database.GetBranchDataForMergeRow)
 
-	targetSheets := make(map[uuid.UUID]database.GetBranchDataForMergeRow)
-	targetColumns := make(map[uuid.UUID]database.GetBranchDataForMergeRow)
-	targetCellData := make(map[string]database.GetBranchDataForMergeRow)
-	for _, row := range sourceData {
-		sourceSheets[row.SheetID] = row
+	for _, row := range data {
+		sheets[row.SheetID] = row
 		if row.ColumnID.Valid {
-			sourceColumns[row.ColumnID.UUID] = row
+			columns[row.ColumnID.UUID] = row
 			if row.ColumnDataID.Valid {
-				var sheetKey, columnKey string
-				if row.SourceSheetID.Valid {
-					sheetKey = row.SourceSheetID.String
-				} else {
-					sheetKey = row.SheetID.String()
-				}
-				if row.SourceColumnID.Valid {
-					columnKey = row.SourceColumnID.String
-				} else {
-					columnKey = row.ColumnID.UUID.String()
-				}
+				sheetKey := row.SourceSheetID.String
+				columnKey := row.SourceColumnID.String
 				key := fmt.Sprintf("%s-%s-%d", sheetKey, columnKey, row.ColumnDataIdx.Int64)
-				sourceCellData[key] = row
+				cellData[key] = row
 			}
 		}
 	}
 
-	for _, row := range targetData {
-		targetSheets[row.SheetID] = row
-		if row.ColumnID.Valid {
-			targetColumns[row.ColumnID.UUID] = row
-			if row.ColumnDataID.Valid {
-				var sheetKey, columnKey string
-				if row.SourceSheetID.Valid {
-					sheetKey = row.SourceSheetID.String
-				} else {
-					sheetKey = row.SheetID.String()
-				}
-				if row.SourceColumnID.Valid {
-					columnKey = row.SourceColumnID.String
-				} else {
-					columnKey = row.ColumnID.UUID.String()
-				}
-				key := fmt.Sprintf("%s-%s-%d", sheetKey, columnKey, row.ColumnDataIdx.Int64)
-				targetCellData[key] = row
-			}
+	return mergeData{
+		sheets:   sheets,
+		columns:  columns,
+		cellData: cellData,
+	}
+}
+
+func detectSheetConflicts(sourceData, targetData mergeData, branchCreatedAt time.Time) []MergeConflict {
+	var conflicts []MergeConflict
+
+	for sheetId, sourceSheet := range sourceData.sheets {
+		targetSheet, exists := targetData.sheets[sheetId]
+		if !exists {
+			continue
+		}
+
+		if sourceSheet.SheetUpdatedAt.After(branchCreatedAt) &&
+			targetSheet.SheetUpdatedAt.After(branchCreatedAt) {
+			conflicts = append(conflicts, MergeConflict{
+				ID:              fmt.Sprintf("sheet-%s", sheetId.String()),
+				Type:            "sheet_property",
+				SheetID:         sheetId,
+				SheetName:       sourceSheet.SheetName,
+				Property:        "name",
+				SourceValue:     sourceSheet.SheetName,
+				TargetValue:     targetSheet.SheetName,
+				SourceUpdatedAt: sourceSheet.SheetUpdatedAt,
+				TargetUpdatedAt: targetSheet.SheetUpdatedAt,
+			})
 		}
 	}
 
-	for sheetId, sourceSheet := range sourceSheets {
-		if targetSheet, exists := targetSheets[sheetId]; exists {
+	return conflicts
+}
 
-			if sourceSheet.SheetUpdatedAt.After(branchCreatedAt) &&
-				targetSheet.SheetUpdatedAt.After(branchCreatedAt) {
-				// Currently for any sheet upadte we say, the name changed
+func detectColumnConflicts(sourceData, targetData mergeData, branchCreatedAt time.Time) []MergeConflict {
+	var conflicts []MergeConflict
+
+	for columnId, sourceColumn := range sourceData.columns {
+		targetColumn, exists := targetData.columns[columnId]
+		if !exists {
+			continue
+		}
+
+		if sourceColumn.ColumnUpdatedAt.Valid && targetColumn.ColumnUpdatedAt.Valid &&
+			sourceColumn.ColumnUpdatedAt.Time.After(branchCreatedAt) &&
+			targetColumn.ColumnUpdatedAt.Time.After(branchCreatedAt) {
+
+			if sourceColumn.ColumnName.String != targetColumn.ColumnName.String {
 				conflicts = append(conflicts, MergeConflict{
-					ID:              fmt.Sprintf("sheet-%s", sheetId.String()),
-					Type:            "sheet_property",
-					SheetID:         sheetId,
-					SheetName:       sourceSheet.SheetName,
+					ID:              fmt.Sprintf("column-%s-name", columnId.String()),
+					Type:            "column_property",
+					SheetID:         sourceColumn.SheetID,
+					SheetName:       sourceColumn.SheetName,
+					ColumnID:        columnId,
+					ColumnName:      sourceColumn.ColumnName.String,
 					Property:        "name",
-					SourceValue:     sourceSheet.SheetName,
-					TargetValue:     targetSheet.SheetName,
-					SourceUpdatedAt: sourceSheet.SheetUpdatedAt,
-					TargetUpdatedAt: targetSheet.SheetUpdatedAt,
+					SourceValue:     sourceColumn.ColumnName.String,
+					TargetValue:     targetColumn.ColumnName.String,
+					SourceUpdatedAt: sourceColumn.ColumnUpdatedAt.Time,
+					TargetUpdatedAt: targetColumn.ColumnUpdatedAt.Time,
+				})
+			}
+
+			if sourceColumn.ColumnType.String != targetColumn.ColumnType.String {
+				conflicts = append(conflicts, MergeConflict{
+					ID:              fmt.Sprintf("column-%s-type", columnId.String()),
+					Type:            "column_property",
+					SheetID:         sourceColumn.SheetID,
+					SheetName:       sourceColumn.SheetName,
+					ColumnID:        columnId,
+					ColumnName:      sourceColumn.ColumnName.String,
+					Property:        "type",
+					SourceValue:     sourceColumn.ColumnType.String,
+					TargetValue:     targetColumn.ColumnType.String,
+					SourceUpdatedAt: sourceColumn.ColumnUpdatedAt.Time,
+					TargetUpdatedAt: targetColumn.ColumnUpdatedAt.Time,
 				})
 			}
 		}
 	}
 
-	for columnId, sourceColumn := range sourceColumns {
-		if targetColumn, exists := targetColumns[columnId]; exists {
+	return conflicts
+}
 
-			if sourceColumn.ColumnUpdatedAt.Valid && targetColumn.ColumnUpdatedAt.Valid &&
-				sourceColumn.ColumnUpdatedAt.Time.After(branchCreatedAt) &&
-				targetColumn.ColumnUpdatedAt.Time.After(branchCreatedAt) {
+func detectCellDataConflicts(sourceData, targetData mergeData, branchCreatedAt time.Time) []MergeConflict {
+	var conflicts []MergeConflict
 
-				if sourceColumn.ColumnName.String != targetColumn.ColumnName.String {
-					conflicts = append(conflicts, MergeConflict{
-						ID:              fmt.Sprintf("column-%s-name", columnId.String()),
-						Type:            "column_property",
-						SheetID:         sourceColumn.SheetID,
-						SheetName:       sourceColumn.SheetName,
-						ColumnID:        columnId,
-						ColumnName:      sourceColumn.ColumnName.String,
-						Property:        "name",
-						SourceValue:     sourceColumn.ColumnName.String,
-						TargetValue:     targetColumn.ColumnName.String,
-						SourceUpdatedAt: sourceColumn.ColumnUpdatedAt.Time,
-						TargetUpdatedAt: targetColumn.ColumnUpdatedAt.Time,
-					})
-				}
-
-				if sourceColumn.ColumnType.String != targetColumn.ColumnType.String {
-					conflicts = append(conflicts, MergeConflict{
-						ID:              fmt.Sprintf("column-%s-type", columnId.String()),
-						Type:            "column_property",
-						SheetID:         sourceColumn.SheetID,
-						SheetName:       sourceColumn.SheetName,
-						ColumnID:        columnId,
-						ColumnName:      sourceColumn.ColumnName.String,
-						Property:        "type",
-						SourceValue:     sourceColumn.ColumnType.String,
-						TargetValue:     targetColumn.ColumnType.String,
-						SourceUpdatedAt: sourceColumn.ColumnUpdatedAt.Time,
-						TargetUpdatedAt: targetColumn.ColumnUpdatedAt.Time,
-					})
-				}
-			}
-		}
-	}
-
-	for key, sourceCell := range sourceCellData {
-		if targetCell, exists := targetCellData[key]; exists {
+	for key, sourceCell := range sourceData.cellData {
+		if targetCell, exists := targetData.cellData[key]; exists {
 			if sourceCell.ColumnDataUpdatedAt.Valid && targetCell.ColumnDataUpdatedAt.Valid &&
 				sourceCell.ColumnDataUpdatedAt.Time.After(branchCreatedAt) &&
 				targetCell.ColumnDataUpdatedAt.Time.After(branchCreatedAt) {
@@ -242,6 +237,18 @@ func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.Get
 			}
 		}
 	}
+
+	return conflicts
+}
+
+func (cfg *apiConfig) detectMergeConflicts(sourceData, targetData []database.GetBranchDataForMergeRow, branchCreatedAt time.Time) []MergeConflict {
+	sourceMergeData := buildMergeData(sourceData)
+	targetMergeData := buildMergeData(targetData)
+
+	var conflicts []MergeConflict
+	conflicts = append(conflicts, detectSheetConflicts(sourceMergeData, targetMergeData, branchCreatedAt)...)
+	conflicts = append(conflicts, detectColumnConflicts(sourceMergeData, targetMergeData, branchCreatedAt)...)
+	conflicts = append(conflicts, detectCellDataConflicts(sourceMergeData, targetMergeData, branchCreatedAt)...)
 
 	return conflicts
 }
