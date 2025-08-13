@@ -35,22 +35,31 @@ func (cfg *apiConfig) swapColumnsHandler(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	col1, err := cfg.db.GetColumn(r.Context(), params.ColumnID1)
+	columns, err := cfg.db.GetColumnOrderIndexes(r.Context(), database.GetColumnOrderIndexesParams{
+		ID:     params.ColumnID1,
+		ID_2:   params.ColumnID2,
+		UserID: id,
+	})
 	if err != nil {
-		msg := fmt.Sprintf("Could not get column1: %s", err)
+		msg := fmt.Sprintf("Could not get columns: %s", err)
 		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
-	col2, err := cfg.db.GetColumn(r.Context(), params.ColumnID2)
-	if err != nil {
-		msg := fmt.Sprintf("Could not get column2: %s", err)
-		respondWithError(w, http.StatusInternalServerError, msg)
+	if len(columns) != 2 {
+		respondWithError(w, http.StatusBadRequest, "Could not find both columns or insufficient permissions")
 		return
 	}
 
-	col1Order := col1.OrderIndex
-	col2Order := col2.OrderIndex
+	var col1Order, col2Order int64
+	for _, col := range columns {
+		switch col.ID {
+		case params.ColumnID1:
+			col1Order = col.OrderIndex
+		case params.ColumnID2:
+			col2Order = col.OrderIndex
+		}
+	}
 
 	_, err = cfg.db.SwapColumnsWithPermissionCheck(r.Context(), database.SwapColumnsWithPermissionCheckParams{
 		ID:           params.ColumnID1,

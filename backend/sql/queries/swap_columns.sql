@@ -24,3 +24,15 @@ WHERE columns.id IN (?1, ?2)
     WHERE user_tables.user_id = ?5 
       AND user_tables.permission IN ('owner', 'contributor')
   );
+
+-- name: GetColumnOrderIndexes :many
+SELECT columns.id, columns.order_index 
+FROM columns 
+WHERE columns.id IN (?1, ?2)
+  AND columns.sheet_id IN (
+    SELECT sheets.id FROM sheets
+    JOIN branches ON sheets.branch_id = branches.id
+    JOIN user_tables ON branches.table_id = user_tables.table_id
+    WHERE user_tables.user_id = ?3 
+      AND user_tables.permission IN ('owner', 'contributor')
+  );
