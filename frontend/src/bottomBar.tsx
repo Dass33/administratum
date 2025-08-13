@@ -2,7 +2,7 @@ import settings from "./assets/settings.svg"
 import Dropdown, { DropdownOption } from "./dropdown";
 import { useApp, Sheet, EnumSheetTypes, Domain } from "./AppContext";
 import { NewItemProps } from "./NewItemModal.tsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 // import Status from "./Status.tsx"
 
 
@@ -21,7 +21,7 @@ const BottomBar = () => {
         accessToken,
         setSheetDeleted,
         currTable,
-        currBranch,
+        currBranch, setCurrBranch,
     } = useApp();
 
     const optionsSheets = (currSheet?.sheets_id_names ?? []).map(item => ({
@@ -34,6 +34,7 @@ const BottomBar = () => {
     const setData = (sheet: Sheet) => {
         setCurrSheet(sheet);
         setColumns(sheet.columns);
+        setCurrBranch(sheet.curr_branch);
         setSheetDeleted(false);
     }
     const selectSheets = (item: DropdownOption) => {
@@ -41,13 +42,15 @@ const BottomBar = () => {
     }
 
     const [sheetType, setSheetType] = useState(EnumSheetTypes.LIST);
+    const sheetTypeRef = useRef(sheetType);
+    sheetTypeRef.current = sheetType;
 
     const addNewValue = (setSelected: Function) => {
         const props: NewItemProps = {
             currNames: currSheet?.sheets_id_names ?? [],
             assignNewName: (name: string) => {
                 if (!currSheet) return
-                createSheet(name, sheetType, currSheet.curr_branch.id, accessToken, (sheet: Sheet) => {
+                createSheet(name, sheetTypeRef.current, currSheet.curr_branch.id, accessToken, (sheet: Sheet) => {
                     setData(sheet);
                     setSelected({ value: sheet.id, label: sheet.name });
                 });
@@ -246,7 +249,7 @@ const SetSheetType: React.FC<{ setData: Function }> = ({ setData }) => (
             options={SheetTypesOptions}
             placeholder={"Select Type"}
             defaultValue={SheetTypesOptions[0].value}
-            onSelect={(e) => setData(e)}
+            onSelect={(e) => setData(e.value)}
         />
     </div>
 );
