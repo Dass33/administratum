@@ -30,6 +30,24 @@ if [ -z "$JWT_KEY" ]; then
     exit 1
 fi
 
+if [ -z "$GCP_PROJECT_ID" ]; then
+    echo -e "${RED}Error: GCP_PROJECT_ID environment variable is required${NC}"
+    echo "Set it with: export GCP_PROJECT_ID='your-gcp-project-id'"
+    exit 1
+fi
+
+if [ -z "$GCP_REGION" ]; then
+    echo -e "${RED}Error: GCP_REGION environment variable is required${NC}"
+    echo "Set it with: export GCP_REGION='your-gcp-region'"
+    exit 1
+fi
+
+if [ -z "$GCP_ARTIFACT_REGISTRY_REPO" ]; then
+    echo -e "${RED}Error: GCP_ARTIFACT_REGISTRY_REPO environment variable is required${NC}"
+    echo "Set it with: export GCP_ARTIFACT_REGISTRY_REPO='your-artifact-registry-repo'"
+    exit 1
+fi
+
 # Deploy frontend
 echo -e "${YELLOW}Deploying frontend...${NC}"
 cd frontend
@@ -69,17 +87,17 @@ docker build -t administratum-backend .
 
 # Tag for Artifact Registry
 echo -e "${YELLOW}Tagging image...${NC}"
-docker tag administratum-backend europe-west1-docker.pkg.dev/administratum-468510/administratum-repo/backend:latest
+docker tag administratum-backend ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REGISTRY_REPO}/backend:latest
 
 # Push to Artifact Registry
 echo -e "${YELLOW}Pushing to Artifact Registry...${NC}"
-docker push europe-west1-docker.pkg.dev/administratum-468510/administratum-repo/backend:latest
+docker push ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REGISTRY_REPO}/backend:latest
 
 # Deploy to Cloud Run with environment variables
 echo -e "${YELLOW}Deploying to Cloud Run...${NC}"
 gcloud run deploy backend \
-  --image europe-west1-docker.pkg.dev/administratum-468510/administratum-repo/backend:latest \
-  --region europe-west1 \
+  --image ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GCP_ARTIFACT_REGISTRY_REPO}/backend:latest \
+  --region ${GCP_REGION} \
   --allow-unauthenticated \
   --set-env-vars "PLATFORM=production,DATABASE_URL=${DATABASE_URL},JWT_KEY=${JWT_KEY}"
 
