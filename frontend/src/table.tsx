@@ -357,7 +357,6 @@ const putSwapColumns = (columnId1: string, columnId2: string, token: string | un
     })
         .then(response => {
             if (response.status < 200 || response.status > 299) {
-                console.log(response.status)
                 throw "Could not swap columns"
             }
         })

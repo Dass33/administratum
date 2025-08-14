@@ -57,7 +57,7 @@ const Auth = () => {
                 return;
             }
             const result: LoginData = await response.json();
-            console.log(result);
+            // console.log(result);
             setCurrSheet(result.opened_sheet)
             setCurrTable(result.opened_table)
             setColumns(result.opened_sheet.columns);

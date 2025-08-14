@@ -197,7 +197,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     setTableNames(data.table_names)
                     setGameUrl(data.opened_table.game_url)
                     setCurrBranch(data.opened_sheet.curr_branch);
-                    console.log(data.opened_sheet.columns)
                 }
             })
             .catch(err => {

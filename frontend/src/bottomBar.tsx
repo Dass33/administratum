@@ -168,7 +168,6 @@ const createSheet = (name: string, sheetType: string, branchId: string, token: s
         BranchID: branchId,
         Type: sheetType,
     }
-    console.log("sending:", sheetType)
 
     fetch(Domain + "/create_sheet", {
         method: "POST",
@@ -185,7 +184,6 @@ const createSheet = (name: string, sheetType: string, branchId: string, token: s
             return response.json();
         })
         .then((result: Sheet) => {
-            console.log("recieved:", result.type)
             setData(result);
         })
         .catch(err => {
@@ -232,7 +230,6 @@ const deleteSheet = (sheetId: string, token: string | undefined) => {
     })
         .then(response => {
             if (response.status < 200 || response.status > 299) {
-                console.log(response.status)
                 throw "Could not delete sheet"
             }
         })

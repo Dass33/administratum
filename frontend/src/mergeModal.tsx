@@ -116,14 +116,8 @@ export default function MergeModal() {
         }
     };
 
-
     const handlePreview = async () => {
         if (!selectedBranch || !currSheet) return;
-
-        console.log('=== MERGE PREVIEW START ===');
-        console.log('Source branch ID:', selectedBranch);
-        console.log('Target branch (auto-selected oldest):', targetBranchName);
-        console.log('Current sheet:', currSheet);
 
         setModalLoading(true);
         setError("");
@@ -132,7 +126,6 @@ export default function MergeModal() {
             const requestBody = {
                 source_branch_id: selectedBranch
             };
-            console.log('Request body:', requestBody);
 
             const response = await fetch(`${Domain}/merge_preview`, {
                 method: 'POST',
@@ -142,9 +135,6 @@ export default function MergeModal() {
                 },
                 body: JSON.stringify(requestBody)
             });
-
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -159,16 +149,12 @@ export default function MergeModal() {
             }
 
             const data: MergePreviewResponse = await response.json();
-            console.log('Preview response data:', data);
             const conflicts = data.conflicts || [];
-            console.log('Conflicts found:', conflicts.length);
             setConflicts(conflicts);
 
             if (conflicts.length === 0) {
-                console.log('No conflicts - moving to no-conflicts step');
                 setStep('no-conflicts');
             } else {
-                console.log('Conflicts found - moving to conflicts step');
                 setStep('conflicts');
             }
         } catch (error) {
@@ -181,11 +167,6 @@ export default function MergeModal() {
     const handleMerge = async () => {
         if (!selectedBranch || !currSheet) return;
 
-        console.log('=== MERGE EXECUTE START ===');
-        console.log('Source branch ID:', selectedBranch);
-        console.log('Target branch (auto-selected oldest):', targetBranchName);
-        console.log('Conflicts to resolve:', conflicts.length);
-        console.log('Current resolutions:', resolutions);
 
         setStep('merging');
         setModalLoading(true);
@@ -196,14 +177,12 @@ export default function MergeModal() {
             chosen_source: resolutions[conflict.id] || 'target'
         }));
 
-        console.log('Final merge resolutions:', mergeResolutions);
 
         try {
             const requestBody = {
                 source_branch_id: selectedBranch,
                 resolutions: mergeResolutions
             };
-            console.log('Merge request body:', requestBody);
 
             const response = await fetch(`${Domain}/merge_execute`, {
                 method: 'POST',
@@ -214,8 +193,6 @@ export default function MergeModal() {
                 body: JSON.stringify(requestBody)
             });
 
-            console.log('Merge response status:', response.status);
-            console.log('Merge response ok:', response.ok);
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -230,22 +207,14 @@ export default function MergeModal() {
             }
 
             const responseData: MergeExecuteResponse = await response.json();
-            console.log('Merge response data:', responseData);
 
-            // Remove the merged branch from the branch list (it was deleted by backend)
             if (currTable) {
                 const newBranchIdNames = currTable.branches_id_names.filter(
                     idName => idName.id !== selectedBranch
                 );
                 setCurrTable({ ...currTable, branches_id_names: newBranchIdNames });
-                console.log('Updated branch list after deletion');
             }
-
-            // Switch to the target branch (usually main)
-            console.log('Switching to target branch:', responseData.target_branch_id);
             getCurrBranch(responseData.target_branch_id, accessToken ?? "", setData);
-
-            console.log('Switched to target branch, closing modal');
             setMergeModal(false);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Failed to merge branches');
