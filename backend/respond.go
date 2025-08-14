@@ -23,7 +23,7 @@ func respondWithJSON(w http.ResponseWriter, code int, payload any) {
 	dat, err := json.Marshal(payload)
 	if err != nil {
 		msg := fmt.Sprintf("Error encoding parameters: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 

@@ -22,21 +22,21 @@ func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, req *http.Request
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding parameters: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
 	_, err = mail.ParseAddress(params.Email)
 	if err != nil {
 		msg := fmt.Sprintf("Invalid email address: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
 	hashed_password, err := auth.HashPassword(params.Password)
 	if err != nil {
 		msg := fmt.Sprintf("Error password hashing failed: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -48,9 +48,9 @@ func (cfg *apiConfig) createUserHandler(w http.ResponseWriter, req *http.Request
 	user, err := cfg.db.CreateUser(req.Context(), user_par)
 	if err != nil {
 		msg := fmt.Sprintf("Error creating user: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
-	cfg.ReturnLoginData(w, user, req.Context(), 201)
+	cfg.ReturnLoginData(w, user, req.Context(), http.StatusCreated)
 }

@@ -16,7 +16,7 @@ func (cfg *apiConfig) updateColumnHandler(w http.ResponseWriter, r *http.Request
 	err := decoder.Decode(&col)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding column: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
@@ -29,7 +29,7 @@ func (cfg *apiConfig) updateColumnHandler(w http.ResponseWriter, r *http.Request
 	})
 	if err != nil {
 		msg := fmt.Sprintf("column could not be updated: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 	
@@ -37,5 +37,5 @@ func (cfg *apiConfig) updateColumnHandler(w http.ResponseWriter, r *http.Request
 		respondWithError(w, http.StatusForbidden, "Column not found or insufficient permissions")
 		return
 	}
-	respondWithJSON(w, 200, "")
+	respondWithJSON(w, http.StatusOK, "")
 }

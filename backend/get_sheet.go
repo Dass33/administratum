@@ -26,7 +26,7 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, us
 	sheetId, err := uuid.Parse(sheetIdStr)
 	if err != nil {
 		msg := fmt.Sprintf("Could not parse the sheet id from url: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
@@ -45,7 +45,7 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, us
 	sheet, err := cfg.buildSheetResponse(dbSheet, r.Context())
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheet: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -60,11 +60,11 @@ func (cfg *apiConfig) getSheetHandler(w http.ResponseWriter, r *http.Request, us
 	err = cfg.db.SetOpenedSheet(r.Context(), setOpenedSheetParams)
 	if err != nil {
 		msg := fmt.Sprintf("Could not set opened sheet: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
-	respondWithJSON(w, 200, sheet)
+	respondWithJSON(w, http.StatusOK, sheet)
 }
 
 func (cfg *apiConfig) GetSheet(optional_sheet_id uuid.NullUUID, ctx context.Context) (Sheet, error) {

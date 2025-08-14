@@ -16,14 +16,14 @@ func (cfg *apiConfig) deleteColumnHandler(w http.ResponseWriter, r *http.Request
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding column: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
 	sheet_id, err := uuid.Parse(params.SheetId)
 	if err != nil {
 		msg := fmt.Sprintf("Could not parse the sheet id: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
@@ -39,8 +39,8 @@ func (cfg *apiConfig) deleteColumnHandler(w http.ResponseWriter, r *http.Request
 	err = cfg.db.DeleteColumn(r.Context(), deleteColumnParams)
 	if err != nil {
 		msg := fmt.Sprintf("Column could not be deleted: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
-	respondWithJSON(w, 204, "")
+	respondWithJSON(w, http.StatusNoContent, "")
 }

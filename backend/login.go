@@ -36,39 +36,39 @@ func (cfg *apiConfig) loginHandler(w http.ResponseWriter, req *http.Request) {
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding parameters: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
 	_, err = mail.ParseAddress(params.Email)
 	if err != nil {
 		msg := fmt.Sprintf("Invalid email address: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
 	user, err := cfg.db.GetUserByMail(req.Context(), params.Email)
 	if err != nil {
 		msg := fmt.Sprintf("User with email %s not found: %s", params.Email, err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
 	err = auth.CheckPasswordHash(params.Password, user.HashedPassword)
 	if err != nil {
 		msg := fmt.Sprintf("Password check failed: %s", err)
-		respondWithError(w, 401, msg)
+		respondWithError(w, http.StatusUnauthorized, msg)
 		return
 	}
 
-	cfg.ReturnLoginData(w, user, req.Context(), 200)
+	cfg.ReturnLoginData(w, user, req.Context(), http.StatusOK)
 }
 
 func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User, ctx context.Context, code int) {
 	token, err := auth.MakeJWT(user.ID, cfg.jwt_key, acc_expire_time)
 	if err != nil {
 		msg := fmt.Sprintf("Problem with creating access token: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 	_, err = cfg.db.CreateRefreshToken(ctx, ref_params)
 	if err != nil {
 		msg := fmt.Sprintf("Problem with creating refresh token: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 		DbTable, err := cfg.db.GetTableFromSheet(ctx, sheet.ID)
 		if err != nil {
 			msg := fmt.Sprintf("Problem with getting table from sheet id: %v", err)
-			respondWithError(w, 500, msg)
+			respondWithError(w, http.StatusInternalServerError, msg)
 			return
 		}
 		optional_table_id := uuid.NullUUID{
@@ -113,7 +113,7 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 		table, err = cfg.GetTable(user.ID, optional_table_id, ctx)
 		if err != nil {
 			msg := fmt.Sprintf("Problem with getting table data: %s", err)
-			respondWithError(w, 500, msg)
+			respondWithError(w, http.StatusInternalServerError, msg)
 			return
 		}
 	}

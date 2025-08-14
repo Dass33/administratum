@@ -12,13 +12,13 @@ func (cfg *apiConfig) revokeHandler(w http.ResponseWriter, req *http.Request) {
 	token_req, err := auth.GetRerfreshCookie(req)
 	if err != nil {
 		msg := fmt.Sprintf("Could not get the token from cookie: %v", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 	err = cfg.db.RevokeRefreshToken(req.Context(), token_req)
 	if err != nil {
 		msg := fmt.Sprintf("Could not revoke the token: %v", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -33,5 +33,5 @@ func (cfg *apiConfig) revokeHandler(w http.ResponseWriter, req *http.Request) {
 		SameSite: http.SameSiteStrictMode,
 	})
 
-	respondWithJSON(w, 204, "")
+	respondWithJSON(w, http.StatusNoContent, "")
 }

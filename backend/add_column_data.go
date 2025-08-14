@@ -22,7 +22,7 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding column: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
@@ -41,9 +41,9 @@ func (cfg *apiConfig) addColumnDataHandler(w http.ResponseWriter, r *http.Reques
 	_, err = cfg.db.AddColumnData(r.Context(), addColumnDataParams)
 	if err != nil {
 		msg := fmt.Sprintf("Column data could not be updated: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
-	respondWithJSON(w, 201, "")
+	respondWithJSON(w, http.StatusCreated, "")
 }

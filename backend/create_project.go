@@ -20,7 +20,7 @@ func (cfg *apiConfig) createProjectHandler(w http.ResponseWriter, r *http.Reques
 	err := decoder.Decode(&params)
 	if err != nil {
 		msg := fmt.Sprintf("Error decoding parameters: %s", err)
-		respondWithError(w, 400, msg)
+		respondWithError(w, http.StatusBadRequest, msg)
 		return
 	}
 
@@ -31,7 +31,7 @@ func (cfg *apiConfig) createProjectHandler(w http.ResponseWriter, r *http.Reques
 	table, err := cfg.db.CreateTable(r.Context(), createTableParams)
 	if err != nil {
 		msg := fmt.Sprintf("Could not create table: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 	createUserTableParams := database.CreateUserTableParams{
@@ -42,11 +42,11 @@ func (cfg *apiConfig) createProjectHandler(w http.ResponseWriter, r *http.Reques
 	_, err = cfg.db.CreateUserTable(r.Context(), createUserTableParams)
 	if err != nil {
 		msg := fmt.Sprintf("Could not create user table: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
-	cfg.switchProject(w, r, table.ID, userId, 201)
+	cfg.switchProject(w, r, table.ID, userId, http.StatusCreated)
 }
 
 func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tableId, userId uuid.UUID, code int) {
@@ -57,14 +57,14 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 	table, err := cfg.GetTable(userId, optionalTableId, r.Context())
 	if err != nil {
 		msg := fmt.Sprintf("Could not get table: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
 	sheets, err := cfg.db.GetSheetsFromTable(r.Context(), tableId)
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheets from table: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 			branch, err := cfg.db.CreateBranch(r.Context(), createBranchParams)
 			if err != nil {
 				msg := fmt.Sprintf("Could not create a main branch: %s", err)
-				respondWithError(w, 500, msg)
+				respondWithError(w, http.StatusInternalServerError, msg)
 				return
 			}
 			branchIdName := IdName{ID: branch.ID, Name: branch.Name}
@@ -102,7 +102,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 	sheet, err := cfg.GetSheet(optionalSheetId, r.Context())
 	if err != nil {
 		msg := fmt.Sprintf("Could not get sheet: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 
@@ -113,7 +113,7 @@ func (cfg *apiConfig) switchProject(w http.ResponseWriter, r *http.Request, tabl
 	err = cfg.db.SetOpenedSheet(r.Context(), setOpenedSheetParams)
 	if err != nil {
 		msg := fmt.Sprintf("Could not set opened sheet: %s", err)
-		respondWithError(w, 500, msg)
+		respondWithError(w, http.StatusInternalServerError, msg)
 		return
 	}
 	data := ProjectData{
