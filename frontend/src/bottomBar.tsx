@@ -109,7 +109,7 @@ const BottomBar = () => {
         setNewItemModal(props)
     }
 
-    const everyRender = (setSelected: Function, _currentSelected?: DropdownOption) => {
+    const everyRender = (setSelected: Function) => {
         useEffect(() => {
             if (!currSheet) return
             setSelected({ name: currSheet.name, value: currSheet.id })

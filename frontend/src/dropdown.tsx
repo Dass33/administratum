@@ -15,7 +15,7 @@ export interface DropdownProps {
     defaultValue?: string;
     addNewValue?: (setSelected: Function) => void;
     updateValue?: (option: DropdownOption, setSelected: Function) => void;
-    everyRender?: (setSelected: Function, currentSelected?: DropdownOption) => void;
+    EveryRender?: (setSelected: Function, currentSelected?: DropdownOption) => void;
     usePortal?: boolean;
 }
 
@@ -27,7 +27,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     defaultValue,
     addNewValue,
     updateValue,
-    everyRender,
+    EveryRender,
     usePortal = false,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -74,7 +74,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         }
     }, [isOpen, usePortal, isDown]);
 
-    if (everyRender) everyRender(setSelectedOption, selectedOption);
+    if (EveryRender) EveryRender(setSelectedOption, selectedOption);
 
     return (
         <div className="relative inline-block text-left min-w-28">
@@ -101,7 +101,7 @@ const Dropdown: React.FC<DropdownProps> = ({
 
             {isOpen && (
                 usePortal ? (
-                    <div 
+                    <div
                         className="fixed z-[60] bg-figma-white border border-gray-300 rounded-md shadow-lg"
                         style={{
                             top: isDown ? dropdownPosition.top + 4 : dropdownPosition.top - 4,

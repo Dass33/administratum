@@ -69,7 +69,7 @@ const ColModal = () => {
     };
 
     const updateExistingColumn = () => {
-        let newCol = columns[colModal]
+        const newCol = columns[colModal]
         newCol.name = name;
         newCol.type = columnType
         newCol.required = required

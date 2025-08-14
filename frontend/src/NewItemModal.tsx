@@ -23,7 +23,7 @@ const NewItemModal: React.FC<NewItemProps> = ({ assignNewName, currNames, defaul
         try {
             JSON.parse(`{"${str}": 1}`);
             return true;
-        } catch (e) {
+        } catch {
             return false;
         }
     }

@@ -131,7 +131,7 @@ const CellModal = () => {
         if (!currSheet) return;
         let item_id = DEFAULT_UUID;
         let itemFound = false;
-        let newCol = { ...col };
+        const newCol = { ...col };
 
         newCol.data = col.data.map(item => {
             if (item.idx === rowIndex) {
@@ -165,7 +165,7 @@ const CellModal = () => {
             newCol.data.push(newColData);
             postNewColumnData(col, newColData, currSheet, accessToken ?? "");
 
-            let newSheet = currSheet;
+            const newSheet = currSheet;
             if (newSheet && newSheet.row_count <= rowIndex) newSheet.row_count++;
             setCurrSheet(newSheet);
         }
@@ -370,7 +370,7 @@ const CellModal = () => {
 };
 
 const postNewColumnData = async (col: Column, data: ColumnData, sheet: Sheet, token: string) => {
-    const newColDataParams: { column: Column; data: ColumnData, sheet_id: String } = {
+    const newColDataParams: { column: Column; data: ColumnData, sheet_id: string } = {
         column: col,
         data: data,
         sheet_id: sheet.id,

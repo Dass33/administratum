@@ -73,11 +73,11 @@ const Table = () => {
 
         const newColumns = columns.map(col => {
 
-            let newCol = col
+            const newCol = col
             newCol.data = col.data
                 .map(cell => {
                     if (cell.idx <= rowIdx) return cell
-                    let newCell = cell;
+                    const newCell = cell;
                     newCell.idx--;
                     return newCell
                 })
@@ -85,7 +85,7 @@ const Table = () => {
 
             return newCol;
         })
-        let newSheet = currSheet;
+        const newSheet = currSheet;
         newSheet.row_count--;
         setCurrSheet(newSheet);
         setColumns(newColumns)
@@ -249,7 +249,7 @@ const renderCellValue = (data: ColumnData[], idx: number): JSX.Element => {
     if (!item) {
         return <span className="text-gray-400">null</span>;
     }
-    let value = item.value.String
+    const value = item.value.String
     if (value === null || value === undefined || value === "") {
         return <span className="text-gray-400">null</span>;
     }
