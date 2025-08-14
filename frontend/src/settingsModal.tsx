@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Domain, NullString, TableData, useApp } from './AppContext';
-import danger from "./assets/danger.svg";
+//import danger from "./assets/danger.svg";
 
 const SettingsModal = () => {
     const {
@@ -20,7 +20,6 @@ const SettingsModal = () => {
     };
 
     const [newGameUrl, setNewGameUrl] = useState(gameUrl);
-    const [logutError, SetLogoutError] = useState(false);
 
     const saveAndExit = () => {
         setGameUrl(newGameUrl);
@@ -44,9 +43,6 @@ const SettingsModal = () => {
             method: "POST",
             credentials: "include"
         })
-            .then(response => {
-                if (response.status != 204) throw "Logout error"
-            })
             .then(() => {
                 setAuthenticated(false);
                 setSettingsModal(false);
@@ -57,7 +53,6 @@ const SettingsModal = () => {
                 setCurrSheet(undefined);
             })
             .catch(err => {
-                SetLogoutError(true);
                 console.error(err);
             })
     };
@@ -86,10 +81,10 @@ const SettingsModal = () => {
                         <button className='bg-red-600 w-24 rounded-lg p-2 px-4 text-figma-white font-bold mt-4'
                             onClick={() => handleLogout()}
                         >
-                            {logutError
+                            {/*logutError
                                 ? <img className="size-6 mx-auto" src={danger} />
                                 : <span>Log Out</span>
-                            }
+                            */}
                         </button>
                     </div>
                 </div>
