@@ -29,6 +29,7 @@ function SelectProject() {
         setCurrTable(data.Table);
         setCurrSheet(data.Sheet);
         setColumns(data.Sheet.columns);
+        setSheetDeleted(false);
     }
 
     const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
@@ -78,7 +79,9 @@ function SelectProject() {
                     currNames: currSheet?.sheets_id_names ?? [],
                     assignNewName: (name) => postTable(name, accessToken ?? "", (data: ProjectData) => {
                         setData(data);
-                        setSelected({ name: data.Table.name, value: data.Table.id })
+                        const ProjectIdName = { name: data.Table.name, value: data.Table.id }
+                        setSelected(ProjectIdName)
+                        setTableNames([...tableNames, ProjectIdName])
                     }),
                 }
                 setNewItemModal(props)
