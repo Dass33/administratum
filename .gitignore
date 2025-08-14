@@ -1,4 +1,4 @@
 **/.env
 .claude/
-
+./scripts/deploy.sh
 *.tsbuildinfo
