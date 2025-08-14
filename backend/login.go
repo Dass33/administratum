@@ -86,14 +86,15 @@ func (cfg *apiConfig) ReturnLoginData(w http.ResponseWriter, user database.User,
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     auth.RefreshTokenName,
-		Value:    ref_token,
-		Path:     "/",
-		Expires:  time.Now().Add(ref_expire_time),
-		MaxAge:   7 * 24 * 60 * 60,
-		HttpOnly: true,
-		Secure:   cfg.platform != PlatformDev,
-		SameSite: http.SameSiteStrictMode,
+		Name:        auth.RefreshTokenName,
+		Value:       ref_token,
+		Path:        "/",
+		Expires:     time.Now().Add(ref_expire_time),
+		MaxAge:      7 * 24 * 60 * 60,
+		HttpOnly:    true,
+		Secure:      true,
+		SameSite:    http.SameSiteNoneMode,
+		Partitioned: true,
 	})
 
 	table := TableData{}
