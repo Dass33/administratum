@@ -120,7 +120,7 @@ function SelectBranch() {
             onSelect={(option) => getCurrBranch(option.value, accessToken ?? "", setData)}
             addNewValue={addNewValue}
             updateValue={updateValue}
-            everyRender={everyRender}
+            EveryRender={everyRender}
         />
     );
 }

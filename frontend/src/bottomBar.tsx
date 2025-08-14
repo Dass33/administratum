@@ -130,7 +130,7 @@ const BottomBar = () => {
                 isDown={false}
                 addNewValue={addNewValue}
                 updateValue={updateValue}
-                everyRender={everyRender}
+                EveryRender={everyRender}
             />
             {/*<Status />*/}
         </div>
