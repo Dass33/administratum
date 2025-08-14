@@ -61,7 +61,7 @@ function SelectBranch() {
         })
     }
 
-    const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
+    const assignNewName = (name: string, option: DropdownOption, setSelected: (option: DropdownOption) => void) => {
         adjustBranch(name, isProtected, option.value, accessToken);
 
         const newBranchIdNames = currTable?.branches_id_names.map(idName => {
@@ -72,8 +72,12 @@ function SelectBranch() {
             return idName;
         })
 
-        setCurrBranch({ ...currBranch, name: name, is_protected: isProtected, });
-        setCurrTable({ ...currTable, branches_id_names: newBranchIdNames })
+        if (currBranch) {
+            setCurrBranch({ ...currBranch, name: name, is_protected: isProtected });
+        }
+        if (currTable && newBranchIdNames) {
+            setCurrTable({ ...currTable, branches_id_names: newBranchIdNames });
+        }
     }
 
     const deleteItem = (option: DropdownOption) => {
@@ -82,15 +86,17 @@ function SelectBranch() {
         const newBranchIdNames = currTable?.branches_id_names.filter(
             idName => idName.id !== option.value
         )
-        setCurrTable({ ...currTable, branches_id_names: newBranchIdNames })
+        if (currTable && newBranchIdNames) {
+            setCurrTable({ ...currTable, branches_id_names: newBranchIdNames });
+        }
 
         if (currBranch?.id === option.value) {
-            setCurrBranch();
+            setCurrBranch(undefined);
             setSheetDeleted(true);
         }
     }
 
-    const updateValue = (option: DropdownOption, setSelected: Function) => {
+    const updateValue = (option: DropdownOption, setSelected: (option: DropdownOption) => void) => {
         const props: NewItemProps = {
             currNames: currTable?.branches_id_names ?? [],
             defaultIdName: { name: option.label, id: option.value },
@@ -100,11 +106,11 @@ function SelectBranch() {
         setNewItemModal(props)
 
     }
-    const everyRender = (setSelected: Function, currentSelected?: DropdownOption) => {
+    const UseEveryRender = (setSelected: (option: DropdownOption) => void, currentSelected?: DropdownOption) => {
         useEffect(() => {
             if (!currBranch) return
 
-            const targetSelection = { name: currBranch.name, value: currBranch.id }
+            const targetSelection = { label: currBranch.name, value: currBranch.id }
 
             // Only update if the current selection is different
             if (currentSelected?.value !== targetSelection.value) {
@@ -120,12 +126,12 @@ function SelectBranch() {
             onSelect={(option) => getCurrBranch(option.value, accessToken ?? "", setData)}
             addNewValue={addNewValue}
             updateValue={updateValue}
-            EveryRender={everyRender}
+            EveryRender={UseEveryRender}
         />
     );
 }
 
-const SetBranchProtection: React.FC<{ setData: Function }> = ({ setData }) => (
+const SetBranchProtection: React.FC<{ setData: (option: DropdownOption) => void }> = ({ setData }) => (
     <div className='flex justify-between items-ceter my-4'>
         <h2 className="text-xl mr-4 font-medium my-auto text-figma-black">Is protected</h2>
         <Dropdown
@@ -137,7 +143,7 @@ const SetBranchProtection: React.FC<{ setData: Function }> = ({ setData }) => (
     </div >
 );
 
-export const getCurrBranch = (branch_id: string, token: string, setData: Function) => {
+export const getCurrBranch = (branch_id: string, token: string, setData: (data: BranchData) => void) => {
     const url = Domain + `/get_branch/${branch_id}`;
 
     fetch(url, {
@@ -166,7 +172,7 @@ const postBranch = (
     isProtected: boolean,
     tableId: string | undefined,
     token: string,
-    setData: Function
+    setData: (data: BranchData) => void
 ) => {
     if (!tableId) return;
     const url = Domain + `/create_branch`;

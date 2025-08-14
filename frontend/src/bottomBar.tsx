@@ -45,7 +45,7 @@ const BottomBar = () => {
     const sheetTypeRef = useRef(sheetType);
     sheetTypeRef.current = sheetType;
 
-    const addNewValue = (setSelected: Function) => {
+    const addNewValue = (setSelected: (option: DropdownOption) => void) => {
         const props: NewItemProps = {
             currNames: currSheet?.sheets_id_names ?? [],
             assignNewName: (name: string) => {
@@ -63,7 +63,7 @@ const BottomBar = () => {
         setSheetType(EnumSheetTypes.LIST)
     }
 
-    const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
+    const assignNewName = (name: string, option: DropdownOption, setSelected: (option: DropdownOption) => void) => {
         if (!currSheet) return
         renameSheet(name, currSheet.curr_branch.id, accessToken);
 
@@ -98,7 +98,7 @@ const BottomBar = () => {
         }
     }
 
-    const updateValue = (option: DropdownOption, setSelected: Function) => {
+    const updateValue = (option: DropdownOption, setSelected: (option: DropdownOption) => void) => {
         const idName = { name: option.label, id: option.value }
         const props: NewItemProps = {
             currNames: currSheet?.sheets_id_names ?? [],
@@ -109,10 +109,10 @@ const BottomBar = () => {
         setNewItemModal(props)
     }
 
-    const everyRender = (setSelected: Function) => {
+    const UseEveryRender = (setSelected: (option: DropdownOption) => void) => {
         useEffect(() => {
             if (!currSheet) return
-            setSelected({ name: currSheet.name, value: currSheet.id })
+            setSelected({ label: currSheet.name, value: currSheet.id })
         }, [currTable, currBranch])
     }
 
@@ -130,7 +130,7 @@ const BottomBar = () => {
                 isDown={false}
                 addNewValue={addNewValue}
                 updateValue={updateValue}
-                EveryRender={everyRender}
+                EveryRender={UseEveryRender}
             />
             {/*<Status />*/}
         </div>
@@ -138,7 +138,7 @@ const BottomBar = () => {
 }
 
 
-const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
+const getCurrSheet = (sheet_id: string, token: string, setData: (data: Sheet) => void) => {
     const url = Domain + `/get_sheet/${sheet_id}`;
 
     fetch(url, {
@@ -162,7 +162,7 @@ const getCurrSheet = (sheet_id: string, token: string, setData: Function) => {
         });
 };
 
-const createSheet = (name: string, sheetType: string, branchId: string, token: string | undefined, setData: Function) => {
+const createSheet = (name: string, sheetType: string, branchId: string, token: string | undefined, setData: (data: Sheet) => void) => {
     const createSheetParams: { Name: string, Type: string, BranchID: string } = {
         Name: name,
         BranchID: branchId,
@@ -239,14 +239,14 @@ const deleteSheet = (sheetId: string, token: string | undefined) => {
 }
 
 
-const SetSheetType: React.FC<{ setData: Function }> = ({ setData }) => (
+const SetSheetType: React.FC<{ setData: (value: EnumSheetTypes) => void }> = ({ setData }) => (
     <div className='flex justify-between items-ceter my-4'>
         <h2 className="text-xl mr-4 font-medium my-auto text-figma-black">Sheet Type</h2>
         <Dropdown
             options={SheetTypesOptions}
             placeholder={"Select Type"}
             defaultValue={SheetTypesOptions[0].value}
-            onSelect={(e) => setData(e.value)}
+            onSelect={(e) => setData(e.value as EnumSheetTypes)}
         />
     </div>
 );

@@ -10,6 +10,7 @@ function GameView() {
 
     useEffect(() => {
         if (!iframeRef.current || !refresh) return
+        // eslint-disable-next-line no-self-assign
         iframeRef.current.src = iframeRef.current.src;
         setRefresh(false)
     }, [refresh])

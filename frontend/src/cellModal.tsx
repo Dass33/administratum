@@ -84,13 +84,13 @@ const CellModal = () => {
                     const detectedType = typeof firstItem === 'number' ? EnumColTypes.NUMBER : EnumColTypes.TEXT;
                     setArrayType(detectedType);
 
-                    const items: ArrayItem[] = parsed.map((item, _) => ({
+                    const items: ArrayItem[] = parsed.map((item) => ({
                         value: String(item),
                         isValid: true
                     }));
                     setArrayItems(items);
                 }
-            } catch (e) {
+            } catch {
                 setArrayItems([]);
             }
         }
@@ -103,13 +103,13 @@ const CellModal = () => {
         return true;
     };
 
-    const updateArrayItem = (index: number, field: keyof ArrayItem, value: any) => {
+    const updateArrayItem = (index: number, field: keyof ArrayItem, value: string | boolean) => {
         setArrayItems(prev => {
             const newItems = [...prev];
             newItems[index] = { ...newItems[index], [field]: value };
 
             if (field === 'value') {
-                newItems[index].isValid = validateArrayItem(value, arrayType);
+                newItems[index].isValid = validateArrayItem(value as string, arrayType);
             }
 
             return newItems;
@@ -192,7 +192,7 @@ const CellModal = () => {
                 case EnumColTypes.BOOL:
                     updatedValue = { String: String(boolVal), Valid: cellVal !== null }
                     break;
-                case EnumColTypes.ARRAY:
+                case EnumColTypes.ARRAY: {
                     const hasInvalidItems = arrayItems.some(item => !item.isValid);
                     if (hasInvalidItems) {
                         return;
@@ -207,6 +207,7 @@ const CellModal = () => {
                         updatedValue = { String: arrayString, Valid: true }
                     }
                     break;
+                }
                 default:
                     updatedValue = {
                         String: cellVal,

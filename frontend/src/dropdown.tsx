@@ -13,9 +13,9 @@ export interface DropdownProps {
     onSelect?: (option: DropdownOption) => void;
     isDown?: boolean;
     defaultValue?: string;
-    addNewValue?: (setSelected: Function) => void;
-    updateValue?: (option: DropdownOption, setSelected: Function) => void;
-    EveryRender?: (setSelected: Function, currentSelected?: DropdownOption) => void;
+    addNewValue?: (setSelected: (option: DropdownOption) => void) => void;
+    updateValue?: (option: DropdownOption, setSelected: (option: DropdownOption) => void) => void;
+    EveryRender?: (setSelected: (option: DropdownOption) => void, currentSelected?: DropdownOption) => void;
     usePortal?: boolean;
 }
 

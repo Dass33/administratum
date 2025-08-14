@@ -44,7 +44,7 @@ const ColModal = () => {
         try {
             JSON.parse(`{"${str}": 1}`);
             return true;
-        } catch (e) {
+        } catch {
             return false;
         }
     }
@@ -175,7 +175,7 @@ const ColModal = () => {
     );
 };
 
-const postNewColumn = (sheet: Sheet, col: Column, token: string, setData: Function) => {
+const postNewColumn = (sheet: Sheet, col: Column, token: string, setData: (data: Column) => void) => {
     const newColParams: ColParams = {
         sheet_id: sheet.id,
         col: col,

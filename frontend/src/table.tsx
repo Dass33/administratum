@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes, Domain, PermissionsEnum } from "./AppContext";
+import { useApp, ColTypes, EnumColTypes, Column, Sheet, ColumnData, EnumSheetTypes, Domain, PermissionsEnum, Branch } from "./AppContext";
 import plus from "./assets/plus.svg";
 import cross from "./assets/cross.svg";
 import leftArrow from "./assets/left_arrow.svg";
@@ -265,7 +265,7 @@ const renderCellValue = (data: ColumnData[], idx: number): JSX.Element => {
     return <span>{String(value)}</span>;
 }
 
-const validateCellType = (idx: number, col: Column, currBranch: any): boolean => {
+const validateCellType = (idx: number, col: Column, currBranch: Branch | undefined): boolean => {
     const item = col.data.find(item => item.idx == idx)
     if (!item || !item.value.Valid) {
         return !col.required;
@@ -278,7 +278,7 @@ const validateCellType = (idx: number, col: Column, currBranch: any): boolean =>
     const isEnum = !baseTypes.includes(col.type as EnumColTypes);
 
     if (isEnum) {
-        const enumItem = currBranch?.enums?.find((e: any) => e.name === col.type);
+        const enumItem = currBranch?.enums?.find((e) => e.name === col.type);
         if (!enumItem) {
             return true;
         }
@@ -289,13 +289,15 @@ const validateCellType = (idx: number, col: Column, currBranch: any): boolean =>
         case EnumColTypes.TEXT:
             return typeof val === 'string';
 
-        case EnumColTypes.NUMBER:
+        case EnumColTypes.NUMBER: {
             const numVal = Number(val);
             return !isNaN(numVal) && isFinite(numVal);
+        }
 
-        case EnumColTypes.BOOL:
+        case EnumColTypes.BOOL: {
             const lowerVal = val.toLowerCase().trim();
             return lowerVal === 'true' || lowerVal === 'false';
+        }
 
         case EnumColTypes.ARRAY:
             try {
@@ -303,7 +305,7 @@ const validateCellType = (idx: number, col: Column, currBranch: any): boolean =>
                 if (!Array.isArray(parsedArray)) return false;
 
                 if (col.required) {
-                    return parsedArray.length > 0 && parsedArray.some((item: any) =>
+                    return parsedArray.length > 0 && parsedArray.some((item) =>
                         item !== null && item !== undefined && item !== ""
                     );
                 }

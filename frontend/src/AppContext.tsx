@@ -3,47 +3,47 @@ import { NewItemProps } from "./NewItemModal.tsx";
 
 interface AppState {
     cellModal: [number, Column] | null
-    setCellModal: Function
+    setCellModal: (modal: [number, Column] | null) => void
     currTable: TableData | undefined
-    setCurrTable: Function
+    setCurrTable: (table: TableData | undefined) => void
     colModal: number
-    setColModal: Function
+    setColModal: (modal: number) => void
     columns: Column[],
-    setColumns: Function,
+    setColumns: (columns: Column[]) => void,
     addColumn: boolean,
-    setAddColumn: Function,
+    setAddColumn: (add: boolean) => void,
     sheets: string[],
-    setSheets: Function,
+    setSheets: (sheets: string[]) => void,
     currSheet: Sheet | undefined,
-    setCurrSheet: Function,
+    setCurrSheet: (sheet: Sheet | undefined) => void,
     newItemModal: NewItemProps | null,
-    setNewItemModal: Function,
+    setNewItemModal: (modal: NewItemProps | null) => void,
     settingsModal: boolean,
-    setSettingsModal: Function,
+    setSettingsModal: (modal: boolean) => void,
     shareModal: boolean,
-    setShareModal: Function,
+    setShareModal: (modal: boolean) => void,
     mergeModal: boolean,
-    setMergeModal: Function,
+    setMergeModal: (modal: boolean) => void,
     gameUrl: NullString,
-    setGameUrl: Function,
+    setGameUrl: (url: NullString) => void,
     projectName: string | undefined,
-    setProjectName: Function,
+    setProjectName: (name: string | undefined) => void,
     currBranch: Branch | undefined,
-    setCurrBranch: Function,
+    setCurrBranch: (branch: Branch | undefined) => void,
     authenticated: boolean,
-    setAuthenticated: Function,
+    setAuthenticated: (authenticated: boolean) => void,
     accessToken: string | undefined,
-    setAccessToken: Function,
+    setAccessToken: (token: string | undefined) => void,
     loading: boolean,
-    setLoading: Function,
+    setLoading: (loading: boolean) => void,
     sheetDeleted: boolean,
-    setSheetDeleted: Function,
+    setSheetDeleted: (deleted: boolean) => void,
     tableNames: IdName[],
-    setTableNames: Function,
-    setRefresh: Function,
+    setTableNames: (names: IdName[]) => void,
+    setRefresh: (refresh: boolean) => void,
     refresh: boolean,
     notSaved: boolean,
-    setNotSaved: Function,
+    setNotSaved: (notSaved: boolean) => void,
 }
 
 export enum EnumColTypes {
@@ -152,20 +152,20 @@ export const isValidEmail = (email: string | undefined): boolean => {
 const AppContext = createContext<AppState | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [cellModal, setCellModal] = useState(null);
+    const [cellModal, setCellModal] = useState<[number, Column] | null>(null);
     const [currSheet, setCurrSheet] = useState<Sheet | undefined>();
     const [currTable, setCurrTable] = useState<TableData | undefined>();
     const [colModal, setColModal] = useState(-1);
     const [columns, setColumns] = useState<Column[]>([]);
 
     const [addColumn, setAddColumn] = useState(false);
-    const [sheets, setSheets] = useState([]);
-    const [newItemModal, setNewItemModal] = useState(null);
+    const [sheets, setSheets] = useState<string[]>([]);
+    const [newItemModal, setNewItemModal] = useState<NewItemProps | null>(null);
     const [settingsModal, setSettingsModal] = useState(false);
     const [shareModal, setShareModal] = useState(false);
     const [mergeModal, setMergeModal] = useState(false);
     const [gameUrl, setGameUrl] = useState({ Valid: false, String: "" });
-    const [projectName, setProjectName] = useState();
+    const [projectName, setProjectName] = useState<string | undefined>();
     const [currBranch, setCurrBranch] = useState<Branch | undefined>();
     const [authenticated, setAuthenticated] = useState(false);
     const [accessToken, setAccessToken] = useState<string | undefined>();

@@ -32,12 +32,12 @@ function SelectProject() {
         setSheetDeleted(false);
     }
 
-    const assignNewName = (name: string, option: DropdownOption, setSelected: Function) => {
+    const assignNewName = (name: string, option: DropdownOption, setSelected: (option: DropdownOption) => void) => {
         renameProject(name, option.value, accessToken);
 
         const newTableNames = tableNames.map(idName => {
             if (idName.id === option.value) {
-                setSelected({ value: idName.id, name: name })
+                setSelected({ value: idName.id, label: name })
                 return { id: idName.id, name: name }
             }
             return idName;
@@ -54,12 +54,12 @@ function SelectProject() {
         setTableNames(newTableNames);
 
         if (currTable?.id === option.value) {
-            setCurrTable();
+            setCurrTable(undefined);
             setSheetDeleted(true);
         }
     }
 
-    const updateValue = (option: DropdownOption, setSelected: Function) => {
+    const updateValue = (option: DropdownOption, setSelected: (option: DropdownOption) => void) => {
         const props: NewItemProps = {
             currNames: tableNames,
             defaultIdName: { name: option.label, id: option.value },
@@ -74,14 +74,14 @@ function SelectProject() {
             options={optionsProjects}
             placeholder={placeholderProjectas}
             onSelect={(e) => getCurrTable(e.value, accessToken ?? "", setData)}
-            addNewValue={(setSelected: Function) => {
+            addNewValue={(setSelected: (option: DropdownOption) => void) => {
                 const props: NewItemProps = {
                     currNames: currSheet?.sheets_id_names ?? [],
                     assignNewName: (name) => postTable(name, accessToken ?? "", (data: ProjectData) => {
                         setData(data);
-                        const ProjectIdName = { name: data.Table.name, value: data.Table.id }
+                        const ProjectIdName = { label: data.Table.name, value: data.Table.id }
                         setSelected(ProjectIdName)
-                        setTableNames([...tableNames, ProjectIdName])
+                        setTableNames([...tableNames, { id: data.Table.id, name: data.Table.name }])
                     }),
                 }
                 setNewItemModal(props)
@@ -91,7 +91,7 @@ function SelectProject() {
     );
 }
 
-const getCurrTable = (table_id: string, token: string, setData: Function) => {
+const getCurrTable = (table_id: string, token: string, setData: (data: ProjectData) => void) => {
     const url = Domain + `/get_project/${table_id}`;
 
     fetch(url, {
@@ -115,7 +115,7 @@ const getCurrTable = (table_id: string, token: string, setData: Function) => {
         });
 };
 
-const postTable = (name: string, token: string, setData: Function) => {
+const postTable = (name: string, token: string, setData: (data: ProjectData) => void) => {
     const url = Domain + `/create_project`;
     const nameParam: { Name: string } = { Name: name }
     fetch(url, {
