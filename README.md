@@ -32,7 +32,6 @@ Administratum provides a user-friendly way to manage structured configuration da
 - **SQLC**
 - **Goose**
 - **Turso**
-- **JWT**
 
 ### Infrastructure
 - **Google Cloud Run**
@@ -87,7 +86,6 @@ go build -o administratum  # Build binary
 ```bash
 npm run dev        # Development server
 npm run build      # Production build
-npm run lint       # Code linting
 npm run deploy     # Deploy to GitHub Pages
 ```
 
