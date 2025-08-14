@@ -71,3 +71,10 @@ func (cfg *apiConfig) checkSheetPermission(userId, sheetId uuid.UUID, permType s
 	return cfg.checkBranchPermission(userId, sheet.BranchID, permType, ctx)
 }
 
+func (cfg *apiConfig) checkBranchPermission(userId, branchId uuid.UUID, permType string, ctx context.Context) bool {
+	branch, err := cfg.db.GetBranch(ctx, branchId)
+	if err != nil {
+		return false
+	}
+	return cfg.checkTablePermission(userId, branch.TableID, permType, ctx)
+}
