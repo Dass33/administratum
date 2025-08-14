@@ -35,6 +35,30 @@ echo -e "${YELLOW}Deploying frontend...${NC}"
 cd frontend
 yarn run build && yarn run deploy
 
+# Check if Docker is running, start if needed
+echo -e "${YELLOW}Checking Docker status...${NC}"
+if ! docker info >/dev/null 2>&1; then
+    echo -e "${YELLOW}Docker is not running. Starting Docker...${NC}"
+    sudo systemctl start docker
+    
+    # Wait for Docker to start
+    echo -e "${YELLOW}Waiting for Docker to start...${NC}"
+    timeout=30
+    while [ $timeout -gt 0 ] && ! docker info >/dev/null 2>&1; do
+        sleep 1
+        ((timeout--))
+    done
+    
+    if ! docker info >/dev/null 2>&1; then
+        echo -e "${RED}Error: Failed to start Docker after 30 seconds${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}Docker started successfully${NC}"
+else
+    echo -e "${GREEN}Docker is already running${NC}"
+fi
+
 # Deploy backend
 echo -e "${YELLOW}Deploying backend...${NC}"
 cd ../backend/
