@@ -85,6 +85,7 @@ const SettingsModal = () => {
                                 ? <img className="size-6 mx-auto" src={danger} />
                                 : <span>Log Out</span>
                             */}
+                            <span>Log Out</span>
                         </button>
                     </div>
                 </div>
