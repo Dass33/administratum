@@ -65,7 +65,7 @@ const BottomBar = () => {
 
     const assignNewName = (name: string, option: DropdownOption, setSelected: (option: DropdownOption) => void) => {
         if (!currSheet) return
-        renameSheet(name, currSheet.id, accessToken);
+        renameSheet(name, option.value, accessToken);
 
         const newSheetNames = currSheet.sheets_id_names.map(idName => {
             if (idName.id === option.value) {
