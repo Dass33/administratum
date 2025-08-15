@@ -106,8 +106,19 @@ func buildMergeData(data []database.GetBranchDataForMergeRow) mergeData {
 		if row.ColumnID.Valid {
 			columns[row.ColumnID.UUID] = row
 			if row.ColumnDataID.Valid {
-				sheetKey := row.SourceSheetID.String
-				columnKey := row.SourceColumnID.String
+				var sheetKey, columnKey string
+
+				if row.SourceSheetID.Valid {
+					sheetKey = row.SourceSheetID.String
+				} else {
+					sheetKey = row.SheetID.String()
+				}
+
+				if row.SourceColumnID.Valid {
+					columnKey = row.SourceColumnID.String
+				} else {
+					columnKey = row.ColumnID.UUID.String()
+				}
 				key := fmt.Sprintf("%s-%s-%d", sheetKey, columnKey, row.ColumnDataIdx.Int64)
 				cellData[key] = row
 			}
